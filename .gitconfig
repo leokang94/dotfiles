@@ -1,0 +1,63 @@
+[user]
+	email = acccdang8659@gmail.com
+	name = leokang94
+[core]
+	; editor = code --wait
+  editor = nvim
+	excludesfile = ~/.gitignore_global
+	precomposeunicode = true
+  quotepath = false
+[commit]
+	template = ~/.stCommitMsg
+[merge]
+	ff = no
+	commit = no
+  tool = diffview
+[pull]
+	ff = yes
+[difftool "vscode"]
+	cmd = code --wait --diff \"$LOCAL\" \"$REMOTE\"
+[mergetool]
+  prompt = false
+  keepBackup = false
+[mergetool "diffview"]
+  cmd = tmux new nvim -n -c \"DiffviewOpen\" \"$MERGED\"
+[difftool "diffview"]
+  cmd = tmux new nvim -n -c \"DiffviewOpen\" \"$LOCAL\" \"$REMOTE\"
+[diff]
+	tool = diffview
+[alias]
+  a = add
+  s = status -s
+	co = checkout
+	br = branch
+	ci = commit
+	db = delete-branch
+	fp = fetch -p -P
+	cp = cherry-pick
+	sw = switch
+	swd = switch --detach
+	rb = rebase
+	pfl = push --force-with-lease
+  lg = colored log --all --graph --date-order  --date=format:'%Y-%m-%d %H:%M' --format=format:'%C(yellow)%h%C(reset)%C(auto)%d%C(reset) %C(white)%s%C(reset) - %C(blue)%cN /%C(reset) %C(dim blue)%aN%C(reset) %C(bold cyan)(%cd / %C(reset)%C(dim cyan)%ad)%C(reset)'
+  lg2 = colored log --all --graph --date-order  --date=format:'%Y-%m-%d %H:%M' --format=format:'%C(yellow)%h%C(reset)%C(auto)%d%C(reset) %C(brightblack)%cN (%cd) /%C(reset) %C(dim brightblack)%aN (%ad)%C(reset)%n''         %C(white)%s%C(reset)%n'
+  watch = !viddy -n 1 -c -p 'git lg2 $(git reflog show --format=%h stash)'
+  stl = !git stash list \
+    | fzf --preview 'echo {} \
+    | cut -d: -f1 \
+    | xargs git stash show -p --color=always' --height 90% \
+    | cut -d: -f1
+  ls = !git lg \
+    | fzf -m --ansi --layout=reverse --preview-window down,15,border-horizontal --preview=\"echo {} \
+    | sed 's/-.*$//' \
+    | egrep -o '[0-9a-z]+' \
+    | head -1 \
+    | xargs git show --name-status --color=always\" \
+    | sed 's/-.*$//' \
+    | egrep -o '[0-9a-z]+' \
+    | head -1
+
+[i18n]
+	commitEncoding = utf-8
+	logOutputEncoding = utf-8
+

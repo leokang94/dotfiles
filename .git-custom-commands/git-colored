@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Fix git colors, userful for watch(1)
+#
+# @usage watch -c 'git colored <git command>'
+# @see https://askubuntu.com/questions/967503 for an example of the problem and explanation
+
+# run git command and replace all foreground colors to include '0'
+exec git -c color.ui=always "$@" | sed -r $'s/\033\[([[:digit:]][[:digit:]])m/\033\[0;\\1m/g; s/\033\[m/\033\[0m/g'
