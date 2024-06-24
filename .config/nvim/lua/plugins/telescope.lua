@@ -153,6 +153,24 @@ return {
 		end,
 	},
 	{
+		"smartpde/telescope-recent-files",
+		config = function()
+			require("telescope").setup({
+				extensions = {
+					recent_files = {
+						only_cwd = true,
+					},
+				},
+			})
+
+			require("telescope").load_extension("recent_files")
+
+			mapKey("<leader>fr", function()
+				require("telescope").extensions.recent_files.pick()
+			end)
+		end,
+	},
+	{
 		"nvim-telescope/telescope-media-files.nvim",
 		config = function()
 			require("telescope").setup({
