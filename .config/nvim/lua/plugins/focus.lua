@@ -4,7 +4,7 @@ return {
 	config = function()
 		require("focus").setup()
 
-		local ignore_filetypes = { "NvimTree", "DiffviewFiles" }
+		local ignore_filetypes = { "NvimTree", "DiffviewFiles", "trouble" }
 		local ignore_buftypes = { "nofile", "prompt", "popup" }
 
 		local augroup = vim.api.nvim_create_augroup("FocusDisable", { clear = true })
