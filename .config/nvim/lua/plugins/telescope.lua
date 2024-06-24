@@ -159,6 +159,7 @@ return {
 				extensions = {
 					recent_files = {
 						only_cwd = true,
+						show_current_file = true,
 					},
 				},
 			})
