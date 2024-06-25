@@ -13,11 +13,9 @@ return {
 	},
 	{
 		"williamboman/mason-lspconfig.nvim",
-		config = function()
-			require("mason-lspconfig").setup({
-				ensure_installed = { "lua_ls", "tsserver", "vtsls", "yamlls" },
-			})
-		end,
+		opts = {
+			ensure_installed = { "lua_ls", "vtsls", "yamlls" },
+		},
 	},
 	{
 		"folke/neodev.nvim",
@@ -33,7 +31,7 @@ return {
 	},
 	{
 		"neovim/nvim-lspconfig",
-		event = { "BufReadPre", "BufNewFile" },
+		event = { "BufReadPost", "BufWritePre", "BufNewFile" },
 		dependencies = {
 			{
 				"folke/neoconf.nvim",
@@ -73,10 +71,39 @@ return {
 				vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" })
 
 			--------------- SERVER CONFIGURATIONS ---------------
+			local on_attach = function(_, bufnr)
+				-- local function map(mode, keys, func, description)
+				-- 	vim.keymap.set(mode, keys, func, { buffer = bufnr, desc = desc(description) })
+				-- end
+				--
+				-- map("n", "K", vim.lsp.buf.hover)
+				-- map("n", "[d", vim.diagnostic.goto_prev)
+				-- map("n", "]d", vim.diagnostic.goto_next)
+				-- map("n", "gr", ":Telescope lsp_references<CR>")
+				-- -- map('n',"gd", ":Telescope lsp_definitions<CR>")
+				-- map("n", "gD", ":Lspsaga peek_definition<CR>")
+				-- map("n", "gd", ":Lspsaga goto_definition<CR>")
+				-- map("n", "gT", ":Lspsaga peek_type_definition<CR>")
+				-- map("n", "gt", ":Lspsaga goto_type_definition<CR>")
+				--
+				-- map("n", "gi", ":Telescope lsp_implementations<CR>")
+				-- map("n", "<leader>ca", ":Lspsaga code_action<CR>")
+				-- map("n", "<leader>cd", vim.diagnostic.open_float)
+				-- map("n", "<leader>cD", ":Telescope diagnostics bufnr=0<CR>")
+				-- map("n", "<leader>s", ":Telescope lsp_document_symbols<CR>")
+				-- -- map("<leader>rn", vim.lsp.buf.rename)
+				-- map("n", "<leader>th", function()
+				-- 	vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }))
+				-- end, "Toggle inlay hints")
+			end
+
 			local capabilities = require("cmp_nvim_lsp").default_capabilities()
+			capabilities.textDocument.completion.completionItem.snippetSupport = true
+			capabilities.textDocument.foldingRange = { dynamicRegistration = false, lineFoldingOnly = true }
 
 			lspconfig.lua_ls.setup({
 				capabilities = capabilities,
+				on_attach = on_attach,
 
 				settings = {
 					Lua = {
@@ -87,10 +114,11 @@ return {
 				},
 			})
 
+			-- require("lspconfig.configs").vtsls = require("vtsls").lspconfig
 			-- lspconfig.vtsls.setup({
 			-- 	capabilities = capabilities,
 			-- 	settings = {
-			-- 		complete_function_calls = true,
+			-- 		-- complete_function_calls = true,
 			-- 		vtsls = {
 			-- 			enableMoveToFileCodeAction = true,
 			-- 			autoUseWorkspaceTsdk = true,
@@ -115,11 +143,12 @@ return {
 			-- 			},
 			-- 		},
 			-- 		typescript = {
+			-- 			tsdk = "./.yarn/sdks/typescript/lib",
 			-- 			preferences = {
 			-- 				importModuleSpecifier = "non-relative",
 			-- 			},
 			-- 			tsserver = {
-			-- 				log = "verbose",
+			-- 				log = "normal",
 			-- 				globalPlugins = {
 			-- 					name = "@styled/typescript-styled-plugin",
 			-- 					enableForWorkspaceTypeScriptVersions = true,
@@ -139,33 +168,16 @@ return {
 			-- 			},
 			-- 		},
 			-- 	},
-			-- 	-- settings = {
-			-- 	-- 	vtsls = {
-			-- 	-- 		autoUseWorkspaceTsdk = true,
-			-- 	-- 		tsserver = {
-			-- 	--
-			-- 	-- 			globalPlugins = {
-			-- 	-- 				{
-			-- 	-- 					name = "@styled/typescript-styled-plugin",
-			-- 	--
-			-- 	-- 					location = "/Users/leo/.nvm/versions/node/v18.18.0/lib/node_modules",
-			-- 	-- 					enableForWorkspaceTypeScriptVersions = true,
-			-- 	-- 				},
-			-- 	-- 			},
-			-- 	-- 		},
-			-- 	-- 	},
-			-- 	-- 	typescript = {
-			-- 	-- 		tsserver = { log = "verbose" },
-			-- 	-- 	},
-			-- 	--
-			-- 	-- },
 			-- })
 
 			lspconfig.eslint.setup({
+				capabilities = capabilities,
+
 				settings = {
 					packageManager = "yarn",
 				},
-				on_attach = function(client, bufnr)
+				on_attach = function(_, bufnr)
+					on_attach(_, bufnr)
 					vim.api.nvim_create_autocmd("BufWritePre", {
 						buffer = bufnr,
 						command = "EslintFixAll",
@@ -175,20 +187,21 @@ return {
 
 			lspconfig.yamlls.setup({
 				capabilities = capabilities,
+				on_attach = on_attach,
 			})
 
 			lspconfig.html.setup({
 				capabilities = capabilities,
+				on_attach = on_attach,
 			})
 
 			vim.api.nvim_create_autocmd("LspAttach", {
 				group = vim.api.nvim_create_augroup("UserLspConfig", {}),
-				callback = function()
+				callback = function(args)
 					mapKey("K", vim.lsp.buf.hover)
 					mapKey("[d", vim.diagnostic.goto_prev)
 					mapKey("]d", vim.diagnostic.goto_next)
 					mapKey("gr", ":Telescope lsp_references<CR>")
-					-- mapKey("gd", ":Telescope lsp_definitions<CR>")
 					mapKey("gD", ":Lspsaga peek_definition<CR>")
 					mapKey("gd", ":Lspsaga goto_definition<CR>")
 					mapKey("gT", ":Lspsaga peek_type_definition<CR>")
@@ -199,11 +212,10 @@ return {
 					mapKey("<leader>cd", vim.diagnostic.open_float)
 					mapKey("<leader>cD", ":Telescope diagnostics bufnr=0<CR>")
 					mapKey("<leader>s", ":Telescope lsp_document_symbols<CR>")
-					-- mapKey("<leader>rn", vim.lsp.buf.rename)
 
-					-- mapKey("th", function()
-					-- 	vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
-					-- end)
+					mapKey("<leader>it", function()
+						vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+					end)
 				end,
 			})
 		end,
