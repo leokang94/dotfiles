@@ -6,6 +6,9 @@ return {
 		vim.opt.splitkeep = "screen"
 	end,
 	opts = {
+		options = {
+			right = { size = 40 },
+		},
 		right = {
 			{
 				title = "NvimTree",

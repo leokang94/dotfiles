@@ -14,7 +14,7 @@ return {
 	{
 		"williamboman/mason-lspconfig.nvim",
 		opts = {
-			ensure_installed = { "lua_ls", "vtsls", "yamlls" },
+			ensure_installed = { "lua_ls", "vtsls", "tsserver", "eslint", "yamlls", "jsonls" },
 		},
 	},
 	{
@@ -39,12 +39,14 @@ return {
 				opts = {},
 			},
 			{ "hrsh7th/cmp-nvim-lsp" },
-		},
-		opts = {
-			servers = {
-				bashls = {},
+			{
+				"yioneko/nvim-vtsls",
+				config = function()
+					require("vtsls").config({})
+				end,
 			},
 		},
+		opts = {},
 		config = function()
 			require("neoconf").setup()
 			local lspconfig = require("lspconfig")
@@ -114,61 +116,43 @@ return {
 				},
 			})
 
-			-- require("lspconfig.configs").vtsls = require("vtsls").lspconfig
-			-- lspconfig.vtsls.setup({
-			-- 	capabilities = capabilities,
-			-- 	settings = {
-			-- 		-- complete_function_calls = true,
-			-- 		vtsls = {
-			-- 			enableMoveToFileCodeAction = true,
-			-- 			autoUseWorkspaceTsdk = true,
-			-- 			experimental = {
-			-- 				completion = {
-			-- 					enableServerSideFuzzyMatch = true,
-			-- 				},
-			-- 			},
-			-- 			-- typescript = { globalTsdk = "./node_modules/typescript/tsserver" },
-			-- 			tsserver = {
-			-- 				log = "verbose",
-			--
-			-- 				globalPlugins = {
-			-- 					{
-			-- 						name = "@styled/typescript-styled-plugin",
-			-- 						-- location = "/Users/leo/.nvm/versions/node/v18.18.0/lib/node_modules",
-			-- 						-- -- languages = { "typescript", "javascript", "typescriptreact" },
-			-- 						-- enableForWorkspaceTypeScriptVersions = true,
-			-- 						-- -- configNamespace = "typescript",
-			-- 					},
-			-- 				},
-			-- 			},
-			-- 		},
-			-- 		typescript = {
-			-- 			tsdk = "./.yarn/sdks/typescript/lib",
-			-- 			preferences = {
-			-- 				importModuleSpecifier = "non-relative",
-			-- 			},
-			-- 			tsserver = {
-			-- 				log = "normal",
-			-- 				globalPlugins = {
-			-- 					name = "@styled/typescript-styled-plugin",
-			-- 					enableForWorkspaceTypeScriptVersions = true,
-			-- 				},
-			-- 			},
-			-- 			updateImportsOnFileMove = { enabled = "always" },
-			-- 			suggest = {
-			-- 				completeFunctionCalls = true,
-			-- 			},
-			-- 			inlayHints = {
-			-- 				enumMemberValues = { enabled = true },
-			-- 				functionLikeReturnTypes = { enabled = true },
-			-- 				parameterNames = { enabled = "literals" },
-			-- 				parameterTypes = { enabled = true },
-			-- 				propertyDeclarationTypes = { enabled = true },
-			-- 				variableTypes = { enabled = false },
-			-- 			},
-			-- 		},
-			-- 	},
-			-- })
+			require("lspconfig.configs").vtsls = require("vtsls").lspconfig
+			lspconfig.vtsls.setup({
+				capabilities = capabilities,
+				settings = {
+					-- complete_function_calls = true,
+					vtsls = {
+						enableMoveToFileCodeAction = true,
+						autoUseWorkspaceTsdk = true,
+						experimental = {
+							completion = {
+								enableServerSideFuzzyMatch = true,
+							},
+						},
+					},
+					typescript = {
+						tsdk = "./node_modules/typescript/lib" or "./.yarn/sdks/typescript/lib",
+						preferences = {
+							importModuleSpecifier = "non-relative",
+						},
+						tsserver = {
+							log = "normal",
+						},
+						updateImportsOnFileMove = { enabled = "always" },
+						suggest = {
+							completeFunctionCalls = true,
+						},
+						inlayHints = {
+							enumMemberValues = { enabled = true },
+							functionLikeReturnTypes = { enabled = true },
+							parameterNames = { enabled = "literals" },
+							parameterTypes = { enabled = true },
+							propertyDeclarationTypes = { enabled = true },
+							variableTypes = { enabled = false },
+						},
+					},
+				},
+			})
 
 			lspconfig.eslint.setup({
 				capabilities = capabilities,
@@ -195,6 +179,33 @@ return {
 				on_attach = on_attach,
 			})
 
+			lspconfig.jsonls.setup({
+				capabilities = capabilities,
+				on_attach = on_attach,
+				settings = {
+					json = {
+						schemas = {
+							{
+								fileMatch = { "package.json" },
+								url = "https://json.schemastore.org/package.json",
+							},
+							{
+								fileMatch = { "tsconfig.json", "tsconfig.*.json" },
+								url = "http://json.schemastore.org/tsconfig",
+							},
+							{
+								fileMatch = { ".eslintrc.json" },
+								url = "https://json.schemastore.org/eslintrc",
+							},
+							{
+								fileMatch = { ".prettierrc.json" },
+								url = "https://json.schemastore.org/prettierrc",
+							},
+						},
+					},
+				},
+			})
+
 			vim.api.nvim_create_autocmd("LspAttach", {
 				group = vim.api.nvim_create_augroup("UserLspConfig", {}),
 				callback = function(args)
@@ -218,12 +229,6 @@ return {
 					end)
 				end,
 			})
-		end,
-	},
-	{
-		"yioneko/nvim-vtsls",
-		config = function()
-			require("vtsls").config({})
 		end,
 	},
 }

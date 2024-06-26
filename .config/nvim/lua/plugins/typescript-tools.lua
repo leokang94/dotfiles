@@ -1,6 +1,6 @@
 return {
 	"pmizio/typescript-tools.nvim",
-	-- enabled = false,
+	enabled = false,
 	dependencies = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },
 	opts = {},
 	ft = {
@@ -25,12 +25,12 @@ return {
 					includeInlayFunctionLikeReturnTypeHints = true,
 					includeInlayEnumMemberValueHints = true,
 				},
-				tsserver_plugins = {
-					-- for Typescript v4.9+
-					"@styled/typescript-styled-plugin",
-					-- for older Typescript versions
-					"typescript-styled-plugin",
-				},
+				-- tsserver_plugins = {
+				-- 	-- for Typescript v4.9+
+				-- 	"@styled/typescript-styled-plugin",
+				-- 	-- for older Typescript versions
+				-- 	"typescript-styled-plugin",
+				-- },
 
 				include_completions_with_insert_text = true,
 				jsx_close_tag = {

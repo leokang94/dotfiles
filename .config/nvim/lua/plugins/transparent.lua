@@ -7,11 +7,9 @@ return {
 		require("transparent").clear_prefix("NvimTree")
 		require("transparent").clear_prefix("notify")
 	end,
-	config = function()
-		require("transparent").setup({
-			exclude_groups = {
-				"CursorLine",
-			},
-		})
-	end,
+	opts = {
+		exclude_groups = {
+			"CursorLine",
+		},
+	},
 }
