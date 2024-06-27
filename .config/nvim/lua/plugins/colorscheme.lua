@@ -1,11 +1,11 @@
 return {
 	{
 		"binhtran432k/dracula.nvim",
-		-- lazy = false,
-		-- priority = 1000,
-		-- opts = {
-		-- 	transparent = true,
-		-- },
+		lazy = false,
+		priority = 1000,
+		opts = {
+			transparent = true,
+		},
 		config = function()
 			require("dracula").setup({
 				on_colors = function(colors)

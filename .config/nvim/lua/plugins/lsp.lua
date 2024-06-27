@@ -116,11 +116,10 @@ return {
 				},
 			})
 
-			require("lspconfig.configs").vtsls = require("vtsls").lspconfig
 			lspconfig.vtsls.setup({
 				capabilities = capabilities,
 				settings = {
-					-- complete_function_calls = true,
+					complete_function_calls = true,
 					vtsls = {
 						enableMoveToFileCodeAction = true,
 						autoUseWorkspaceTsdk = true,
@@ -134,9 +133,6 @@ return {
 						tsdk = "./node_modules/typescript/lib" or "./.yarn/sdks/typescript/lib",
 						preferences = {
 							importModuleSpecifier = "non-relative",
-						},
-						tsserver = {
-							log = "normal",
 						},
 						updateImportsOnFileMove = { enabled = "always" },
 						suggest = {
