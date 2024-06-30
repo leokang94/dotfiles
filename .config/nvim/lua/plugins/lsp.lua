@@ -18,12 +18,6 @@ return {
 		},
 	},
 	{
-		"folke/neodev.nvim",
-		config = function()
-			require("neodev").setup({})
-		end,
-	},
-	{
 		"https://git.sr.ht/~whynothugo/lsp_lines.nvim",
 		config = function()
 			require("lsp_lines").setup()
@@ -67,10 +61,6 @@ return {
 				},
 				underline = true,
 			})
-
-			vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" })
-			vim.lsp.handlers["textDocument/signatureHelp"] =
-				vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" })
 
 			--------------- SERVER CONFIGURATIONS ---------------
 			local on_attach = function(_, bufnr)

@@ -5,8 +5,8 @@ return {
 
 		require("scrollbar").setup({
 			handle = {
-				blend = 60,
-				color = color.white,
+				blend = 30,
+				color = color.bright_blue,
 			},
 			marks = {
 				Search = { color = color.orange },

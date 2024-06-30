@@ -14,6 +14,7 @@ return {
 					vim.api.nvim_set_hl(0, "CursorLineNr", { fg = colors.bright_blue, bold = true })
 					vim.api.nvim_set_hl(0, "LineNrAbove", { fg = colors.comment, bold = true })
 					vim.api.nvim_set_hl(0, "LineNrBelow", { fg = colors.comment, bold = true })
+					vim.api.nvim_set_hl(0, "WinSeparator", { fg = colors.bright_blue, bold = true })
 
 					local types = { "Error", "Warn", "Info", "Hint" }
 					for _, type in pairs(types) do

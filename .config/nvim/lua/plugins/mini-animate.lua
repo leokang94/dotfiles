@@ -1,8 +1,8 @@
 return {
 	"echasnovski/mini.animate",
-	version = false,
 	config = function()
-		require("mini.animate").setup({
+		local animate = require("mini.animate")
+		animate.setup({
 			scroll = { enable = false },
 			resize = { enable = false },
 		})
