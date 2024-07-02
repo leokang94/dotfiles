@@ -35,8 +35,13 @@ return {
 
 			map("n", "<A-,>", ":BufferLineCyclePrev<CR>", opts)
 			map("n", "<A-.>", ":BufferLineCycleNext<CR>", opts)
+
 			map("n", "<A-<>", ":BufferLineMovePrev<CR>", opts)
 			map("n", "<A->>", ":BufferLineMoveNext<CR>", opts)
+			-- for neovide
+			map("n", "<A-D-,>", ":BufferLineMovePrev<CR>", opts)
+			map("n", "<A-D-.>", ":BufferLineMoveNext<CR>", opts)
+
 			map("n", "<A-Right>", ":tabnext<CR>", opts)
 			map("n", "<A-Left>", ":tabprevious<CR>", opts)
 

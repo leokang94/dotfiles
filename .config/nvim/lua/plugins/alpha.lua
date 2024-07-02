@@ -19,7 +19,8 @@ return {
 		}
 
 		dashboard.section.buttons.val = {
-			dashboard.button("enter", "󰑐  Restore session", ":lua require('persistence').load()<CR>"),
+			-- dashboard.button("enter", "󰑐  Restore session", ":SessionsLoad<CR>"),
+			dashboard.button("enter", "󰑐  Open Workspaces", ":WorkspacesOpen<CR>"),
 			dashboard.button("e", "  New file", ":enew<CR>"),
 			dashboard.button("f", "  Find file", ":Telescope find_files<CR>"),
 			dashboard.button("h", "  Recently opened files", ":Telescope oldfiles<CR>"),

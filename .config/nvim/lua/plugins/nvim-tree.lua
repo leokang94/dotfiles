@@ -11,9 +11,11 @@ return {
 		vim.g.loaded_netrwPlugin = 1
 
 		require("nvim-tree").setup({
+			hijack_cursor = true,
+			sync_root_with_cwd = true,
+			respect_buf_cwd = true,
 			view = { side = "right" },
 			sort = {
-
 				sorter = "case_sensitive",
 			},
 			renderer = {
