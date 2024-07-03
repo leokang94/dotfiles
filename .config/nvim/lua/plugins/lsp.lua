@@ -17,12 +17,12 @@ return {
 			ensure_installed = { "lua_ls", "vtsls", "tsserver", "eslint", "yamlls", "jsonls" },
 		},
 	},
-	{
-		"https://git.sr.ht/~whynothugo/lsp_lines.nvim",
-		config = function()
-			require("lsp_lines").setup()
-		end,
-	},
+	-- {
+	-- 	"https://git.sr.ht/~whynothugo/lsp_lines.nvim",
+	-- 	config = function()
+	-- 		require("lsp_lines").setup()
+	-- 	end,
+	-- },
 	{
 		"neovim/nvim-lspconfig",
 		event = { "BufReadPost", "BufWritePre", "BufNewFile" },

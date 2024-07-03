@@ -1,0 +1,14 @@
+frame = "buttonless"
+title-hidden = true
+
+[font]
+  normal = [
+    "MonaspiceKr Nerd Font",
+    "D2Coding ligature"
+  ]
+  size = 14
+
+[font.features]
+  "MonaspiceKr Nerd Font" = ["+calt", "+liga", "+dlig"]
+  "D2Coding ligature" = ["+calt", "+liga", "+dlig"]
+
