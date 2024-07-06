@@ -1,3 +1,8 @@
+local cmd_abbrev = require("utils.keyMapper").cmd_abbrev
+
+cmd_abbrev("wo", "WorkspacesOpen")
+cmd_abbrev("wa", "WorkspacesAdd")
+
 return {
 	"natecraddock/workspaces.nvim",
 	config = true,
