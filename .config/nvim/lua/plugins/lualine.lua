@@ -6,6 +6,12 @@ return {
 	},
 	opts = {
 		sections = {
+			lualine_b = {
+				function()
+					return string.match(vim.fn.getcwd(), [[/([^/]+)$]])
+				end,
+				"branch",
+			},
 			lualine_c = { "filename", "filetype" },
 		},
 	},

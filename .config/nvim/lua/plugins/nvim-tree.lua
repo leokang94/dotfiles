@@ -26,11 +26,13 @@ return {
 				group_empty = true,
 			},
 			filters = {
-				exclude = {
-					"dist",
-					"build",
-					"node_modules",
-				},
+				enable = false,
+				-- git_ignored = false,
+				-- exclude = {
+				-- 	"dist",
+				-- 	"build",
+				-- 	"node_modules",
+				-- },
 			},
 		})
 	end,
