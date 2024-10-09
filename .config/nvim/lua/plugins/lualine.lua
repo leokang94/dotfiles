@@ -15,6 +15,7 @@ return {
 			},
 			lualine_c = { "filename", "filetype" },
 			lualine_y = {
+				"searchcount",
 				{ "progress", separator = " ", padding = { left = 1, right = 0 } },
 				{ "location", padding = { left = 0, right = 1 } },
 				function()

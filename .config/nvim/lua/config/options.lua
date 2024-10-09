@@ -7,6 +7,8 @@ opt.softtabstop = 2
 opt.expandtab = true
 opt.smartindent = true
 opt.wrap = false
+opt.linebreak = true
+opt.breakindent = true
 
 -- search
 opt.incsearch = true
@@ -24,11 +26,15 @@ opt.showmode = false
 -- etc
 opt.encoding = "utf-8"
 opt.cmdheight = 1
-opt.scrolloff = 10
+opt.scrolloff = 5
 opt.mouse:append("a")
 opt.spell = false
 opt.spelllang = "en_us,cjk"
 opt.clipboard = "unnamedplus"
+
+-- keymapping delay
+opt.timeoutlen = 1000
+opt.ttimeoutlen = 10
 
 if vim.fn.has("nvim-0.10") == 1 then
 	opt.smoothscroll = true

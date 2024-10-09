@@ -30,9 +30,9 @@ return {
 			auto_open_qflist = true,
 			auto_close_qflist = true,
 			use_diagnostics = true,
-			-- flags = {
-			-- 	watch = true,
-			-- },
+			flags = {
+				watch = true,
+			},
 		})
 
 		vim.api.nvim_create_autocmd("BufEnter", {
@@ -46,13 +46,13 @@ return {
 				end
 			end,
 		})
-
-		vim.api.nvim_create_autocmd("BufWritePre", {
-			pattern = "*.{ts,tsx}",
-			group = ts_augroup,
-			callback = function()
-				vim.cmd("TSC")
-			end,
-		})
+		--
+		-- vim.api.nvim_create_autocmd("BufWritePre", {
+		-- 	pattern = "*.{ts,tsx}",
+		-- 	group = ts_augroup,
+		-- 	callback = function()
+		-- 		vim.cmd("TSC")
+		-- 	end,
+		-- })
 	end,
 }

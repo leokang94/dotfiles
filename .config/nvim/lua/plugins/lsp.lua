@@ -12,7 +12,7 @@ return {
 	{
 		"williamboman/mason-lspconfig.nvim",
 		opts = {
-			ensure_installed = { "lua_ls", "vtsls", "tsserver", "eslint", "yamlls", "jsonls" },
+			ensure_installed = { "lua_ls", "vtsls", "eslint", "yamlls", "jsonls" },
 		},
 	},
 	{
@@ -98,6 +98,7 @@ return {
 					},
 
 					tsserver = { enabled = false },
+					ts_ls = { enabled = false },
 					vtsls = {
 						init_options = {
 							hostInfo = "neovim",
@@ -116,7 +117,7 @@ return {
 							},
 							typescript = {
 								preferences = {
-									importModuleSpecifier = "non-relative",
+									-- importModuleSpecifier = "non-relative",
 								},
 								updateImportsOnFileMove = { enabled = "always" },
 								suggest = {
@@ -132,6 +133,9 @@ return {
 								-- },
 							},
 						},
+						on_attach = function(client, bufnr)
+							require("twoslash-queries").attach(client, bufnr)
+						end,
 					},
 
 					eslint = {
@@ -146,6 +150,8 @@ return {
 							})
 						end,
 					},
+
+					tailwindCSS = {},
 
 					yamlls = {},
 					html = {},

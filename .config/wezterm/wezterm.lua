@@ -16,8 +16,8 @@ config.use_fancy_tab_bar = false
 config.window_decorations = "RESIZE"
 
 config.font = wezterm.font_with_fallback({
-	{ family = "MonaspiceKr Nerd Font", scale = 1.2, weight = "ExtraLight" },
-	{ family = "D2Coding ligature", scale = 1.2 },
+	{ family = "MonaspiceKr Nerd Font", weight = "ExtraLight" },
+	{ family = "D2Coding ligature" },
 })
 config.harfbuzz_features = { "calt", "liga", "dlig" }
 

@@ -17,4 +17,13 @@ return {
 			{ desc = "File history for the visual selection" }
 		)
 	end,
+	opts = {
+		view = {
+			merge_tool = {
+				layout = "diff3_mixed",
+				disable_diagnostics = false,
+				winbar_info = true,
+			},
+		},
+	},
 }
