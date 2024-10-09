@@ -6,8 +6,14 @@ return {
 		opts = {
 			transparent = true,
 		},
+
 		config = function()
+			vim.g.dracula_colorterm = 0
+
 			require("dracula").setup({
+				transparent = true,
+				dim_inactive = true,
+				lualine_bold = true,
 				on_colors = function(colors)
 					vim.g.color = colors
 
