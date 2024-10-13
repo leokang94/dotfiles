@@ -149,3 +149,6 @@ alias tmux='tmux -u'
 
 export TERM=wezterm
 
+
+# for AI Keys
+export OPENAI_API_KEY=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

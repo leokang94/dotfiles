@@ -2,7 +2,8 @@
   "extras": [
     "lazyvim.plugins.extras.coding.copilot",
     "lazyvim.plugins.extras.coding.copilot-chat",
-    "lazyvim.plugins.extras.lsp.neoconf"
+    "lazyvim.plugins.extras.lsp.neoconf",
+    "lazyvim.plugins.extras.ui.mini-indentscope"
   ],
   "news": {
     "NEWS.md": "6520"
