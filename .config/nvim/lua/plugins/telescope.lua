@@ -196,12 +196,12 @@ return {
 			telescope.setup({
 				extensions = {
 					live_grep_args = {
-						auto_quoting = true, -- enable/disable auto-quoting
+						auto_quoting = false, -- enable/disable auto-quoting
 						-- define mappings, e.g.
 						mappings = { -- extend mappings
 							i = {
 								["<C-k>"] = lga_actions.quote_prompt(),
-								["<C-i>"] = lga_actions.quote_prompt({ postfix = " --no-ignore " }),
+								["<C-i>"] = lga_actions.quote_prompt({ postfix = " --no-ignore --hidden" }),
 								["<C-g>"] = lga_actions.quote_prompt({ postfix = " --iglob " }),
 								-- -- freeze the current list and start a fuzzy search in the frozen list
 								["<C-space>"] = actions.to_fuzzy_refine,

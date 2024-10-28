@@ -10,6 +10,8 @@ return {
 		config = function()
 			vim.g.dracula_colorterm = 0
 
+			local util = require("dracula.util")
+
 			require("dracula").setup({
 				transparent = true,
 				dim_inactive = true,
@@ -17,10 +19,17 @@ return {
 				on_colors = function(colors)
 					vim.g.color = colors
 
-					-- vim.api.nvim_set_hl(0, "CursorLineNr", { fg = colors.bright_blue, bold = true })
 					vim.api.nvim_set_hl(0, "LineNrAbove", { fg = colors.comment, bold = true })
 					vim.api.nvim_set_hl(0, "LineNrBelow", { fg = colors.comment, bold = true })
 					vim.api.nvim_set_hl(0, "WinSeparator", { fg = colors.bright_blue, bold = true })
+					vim.api.nvim_set_hl(0, "Cursor", { bg = colors.purple })
+					vim.api.nvim_set_hl(0, "lCursor", { bg = colors.purple })
+					vim.api.nvim_set_hl(0, "CursorIM", { bg = colors.purple })
+
+					vim.api.nvim_set_hl(0, "DiffDelete", { bg = util.blend_bg(colors.diff.delete, 0.8) })
+					vim.api.nvim_set_hl(0, "DiffAdd", { bg = util.blend_bg(colors.diff.add, 0.8) })
+					vim.api.nvim_set_hl(0, "DiffChange", { bg = util.blend_bg(colors.diff.change, 0.8) })
+					vim.api.nvim_set_hl(0, "DiffText", { bg = util.blend_bg(colors.diff.text, 0.5) })
 
 					local types = { "Error", "Warn", "Info", "Hint" }
 					for _, type in pairs(types) do

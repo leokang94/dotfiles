@@ -32,6 +32,16 @@ opt.spell = false
 opt.spelllang = "en_us,cjk"
 opt.clipboard = "unnamedplus"
 
+opt.updatetime = 250
+opt.guicursor = {
+	"n-v-c:block",
+	"i-ci-ve:ver25",
+	"r-cr:hor20",
+	"o:hor50",
+	"a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor",
+	"sm:block-blinkwait175-blinkoff150-blinkon175",
+}
+
 -- keymapping delay
 opt.timeoutlen = 1000
 opt.ttimeoutlen = 10
@@ -48,15 +58,10 @@ if vim.fn.has("nvim-0.9.0") == 1 then
 	opt.foldtext = "v:lua.require'lazyvim.util'.ui.foldtext()"
 end
 
--- HACK: causes freezes on <= 0.9, so only enable on >= 0.10 for now
-if vim.fn.has("nvim-0.10") == 1 then
-	opt.foldmethod = "expr"
-	opt.foldexpr = "v:lua.require'lazyvim.util'.ui.foldexpr()"
-	opt.foldtext = ""
-	opt.fillchars = "fold: "
-else
-	opt.foldmethod = "indent"
-end
+opt.foldmethod = "expr"
+opt.foldexpr = "v:lua.require'lazyvim.util'.ui.foldexpr()"
+opt.foldtext = ""
+opt.fillchars = "fold: "
 
 vim.o.formatexpr = "v:lua.require'lazyvim.util'.format.formatexpr()"
 
