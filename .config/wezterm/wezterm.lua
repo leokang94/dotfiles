@@ -29,7 +29,7 @@ table.insert(config.hyperlink_rules, {
 	format = "https://quicket.atlassian.net/browse/$1",
 })
 
-config.enable_scroll_bar = false
+-- config.enable_scroll_bar = false
 config.window_background_opacity = 0.95
 config.text_background_opacity = 1
 config.macos_window_background_blur = 10
@@ -72,21 +72,21 @@ end)
 
 local action = wezterm.action
 config.keys = {
-	-- {
-	-- 	key = "|",
-	-- 	mode = "LEADER",
-	-- 	action = wezterm.action.SplitHorizontal({ domain = "CurrentPaneDomain" }),
-	-- },
-	-- {
-	-- 	key = "-",
-	-- 	mode = "LEADER",
-	-- 	action = wezterm.action.SplitVertical({ domain = "CurrentPaneDomain" }),
-	-- },
-	-- { key = "h", mods = "CTRL", action = action({ ActivatePaneDirection = "Left" }) },
-	-- { key = "j", mods = "CTRL", action = action({ ActivatePaneDirection = "Down" }) },
-	-- { key = "k", mods = "CTRL", action = action({ ActivatePaneDirection = "Up" }) },
-	-- { key = "l", mods = "CTRL", action = action({ ActivatePaneDirection = "Right" }) },
-	-- { key = "w", mods = "CTRL", action = action.CloseCurrentPane({ confirm = true }) },
+	{
+		key = "\\", -- HACK :: "|" replace
+		mods = "CTRL|OPT",
+		action = action.SplitHorizontal({ domain = "CurrentPaneDomain" }),
+	},
+	{
+		key = "-",
+		mods = "CTRL|OPT",
+		action = action.SplitVertical({ domain = "CurrentPaneDomain" }),
+	},
+	{ key = "h", mods = "CTRL|OPT", action = action({ ActivatePaneDirection = "Left" }) },
+	{ key = "j", mods = "CTRL|OPT", action = action({ ActivatePaneDirection = "Down" }) },
+	{ key = "k", mods = "CTRL|OPT", action = action({ ActivatePaneDirection = "Up" }) },
+	{ key = "l", mods = "CTRL|OPT", action = action({ ActivatePaneDirection = "Right" }) },
+	{ key = "w", mods = "CTRL|OPT", action = action.CloseCurrentPane({ confirm = true }) },
 	{
 		key = "o",
 		mods = "CTRL|OPT",
@@ -96,6 +96,12 @@ config.keys = {
 		key = "O",
 		mods = "CTRL|OPT",
 		action = action.EmitEvent("opacity-up"),
+	},
+
+	{
+		key = "A",
+		mods = "CTRL|SHIFT",
+		action = action.QuickSelect,
 	},
 }
 
