@@ -10,6 +10,7 @@ return {
 			yaml = { "yamlfmt" },
 			json = { "prettier" },
 			jsonc = { "prettier" },
+			mdx = { "prettier", "markdownlint-cli2", "markdown-toc" },
 		},
 	},
 }

@@ -134,15 +134,9 @@ eval "$(tmuxifier init -)"
 # aliases
 
 alias g='git'
-# logo-ls settings
-# https://github.com/Yash-Handa/logo-ls?tab=readme-ov-file#recommended-configurations
-alias ls='logo-ls'
-alias la='logo-ls -A'
-alias ll='logo-ls -al'
-# equivalents with Git Status on by Default
-alias lsg='logo-ls -D'
-alias lag='logo-ls -AD'
-alias llg='logo-ls -alD'
+
+# eza setting
+alias ls='eza --icons'
 
 alias tmf='tmuxifier'
 alias tmux='tmux -u'

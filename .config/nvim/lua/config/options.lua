@@ -45,18 +45,10 @@ opt.guicursor = {
 -- keymapping delay
 opt.timeoutlen = 1000
 opt.ttimeoutlen = 10
-
-if vim.fn.has("nvim-0.10") == 1 then
-	opt.smoothscroll = true
-end
+opt.smoothscroll = true
 
 -- Folding
 opt.foldlevel = 99
-
-if vim.fn.has("nvim-0.9.0") == 1 then
-	opt.statuscolumn = [[%!v:lua.require'lazyvim.util'.ui.statuscolumn()]]
-	opt.foldtext = "v:lua.require'lazyvim.util'.ui.foldtext()"
-end
 
 opt.foldmethod = "expr"
 opt.foldexpr = "v:lua.require'lazyvim.util'.ui.foldexpr()"

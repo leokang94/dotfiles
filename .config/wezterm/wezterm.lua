@@ -70,23 +70,33 @@ wezterm.on("opacity-down", function(window)
 	window:set_config_overrides(overrides)
 end)
 
+local resizeValue = 10
 local action = wezterm.action
 config.keys = {
 	{
 		key = "\\", -- HACK :: "|" replace
-		mods = "CTRL|OPT",
+		mods = "CTRL|CMD",
 		action = action.SplitHorizontal({ domain = "CurrentPaneDomain" }),
 	},
 	{
 		key = "-",
-		mods = "CTRL|OPT",
+		mods = "CTRL|CMD",
 		action = action.SplitVertical({ domain = "CurrentPaneDomain" }),
 	},
-	{ key = "h", mods = "CTRL|OPT", action = action({ ActivatePaneDirection = "Left" }) },
-	{ key = "j", mods = "CTRL|OPT", action = action({ ActivatePaneDirection = "Down" }) },
-	{ key = "k", mods = "CTRL|OPT", action = action({ ActivatePaneDirection = "Up" }) },
-	{ key = "l", mods = "CTRL|OPT", action = action({ ActivatePaneDirection = "Right" }) },
-	{ key = "w", mods = "CTRL|OPT", action = action.CloseCurrentPane({ confirm = true }) },
+	{ key = "h", mods = "CTRL|CMD", action = action({ ActivatePaneDirection = "Left" }) },
+	{ key = "j", mods = "CTRL|CMD", action = action({ ActivatePaneDirection = "Down" }) },
+	{ key = "k", mods = "CTRL|CMD", action = action({ ActivatePaneDirection = "Up" }) },
+	{ key = "l", mods = "CTRL|CMD", action = action({ ActivatePaneDirection = "Right" }) },
+	{ key = "h", mods = "SHIFT|CMD", action = action.AdjustPaneSize({ "Left", resizeValue }) },
+	{ key = "j", mods = "SHIFT|CMD", action = action.AdjustPaneSize({ "Down", resizeValue }) },
+	{ key = "k", mods = "SHIFT|CMD", action = action.AdjustPaneSize({ "Up", resizeValue }) },
+	{ key = "l", mods = "SHIFT|CMD", action = action.AdjustPaneSize({ "Right", resizeValue }) },
+	{ key = "w", mods = "CTRL|CMD", action = action.CloseCurrentPane({ confirm = true }) },
+	{
+		key = "m",
+		mods = "CTRL|CMD",
+		action = action.TogglePaneZoomState,
+	},
 	{
 		key = "o",
 		mods = "CTRL|OPT",
@@ -99,8 +109,8 @@ config.keys = {
 	},
 
 	{
-		key = "A",
-		mods = "CTRL|SHIFT",
+		key = "/",
+		mods = "CTRL|CMD",
 		action = action.QuickSelect,
 	},
 }

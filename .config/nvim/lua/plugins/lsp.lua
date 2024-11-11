@@ -180,6 +180,7 @@ return {
 							},
 						},
 					},
+					mdx_analyzer = {},
 				},
 				setup = {},
 			}
