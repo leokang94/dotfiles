@@ -1,15 +1,6 @@
 return {
 	"folke/noice.nvim",
 	event = "VeryLazy",
-	dependencies = {
-		{
-			"rcarriga/nvim-notify",
-			config = function()
-				require("notify").setup({ render = "compact", stages = "slide", timeout = 1500 })
-			end,
-		},
-	},
-
 	opts = {
 		lsp = {
 			-- override markdown rendering so that **cmp** and other plugins use **Treesitter**
@@ -39,6 +30,7 @@ return {
 		},
 
 		views = {
+			notify = { replace = true },
 			cmdline_popup = {
 				position = {
 					row = "50%",
