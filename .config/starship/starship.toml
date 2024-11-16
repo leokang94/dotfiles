@@ -20,7 +20,7 @@ symbol = ' '
 [username]
 style_user = "bright-yellow bold italic"
 style_root = "purple bold italic"
-format = "[🦁]($style) "
+format = "[$user]($style) 🦁 "
 disabled = false
 show_always = true
 
@@ -28,38 +28,19 @@ show_always = true
 [character]
 success_symbol = '[\$](bold green)'
 
-[battery]
-format = "[ $percentage $symbol]($style)"
-full_symbol = "█"
-charging_symbol = "[↑](italic bold green)"
-discharging_symbol = "↓"
-unknown_symbol = "░"
-empty_symbol = "▃"
-
-[[battery.display]]
-threshold = 20
-style = "italic bold red"
-
-[[battery.display]]
-threshold = 60
-style = "italic dimmed bright-purple"
-
-[[battery.display]]
-threshold = 70
-style = "italic dimmed yellow"
-
-[memory_usage]
-symbol = "󰍛 "
-disabled = false
-
 [directory]
 truncation_length = 3
 truncation_symbol = '…/'
 truncate_to_repo = false
 read_only = " 󰌾"
 
+[directory.substitutions]
+'~/Documents/work/Bunjang/' = '⚡︎'
+
 [cmd_duration]
-format = '\[[⌛$duration]($style)\]'
+min_time = 500
+style = "gray"
+format = '⌛[$duration]($style)'
 
 [git_branch]
 format = "[$symbol$branch(:$remote_branch)]($style) "
@@ -78,8 +59,8 @@ description = "yarn version"
 require_repo = true
 detect_files = ["yarn.lock", ".yarnrc.yml", ".pnp.cjs", ".pnp.loader.mjs"]
 detect_folders = [".yarn"]
-style = "bold purple"
-format = '[$symbol($output )]($style)'
+style = "bold #9E95FA"
+format = '[$symbol(v$output )]($style)'
 symbol = " "
 
 # default nerd font styles
