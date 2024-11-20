@@ -11,6 +11,9 @@ return {
 			json = { "prettier" },
 			jsonc = { "prettier" },
 			mdx = { "prettier", "markdownlint-cli2", "markdown-toc" },
+			toml = { "taplo" },
+			-- sh = { "shfmt" },
+			-- zsh = { "shfmt" },
 		},
 	},
 }
