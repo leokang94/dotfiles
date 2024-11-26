@@ -10,8 +10,9 @@ return {
 		config = function()
 			local builtin = require("telescope.builtin")
 			mapKey("<leader>ff", builtin.find_files)
-			-- mapKey("<leader>fg", builtin.live_grep)
-			mapKey("<leader>fb", builtin.buffers)
+			mapKey("<leader>fb", function()
+				builtin.buffers({ sort_mru = true, sort_lastused = true })
+			end)
 			mapKey("<leader>fh", builtin.help_tags)
 
 			local actions = require("telescope.actions")
@@ -46,7 +47,7 @@ return {
 			end
 
 			local key_mapping = {
-				["<ESC>"] = actions.close,
+				-- ["<ESC>"] = actions.close,
 				["<C-J>"] = actions.move_selection_next,
 				["<C-K>"] = actions.move_selection_previous,
 				["<TAB>"] = actions.toggle_selection + actions.move_selection_next,
@@ -56,8 +57,8 @@ return {
 				["<C-T>"] = telescope_custom_actions.multi_selection_open_tab,
 				["<C-DOWN>"] = require("telescope.actions").cycle_history_next,
 				["<C-UP>"] = require("telescope.actions").cycle_history_prev,
-				["<C-O>"] = telescope_custom_actions.multi_selection_open,
-				["<C-o>"] = function(prompt_bufnr)
+				["<C-o>"] = telescope_custom_actions.multi_selection_open,
+				["<C-p>"] = function(prompt_bufnr)
 					require("telescope.actions").select_default(prompt_bufnr)
 					require("telescope.builtin").resume()
 				end,
@@ -75,6 +76,7 @@ return {
 					--
 					--   end
 					-- },
+					initial_mode = "normal",
 					mappings = {
 						n = key_mapping,
 						i = key_mapping,

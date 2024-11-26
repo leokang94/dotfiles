@@ -1,0 +1,63 @@
+#!/bin/bash
+
+source "$CONFIG_DIR/color.sh"
+
+# This is a demo config to showcase some of the most important commands.
+# It is meant to be changed and configured, as it is intentionally kept sparse.
+# For a (much) more advanced configuration example see my dotfiles:
+# https://github.com/FelixKratz/dotfiles
+
+PLUGIN_DIR="$CONFIG_DIR/plugins"
+ITEMS_DIR="$CONFIG_DIR/items"
+
+##### Bar Appearance #####
+# Configuring the general appearance of the bar.
+# These are only some of the options available. For all options see:
+# https://felixkratz.github.io/SketchyBar/config/bar
+# If you are looking for other colors, see the color picker:
+# https://felixkratz.github.io/SketchyBar/config/tricks#color-picker
+
+bar=(
+  position=top
+  height=40
+  blur_radius=30
+  color=$BAR_COLOR
+)
+sketchybar --bar "${bar[@]}"
+# color=0x40000000
+
+##### Changing Defaults #####
+# We now change some default values, which are applied to all further items.
+# For a full list of all available item properties see:
+# https://felixkratz.github.io/SketchyBar/config/items
+
+default=(
+  padding_left=5
+  padding_right=5
+  icon.font="MonaspiceKr Nerd Font:Medium:17.0"
+  label.font="MonaspiceKr Nerd Font:Medium:14.0"
+  background.color=$ITEM_BG_COLOR
+  background.corner_radius=5
+  background.height=26
+  icon.color=$WHITE
+  label.color=$WHITE
+  icon.padding_left=10
+  icon.padding_right=4
+  icon.y_offset=2
+  label.padding_left=4
+  label.padding_right=10
+)
+sketchybar --default "${default[@]}"
+
+# -- Left Side Items --
+source "$ITEMS_DIR/aerospace.sh"
+
+# -- Right Side Items --
+source "$ITEMS_DIR/calendar.sh"
+source "$ITEMS_DIR/volume.sh"
+source "$ITEMS_DIR/battery.sh"
+source "$ITEMS_DIR/ram.sh"
+source "$ITEMS_DIR/cpu.sh"
+
+##### Force all scripts to run the first time (never do this in a script) #####
+sketchybar --update

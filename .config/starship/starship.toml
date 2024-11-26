@@ -35,7 +35,8 @@ truncate_to_repo = false
 read_only = " 󰌾"
 
 [directory.substitutions]
-'~/Documents/work/Bunjang/' = '⚡︎'
+'~/Documents/work/Bunjang/' = ' '
+
 
 [cmd_duration]
 min_time = 500

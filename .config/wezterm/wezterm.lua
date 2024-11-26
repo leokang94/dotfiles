@@ -11,13 +11,18 @@ config.term = "wezterm"
 config.color_scheme = "Dracula (Official)"
 config.hide_tab_bar_if_only_one_tab = true
 
+config.front_end = "WebGpu"
+config.max_fps = 120
+
 config.tab_bar_at_bottom = true
 config.use_fancy_tab_bar = false
 config.window_decorations = "RESIZE"
 
+local fontScale = 1.1
 config.font = wezterm.font_with_fallback({
-	{ family = "MonaspiceKr Nerd Font", weight = "ExtraLight" },
-	{ family = "D2Coding ligature" },
+	{ family = "MonaspiceKr Nerd Font", weight = "ExtraLight", scale = fontScale },
+	{ family = "SF Pro Text", weight = "ExtraLight", scale = fontScale },
+	{ family = "D2Coding ligature", scale = fontScale },
 })
 config.harfbuzz_features = { "calt", "liga", "dlig" }
 
