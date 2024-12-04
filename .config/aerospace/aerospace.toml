@@ -133,9 +133,9 @@ alt-shift-minus = 'resize smart -50'
 alt-shift-equal = 'resize smart +50'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#workspace
+ctrl-7 = 'workspace 7'
 ctrl-8 = 'workspace 8'
 ctrl-9 = 'workspace 9'
-ctrl-0 = 'workspace 0'
 # Browser
 ctrl-b = 'workspace B'
 # Terminal
@@ -144,9 +144,9 @@ ctrl-t = 'workspace T'
 ctrl-m = 'workspace M'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
+alt-shift-7 = ['move-node-to-workspace 7', 'workspace 7']
 alt-shift-8 = ['move-node-to-workspace 8', 'workspace 8']
 alt-shift-9 = ['move-node-to-workspace 9', 'workspace 9']
-alt-shift-0 = ['move-node-to-workspace 0', 'workspace 0']
 # Browser
 alt-shift-b = ['move-node-to-workspace B', 'workspace B']
 # Terminal
@@ -256,6 +256,10 @@ run = 'layout floating'
 
 [[on-window-detected]]
 if.app-id = 'com.bluebanana-software.inyourface'
+run = 'layout floating'
+
+[[on-window-detected]]
+if.app-id = 'com.superultra.Homerow'
 run = 'layout floating'
 
 # workspace T layout
