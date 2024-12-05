@@ -1,5 +1,5 @@
 return {
 	"DaikyXendo/nvim-material-icon",
 	lazy = false,
-	priority = 500,
+	priority = 2000,
 }
