@@ -18,7 +18,7 @@ config.tab_bar_at_bottom = true
 config.use_fancy_tab_bar = false
 config.window_decorations = "RESIZE"
 
-local fontScale = 1.1
+local fontScale = 1.2
 config.font = wezterm.font_with_fallback({
 	{ family = "MonaspiceKr Nerd Font", weight = "ExtraLight", scale = fontScale },
 	{ family = "SF Pro Text", weight = "ExtraLight", scale = fontScale },
