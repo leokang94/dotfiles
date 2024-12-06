@@ -44,3 +44,18 @@ alias tmux='tmux -u'
 
 # for AI Keys
 export OPENAI_API_KEY=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
+
+
+###############################
+# Custom Functions
+###############################
+
+
+# fcd - cd into the selected directory with fzf (in Root(~) Directory)
+fcd() {
+  local dir
+  dir=$(\
+    fd --absolute-path --type d --hidden --follow --exclude .git --exclude node_modules "$1" ~ | \
+    fzf --height 50% --preview 'ls -l {}')
+  cd "$dir"
+}
