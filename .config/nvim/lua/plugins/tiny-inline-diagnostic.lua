@@ -4,7 +4,7 @@ return {
 	priority = 1000, -- needs to be loaded in first
 	config = function()
 		require("tiny-inline-diagnostic").setup({
-			preset = "ghost",
+			preset = "powerline",
 			options = {
 				multilines = true,
 				format = function(diagnostic)
@@ -14,6 +14,7 @@ return {
 					enabled = true,
 					after = 100,
 				},
+				overflow = { mode = "wrap" },
 			},
 		})
 	end,
