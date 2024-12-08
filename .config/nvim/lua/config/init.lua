@@ -14,7 +14,6 @@ vim.opt.rtp:prepend(lazypath)
 require("config.globals")
 require("config.keymaps")
 require("config.options")
-require("config.neovide")
 
 require("lazy").setup({
 	spec = {
