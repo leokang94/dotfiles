@@ -3,7 +3,7 @@ return {
 	cmd = "RipSubstitute",
 	keys = {
 		{
-			"<leader>rn",
+			"<leader>rs",
 			function()
 				require("rip-substitute").sub()
 			end,
