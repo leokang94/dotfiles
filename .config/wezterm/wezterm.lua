@@ -118,6 +118,11 @@ config.keys = {
 		mods = "CTRL|CMD",
 		action = action.QuickSelect,
 	},
+	{ key = "{", mods = "SHIFT|ALT", action = action.MoveTabRelative(-1) },
+	{ key = "}", mods = "SHIFT|ALT", action = action.MoveTabRelative(1) },
+	{ key = "LeftArrow", mods = "CTRL|ALT", action = action.ActivateTabRelative(-1) },
+	{ key = "RightArrow", mods = "CTRL|ALT", action = action.ActivateTabRelative(1) },
+	{ key = "o", mods = "LEADER|CTRL", action = action.ActivateLastTab },
 }
 
 config.window_padding = {

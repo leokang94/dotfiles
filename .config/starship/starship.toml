@@ -8,6 +8,7 @@ $fill\
 $lua\
 $nodejs\
 ${custom.yarn}\
+${custom.pnpm}\
 $jobs\
 $cmd_duration\
 $line_break\
@@ -57,12 +58,23 @@ symbol = " "
 [custom.yarn]
 command = "yarn -v"
 description = "yarn version"
-require_repo = true
+# require_repo = true
 detect_files = ["yarn.lock", ".yarnrc.yml", ".pnp.cjs", ".pnp.loader.mjs"]
 detect_folders = [".yarn"]
 style = "bold #9E95FA"
 format = '[$symbol(v$output )]($style)'
 symbol = " "
+
+[custom.pnpm]
+command = "pnpm -v"
+description = "pnpm version"
+# require_repo = true
+detect_files = ["pnpm-lock.yaml"]
+detect_folders = ["node_modules/.pnpm"]
+style = "bold #F69220"
+format = '[$symbol(v$output )]($style)'
+symbol = " "
+
 
 # default nerd font styles
 
