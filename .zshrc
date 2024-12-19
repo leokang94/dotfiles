@@ -58,6 +58,7 @@ fcd() {
     fd --absolute-path --type d --hidden --follow --exclude .git --exclude node_modules "$1" ~ | \
     fzf --height 50% --preview 'ls -l {}')
 
+  echo $dir
   if [ -n "$dir" ]; then
     cd "$dir" || return
   fi
@@ -65,7 +66,7 @@ fcd() {
 
 fvi() {
   local file
-  file=$(fd --absolute-path --type f --hidden --follow --exclude .git --exclude node_modules "$1" | \
+  file=$(fd --absolute-path --type f --hidden --follow --exclude .git --exclude node_modules "$1" ~ | \
          fzf --height 50% --preview 'bat --style=numbers --color=always --line-range :500 {}')
 
   echo $file

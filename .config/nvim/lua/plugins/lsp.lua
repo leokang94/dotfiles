@@ -21,36 +21,39 @@ return {
 			require("vtsls").config({})
 		end,
 	},
+	-- for diagnostics visualization
+	{
+		"https://git.sr.ht/~whynothugo/lsp_lines.nvim",
+		config = function()
+			require("lsp_lines").setup()
+		end,
+	},
+	-- for better codding (signature help)
+	{
+		"ray-x/lsp_signature.nvim",
+		event = "VeryLazy",
+		opts = {},
+		config = function(_, opts)
+			require("lsp_signature").setup(opts)
+		end,
+	},
 	{
 		"neovim/nvim-lspconfig",
-		dependencies = { "saghen/blink.cmp" },
 		opts = function()
-			local lspconfig_util = require("lspconfig.util")
-
 			local keys = require("lazyvim.plugins.lsp.keymaps").get()
 
 			keys[#keys + 1] = { "[[", false }
 			keys[#keys + 1] = { "]]", false }
 
-			keys[#keys + 1] = { "K", vim.lsp.buf.hover }
-			keys[#keys + 1] = { "[d", vim.diagnostic.goto_prev }
-			keys[#keys + 1] = { "]d", vim.diagnostic.goto_next }
-			keys[#keys + 1] = { "gr", ":Telescope lsp_references<CR>" }
-			keys[#keys + 1] = { "gD", ":Lspsaga peek_definition<CR>" }
-			keys[#keys + 1] = { "gd", ":Lspsaga goto_definition<CR>" }
-			keys[#keys + 1] = { "gT", ":Lspsaga peek_type_definition<CR>" }
-			keys[#keys + 1] = { "gt", ":Lspsaga goto_type_definition<CR>" }
-			keys[#keys + 1] = { "gi", ":Telescope lsp_implementations<CR>" }
-			keys[#keys + 1] = { "<leader>ca", ":Lspsaga code_action<CR>" }
+			keys[#keys + 1] = { "gr", ":FzfLua lsp_references jump_to_single_result=true ignore_current_line=true<CR>" }
+			keys[#keys + 1] =
+				{ "gd", ":FzfLua lsp_definitions jump_to_single_result=true ignore_current_line=true<CR>" }
+			keys[#keys + 1] = { "gt", ":FzfLua lsp_typedefs jump_to_single_result=true ignore_current_line=true<CR>" }
+			keys[#keys + 1] =
+				{ "gi", ":FzfLua lsp_implementations jump_to_single_result=true ignore_current_line=true<CR>" }
+			keys[#keys + 1] = { "<leader>ca", ":FzfLua lsp_code_actions<CR>" }
 			keys[#keys + 1] = { "<leader>cd", vim.diagnostic.open_float }
-			keys[#keys + 1] = { "<leader>cD", ":Telescope diagnostics bufnr=0<CR>" }
-			keys[#keys + 1] = { "<leader>s", ":Telescope lsp_document_symbols<CR>" }
-			-- keys[#keys + 1] = {
-			-- 	"<leader>it",
-			-- 	function()
-			-- 		vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
-			-- 	end,
-			-- }
+			keys[#keys + 1] = { "<leader>cD", ":FzfLua lsp_document_diagnostics<CR>" }
 
 			return {
 				diagnostics = {
@@ -60,8 +63,11 @@ return {
 						Hint = "󰠠 ",
 						Info = " ",
 					},
-					-- virtual_text = true,
 					virtual_text = false,
+					virtual_lines = true,
+					-- virtual_lines = {
+					-- 	only_current_line = true,
+					-- },
 					underline = true,
 					update_in_insert = true,
 					severity_sort = true,
@@ -105,7 +111,9 @@ return {
 						init_options = {
 							hostInfo = "neovim",
 						},
-						root_dir = lspconfig_util.find_git_ancestor,
+						root_dir = function(startpath)
+							return vim.fs.dirname(vim.fs.find(".git", { path = startpath, upward = true })[1])
+						end,
 						settings = {
 							complete_function_calls = true,
 							vtsls = {
@@ -141,7 +149,9 @@ return {
 					},
 
 					eslint = {
-						root_dir = lspconfig_util.find_git_ancestor,
+						root_dir = function(startpath)
+							return vim.fs.dirname(vim.fs.find(".git", { path = startpath, upward = true })[1])
+						end,
 						settings = {
 							packageManager = "yarn",
 						},
@@ -188,13 +198,4 @@ return {
 			}
 		end,
 	},
-	config = function()
-		local lspconfig = require("lspconfig")
-		for server, config in pairs(opts.servers) do
-			-- passing config.capabilities to blink.cmp merges with the capabilities in your
-			-- `opts[server].capabilities, if you've defined it
-			config.capabilities = require("blink.cmp").get_lsp_capabilities(config.capabilities)
-			lspconfig[server].setup(config)
-		end
-	end,
 }

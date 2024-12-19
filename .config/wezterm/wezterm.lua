@@ -12,7 +12,7 @@ config.color_scheme = "Dracula (Official)"
 config.hide_tab_bar_if_only_one_tab = true
 
 config.front_end = "WebGpu"
-config.max_fps = 120
+config.max_fps = 240
 
 config.tab_bar_at_bottom = true
 config.use_fancy_tab_bar = false
@@ -31,6 +31,10 @@ config.hyperlink_rules = wezterm.default_hyperlink_rules()
 
 table.insert(config.hyperlink_rules, {
 	regex = [[(BUN-\d+)]],
+	format = "https://quicket.atlassian.net/browse/$1",
+})
+table.insert(config.hyperlink_rules, {
+	regex = [[(TECH-\d+)]],
 	format = "https://quicket.atlassian.net/browse/$1",
 })
 
@@ -97,6 +101,8 @@ config.keys = {
 	{ key = "k", mods = "SHIFT|CMD", action = action.AdjustPaneSize({ "Up", resizeValue }) },
 	{ key = "l", mods = "SHIFT|CMD", action = action.AdjustPaneSize({ "Right", resizeValue }) },
 	{ key = "w", mods = "CTRL|CMD", action = action.CloseCurrentPane({ confirm = true }) },
+	{ key = "n", mods = "CTRL|CMD", action = action.RotatePanes("Clockwise") },
+	{ key = "b", mods = "CTRL|CMD", action = action.RotatePanes("CounterClockwise") },
 	{
 		key = "m",
 		mods = "CTRL|CMD",
@@ -122,7 +128,6 @@ config.keys = {
 	{ key = "}", mods = "SHIFT|ALT", action = action.MoveTabRelative(1) },
 	{ key = "LeftArrow", mods = "CTRL|ALT", action = action.ActivateTabRelative(-1) },
 	{ key = "RightArrow", mods = "CTRL|ALT", action = action.ActivateTabRelative(1) },
-	{ key = "o", mods = "LEADER|CTRL", action = action.ActivateLastTab },
 }
 
 config.window_padding = {

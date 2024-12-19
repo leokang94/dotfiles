@@ -21,6 +21,10 @@ require("lazy").setup({
 		{ "LazyVim/LazyVim", import = "lazyvim.plugins" },
 		-- import/override with your plugins
 		{ import = "plugins" },
+		-- disable lazy's default plugins
+		{ "nvim-neo-tree/neo-tree.nvim", enabled = false },
+		{ "echasnovski/mini.icons", enabled = false },
+		{ "CopilotC-Nvim/CopilotChat.nvim", enabled = false },
 	},
 	defaults = {
 		-- By default, only LazyVim plugins will be lazy-loaded. Your custom plugins will load during startup.
