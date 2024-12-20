@@ -1,8 +1,7 @@
 return {
 	{
 		"nvim-treesitter/nvim-treesitter",
-		build = ":TSUpdate",
-		opts = function(_, opts)
+		config = function(_, opts)
 			vim.filetype.add({
 				-- Detect and apply filetypes based on certain patterns of the filenames
 				pattern = {
@@ -10,51 +9,38 @@ return {
 					["%.env%.[%w_.-]+"] = "sh",
 				},
 			})
-		end,
-		config = function()
-			local configs = require("nvim-treesitter.configs")
 
-			configs.setup({
-				ensure_installed = {
-					"lua",
-					"javascript",
-					"typescript",
-					"tsx",
-					"jsdoc",
-					"styled",
-					"css",
-					"html",
-					"json",
-					"markdown",
-					"markdown_inline",
-					"bash",
-					"vim",
-					"yaml",
-					"regex",
-					"git_config",
-					"git_rebase",
-					"gitattributes",
-					"gitcommit",
-					"gitignore",
-				},
-				sync_install = false,
-				highlight = {
-					enable = true,
-				},
-				indent = { enable = true },
-			})
+			if type(opts.ensure_installed) == "table" then
+				opts.ensure_installed = LazyVim.dedup(opts.ensure_installed)
+			end
+			require("nvim-treesitter.configs").setup(opts)
 		end,
 	},
 	{
 		"nvim-treesitter/nvim-treesitter-context",
-		after = "nvim-treesitter",
+		opts = {},
 		config = function()
-			require("treesitter-context").setup({})
+			require("treesitter-context").setup({
+				separator = "",
+			})
+
+			local colorUtils = require("dracula.util")
+			local colors = vim.g.color
+			local bgColor = colorUtils.blend_bg(colors.bright_blue, 0.2)
+
+			vim.api.nvim_set_hl(0, "TreesitterContext", { bg = bgColor })
+			vim.api.nvim_set_hl(0, "TreesitterContextLineNumber", { bg = bgColor, fg = colors.comment, bold = true })
+			vim.api.nvim_set_hl(0, "TreesitterContextSeparator", { fg = colors.bright_blue })
 		end,
 	},
 	{
 		"davidmh/mdx.nvim",
 		config = true,
 		dependencies = { "nvim-treesitter/nvim-treesitter" },
+	},
+	{
+		"chrisgrieser/nvim-various-textobjs",
+		lazy = false,
+		opts = { keymaps = { useDefaults = true } },
 	},
 }

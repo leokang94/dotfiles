@@ -3,7 +3,7 @@ local M = {}
 local blends = {
 	normal = 0.5,
 	insert = 0.5,
-	visual = 0.6,
+	visual = 0.5,
 	command = 0.5,
 	operator = 0.5,
 	replace = 0.5,
@@ -47,6 +47,7 @@ return {
 
 	config = function()
 		local utils = require("moody.utils")
+		local colorUtils = require("dracula.util")
 
 		setup_hl_namespaces()
 
