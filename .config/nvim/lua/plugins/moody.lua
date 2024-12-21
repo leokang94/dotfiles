@@ -47,7 +47,6 @@ return {
 
 	config = function()
 		local utils = require("moody.utils")
-		local colorUtils = require("dracula.util")
 
 		setup_hl_namespaces()
 

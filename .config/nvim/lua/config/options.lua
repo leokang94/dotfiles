@@ -59,3 +59,6 @@ vim.o.formatexpr = "v:lua.require'lazyvim.util'.format.formatexpr()"
 
 -- Fix markdown indentation settings
 vim.g.markdown_recommended_style = 0
+
+-- lazyvim
+vim.g.lazyvim_blink_main = true

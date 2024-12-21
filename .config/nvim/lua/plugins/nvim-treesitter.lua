@@ -18,7 +18,6 @@ return {
 	},
 	{
 		"nvim-treesitter/nvim-treesitter-context",
-		opts = {},
 		config = function()
 			require("treesitter-context").setup({
 				separator = "",

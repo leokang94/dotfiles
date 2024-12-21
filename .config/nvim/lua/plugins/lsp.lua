@@ -112,7 +112,12 @@ return {
 							hostInfo = "neovim",
 						},
 						root_dir = function(startpath)
-							return vim.fs.dirname(vim.fs.find(".git", { path = startpath, upward = true })[1])
+							return vim.fs.dirname(
+								vim.fs.find(
+									{ ".git", "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "bun.lockb" },
+									{ path = startpath, upward = true }
+								)[1]
+							)
 						end,
 						settings = {
 							complete_function_calls = true,
@@ -120,27 +125,67 @@ return {
 								enableMoveToFileCodeAction = false,
 								autoUseWorkspaceTsdk = true,
 								experimental = {
+									maxInlayHintLength = 30,
 									completion = {
 										enableServerSideFuzzyMatch = true,
 									},
 								},
 							},
 							typescript = {
-								preferences = {
-									-- importModuleSpecifier = "non-relative",
-								},
 								updateImportsOnFileMove = { enabled = "always" },
 								suggest = {
 									completeFunctionCalls = true,
 								},
-								-- inlayHints = {
-								-- 	enumMemberValues = { enabled = true },
-								-- 	functionLikeReturnTypes = { enabled = true },
-								-- 	parameterNames = { enabled = "literals" },
-								-- 	parameterTypes = { enabled = true },
-								-- 	propertyDeclarationTypes = { enabled = true },
-								-- 	variableTypes = { enabled = false },
-								-- },
+								inlayHints = {
+									enumMemberValues = { enabled = true },
+									functionLikeReturnTypes = { enabled = true },
+									parameterNames = { enabled = "literals" },
+									parameterTypes = { enabled = true },
+									propertyDeclarationTypes = { enabled = true },
+									variableTypes = { enabled = false },
+								},
+							},
+						},
+						keys = {
+							{
+								"gD",
+								function()
+									local params = vim.lsp.util.make_position_params()
+									LazyVim.lsp.execute({
+										command = "typescript.goToSourceDefinition",
+										arguments = { params.textDocument.uri, params.position },
+										open = true,
+									})
+								end,
+								desc = "Goto Source Definition",
+							},
+							{
+								"gR",
+								function()
+									LazyVim.lsp.execute({
+										command = "typescript.findAllFileReferences",
+										arguments = { vim.uri_from_bufnr(0) },
+										open = true,
+									})
+								end,
+								desc = "File References",
+							},
+							{
+								"<leader>co",
+								LazyVim.lsp.action["source.organizeImports"],
+								desc = "Organize Imports",
+							},
+							{
+								"<leader>cu",
+								LazyVim.lsp.action["source.removeUnused.ts"],
+								desc = "Remove unused imports",
+							},
+							{
+								"<leader>cV",
+								function()
+									LazyVim.lsp.execute({ command = "typescript.selectTypeScriptVersion" })
+								end,
+								desc = "Select TS workspace version",
 							},
 						},
 						on_attach = function(client, bufnr)
@@ -152,9 +197,6 @@ return {
 						root_dir = function(startpath)
 							return vim.fs.dirname(vim.fs.find(".git", { path = startpath, upward = true })[1])
 						end,
-						settings = {
-							packageManager = "yarn",
-						},
 						on_attach = function(_, bufnr)
 							vim.api.nvim_create_autocmd("BufWritePre", {
 								buffer = bufnr,
