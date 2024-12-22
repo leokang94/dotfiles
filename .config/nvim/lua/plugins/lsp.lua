@@ -52,8 +52,7 @@ return {
 			keys[#keys + 1] =
 				{ "gi", ":FzfLua lsp_implementations jump_to_single_result=true ignore_current_line=true<CR>" }
 			keys[#keys + 1] = { "<leader>ca", ":FzfLua lsp_code_actions<CR>" }
-			keys[#keys + 1] = { "<leader>cd", vim.diagnostic.open_float }
-			keys[#keys + 1] = { "<leader>cD", ":FzfLua lsp_document_diagnostics<CR>" }
+			keys[#keys + 1] = { "<leader>cd", ":FzfLua lsp_document_diagnostics<CR>", desc = "Open Code Diagnostics" }
 
 			return {
 				diagnostics = {
