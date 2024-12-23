@@ -2,6 +2,7 @@ return {
 	"sindrets/diffview.nvim",
 	init = function()
 		vim.keymap.set("n", "<leader>do", ":DiffviewOpen<CR>", { desc = "Diffview open" })
+		vim.keymap.set("n", "<leader>dO", ":DiffviewOpen HEAD^<CR>", { desc = "Diffview open HEAD^..HEAD" })
 		vim.keymap.set("n", "<leader>dc", ":DiffviewClose<CR>", { desc = "Diffview close" })
 		vim.keymap.set("n", "<leader>dh", ":DiffviewFileHistory", { desc = "Diffview File history" })
 		vim.keymap.set(

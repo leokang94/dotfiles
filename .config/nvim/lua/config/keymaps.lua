@@ -21,12 +21,3 @@ mapKey("<A-Left>", ":tabprevious<CR>")
 
 -- terminal mode out
 vim.api.nvim_set_keymap("t", "<Esc>", "<C-\\><C-n>", { noremap = true })
-
--- -- rename
--- mapKey("<leader>rn", function()
--- 	return ":IncRename " .. vim.fn.expand("<cword>")
--- end, { expr = true })
---
--- mapKey("<leader>rs", function()
--- 	require("rip-substitute").sub()
--- end, {}, { "n", "x" })
