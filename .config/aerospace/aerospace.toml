@@ -194,6 +194,10 @@ B = ['main', 'built-in']
 if.app-id = 'com.github.wez.wezterm'
 run = "move-node-to-workspace T"
 
+[[on-window-detected]]
+if.app-id = "com.mitchellh.ghostty"
+run = ["layout floating", "move-node-to-workspace T"]
+
 
 # force workspace B (Browser)
 [[on-window-detected]]

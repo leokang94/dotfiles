@@ -23,12 +23,26 @@ return {
 	},
 	-- for diagnostics visualization
 	{
-		"https://git.sr.ht/~whynothugo/lsp_lines.nvim",
+		"rachartier/tiny-inline-diagnostic.nvim",
+		event = "VeryLazy", -- Or `LspAttach`
+		priority = 1000, -- needs to be loaded in first
 		config = function()
-			require("lsp_lines").setup()
+			require("tiny-inline-diagnostic").setup({
+				preset = "powerline",
+				options = {
+					multilines = true,
+					format = function(diagnostic)
+						return diagnostic.message .. " [" .. diagnostic.source .. "]"
+					end,
+					break_line = {
+						enabled = true,
+						after = 100,
+					},
+					overflow = { mode = "wrap" },
+				},
+			})
 		end,
 	},
-	-- for better codding (signature help)
 	{
 		"ray-x/lsp_signature.nvim",
 		event = "VeryLazy",
@@ -63,10 +77,6 @@ return {
 						Info = " ",
 					},
 					virtual_text = false,
-					virtual_lines = true,
-					-- virtual_lines = {
-					-- 	only_current_line = true,
-					-- },
 					underline = true,
 					update_in_insert = true,
 					severity_sort = true,

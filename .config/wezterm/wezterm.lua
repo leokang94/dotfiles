@@ -81,6 +81,8 @@ end)
 
 local resizeValue = 10
 local action = wezterm.action
+
+config.leader = { key = "0", mods = "CTRL|CMD", timeout_milliseconds = 1000 }
 config.keys = {
 	{
 		key = "\\", -- HACK :: "|" replace
@@ -128,6 +130,68 @@ config.keys = {
 	{ key = "}", mods = "SHIFT|ALT", action = action.MoveTabRelative(1) },
 	{ key = "LeftArrow", mods = "CTRL|ALT", action = action.ActivateTabRelative(-1) },
 	{ key = "RightArrow", mods = "CTRL|ALT", action = action.ActivateTabRelative(1) },
+	-- detach pane to window
+	{
+		key = "w",
+		mods = "LEADER",
+		---@diagnostic disable-next-line: unused-local
+		action = wezterm.action_callback(function(win, pane)
+			---@diagnostic disable-next-line: unused-local
+			local tab, window = pane:move_to_new_window()
+		end),
+	},
+	-- detach pane to tab
+	{
+		key = "t",
+		mods = "LEADER",
+		---@diagnostic disable-next-line: unused-local
+		action = wezterm.action_callback(function(win, pane)
+			---@diagnostic disable-next-line: unused-local
+			local tab, window = pane:move_to_new_tab()
+		end),
+	},
+	{
+		key = "i",
+		mods = "LEADER",
+		action = action.InputSelector({
+			---@diagnostic disable-next-line: unused-local
+			action = wezterm.action_callback(function(window, pane, id, label)
+				if not id and not label then
+					wezterm.log_info("cancelled")
+				else
+					wezterm.log_info("you selected ", id, label)
+					pane:send_text(id)
+				end
+			end),
+			title = "I am title",
+			choices = {
+				{
+					-- Here we're using wezterm.format to color the text.
+					-- You can just use a string directly if you don't want
+					-- to control the colors
+					label = wezterm.format({
+						{ Foreground = { AnsiColor = "Red" } },
+						{ Text = "No" },
+						{ Foreground = { AnsiColor = "Green" } },
+						{ Text = " thanks" },
+					}),
+					-- This is the text that we'll send to the terminal when
+					-- this entry is selected
+					id = "Regretfully, I decline this offer.",
+				},
+				-- This is the second entry
+				{
+					label = "WTF?",
+					id = "An interesting idea, but I have some questions about it.",
+				},
+				-- This is the third entry
+				{
+					label = "LGTM",
+					id = "This sounds like the right choice",
+				},
+			},
+		}),
+	},
 }
 
 config.window_padding = {
