@@ -7,6 +7,8 @@ if wezterm.config_builder then
 	config = wezterm.config_builder()
 end
 
+-- 안녕하세요
+
 config.term = "wezterm"
 config.color_scheme = "Dracula (Official)"
 config.hide_tab_bar_if_only_one_tab = true
@@ -20,7 +22,8 @@ config.window_decorations = "RESIZE"
 
 local fontScale = 1.2
 config.font = wezterm.font_with_fallback({
-	{ family = "MonaspiceKr Nerd Font", weight = "ExtraLight", scale = fontScale },
+	{ family = "MonaspiceXe Nerd Font Mono", weight = "ExtraLight", scale = fontScale },
+	-- { family = "MonaspiceKr Nerd Font", weight = "ExtraLight", scale = fontScale },
 	{ family = "SF Pro Text", weight = "ExtraLight", scale = fontScale },
 	{ family = "D2Coding ligature", scale = fontScale },
 })

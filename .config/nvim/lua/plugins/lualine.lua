@@ -1,3 +1,7 @@
+local function getCWD()
+	return string.match(vim.fn.getcwd(), [[/([^/]+)$]])
+end
+
 return {
 	"nvim-lualine/lualine.nvim",
 	dependencies = {
@@ -6,11 +10,19 @@ return {
 		-- "nvim-tree/nvim-web-devicons",
 	},
 	opts = {
+		tabline = {
+			lualine_a = {
+				getCWD,
+			},
+			lualine_b = { "branch" },
+			lualine_c = { "filename" },
+			lualine_x = {},
+			lualine_y = {},
+			lualine_z = { "tabs" },
+		},
 		sections = {
 			lualine_b = {
-				function()
-					return string.match(vim.fn.getcwd(), [[/([^/]+)$]])
-				end,
+				getCWD,
 				"branch",
 			},
 			lualine_c = { "filename", "filetype" },

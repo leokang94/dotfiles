@@ -1,0 +1,66 @@
+copy-on-select = true
+
+theme = Dracula
+#font-family = MonaspiceKr Nerd Font Mono
+font-family = MonaspiceXe Nerd Font Mono
+
+#font-family = Monaspace Krypton Var
+#font-family = Monaspace Radon Var
+#font-family = Hack Nerd Font Mono
+#font-family = Monaspace Xenon Var
+#font-family = Monaspace Argon Var
+font-size = 16
+font-thicken = true
+
+mouse-hide-while-typing = true
+
+cursor-style = block
+cursor-style-blink = false
+
+# background-opacity = 0.8
+# background-blur-radius = 20
+
+window-padding-y = 0
+window-padding-x = 0
+window-padding-color = extend
+window-padding-balance = true
+window-save-state = always
+window-colorspace = display-p3
+
+macos-option-as-alt = true
+macos-titlebar-style = hidden
+
+
+############################################################################
+# keybindings
+############################################################################
+
+# reload config
+keybind = ctrl+g>r=reload_config
+
+# split navigation and manipulation
+keybind = ctrl+g>s>s=new_split:auto
+keybind = ctrl+g>s>h=new_split:left
+keybind = ctrl+g>s>l=new_split:right
+keybind = ctrl+g>s>k=new_split:up
+keybind = ctrl+g>s>j=new_split:down
+
+keybind = ctrl+cmd+h=goto_split:left
+keybind = ctrl+cmd+l=goto_split:right
+keybind = ctrl+cmd+k=goto_split:top
+keybind = ctrl+cmd+j=goto_split:bottom
+keybind = ctrl+cmd+m=toggle_split_zoom
+
+keybind = shift+cmd+h=resize_split:left,40
+keybind = shift+cmd+l=resize_split:right,40
+keybind = shift+cmd+k=resize_split:up,40
+keybind = shift+cmd+j=resize_split:down,40
+keybind = shift+cmd+e=equalize_splits
+
+keybind = ctrl+g>q=toggle_quick_terminal
+
+# inspector
+keybind = f12=inspector:toggle
+
+
+

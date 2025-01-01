@@ -7,6 +7,10 @@
 	excludesfile = ~/.gitignore_global
 	precomposeunicode = true
   quotepath = false
+[delta]
+  navigate = true
+  syntax-theme = Dracula
+
 [commit]
 	template = ~/.stCommitMsg
 [merge]
@@ -15,15 +19,17 @@
   tool = diffview
 [pull]
 	ff = yes
-[difftool "vscode"]
-	cmd = code --wait --diff \"$LOCAL\" \"$REMOTE\"
+
 [mergetool]
   prompt = false
   keepBackup = false
 [mergetool "diffview"]
-  cmd = tmux new nvim -n -c \"DiffviewOpen\" \"$MERGED\"
+  cmd = nvim -n -c \"DiffviewOpen\" \"$MERGED\"
+
+[difftool "vscode"]
+	cmd = code --wait --diff \"$LOCAL\" \"$REMOTE\"
 [difftool "diffview"]
-  cmd = tmux new nvim -n -c \"DiffviewOpen\" \"$LOCAL\" \"$REMOTE\"
+  cmd = nvim -n -c \"DiffviewOpen\" \"$LOCAL\" \"$REMOTE\"
 [diff]
 	tool = diffview
 [alias]

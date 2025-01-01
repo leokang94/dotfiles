@@ -1,3 +1,12 @@
+local function getRepoRoot(startpath)
+	return vim.fs.dirname(
+		vim.fs.find(
+			{ ".git", "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "bun.lockb" },
+			{ path = startpath, upward = true }
+		)[1]
+	)
+end
+
 return {
 	{
 		"williamboman/mason.nvim",
@@ -65,7 +74,22 @@ return {
 			keys[#keys + 1] = { "gt", ":FzfLua lsp_typedefs jump_to_single_result=true ignore_current_line=true<CR>" }
 			keys[#keys + 1] =
 				{ "gi", ":FzfLua lsp_implementations jump_to_single_result=true ignore_current_line=true<CR>" }
-			keys[#keys + 1] = { "<leader>ca", ":FzfLua lsp_code_actions<CR>" }
+			keys[#keys + 1] = {
+				"<leader>ca",
+				function()
+					require("fzf-lua").lsp_code_actions({
+						winopts = {
+							relative = "cursor",
+							width = 0.8,
+							height = 0.8,
+							row = 1,
+							preview = { vertical = "up:70%" },
+						},
+					})
+				end,
+				"Code Actions",
+				{ "n", "v" },
+			}
 			keys[#keys + 1] = { "<leader>cd", ":FzfLua lsp_document_diagnostics<CR>", desc = "Open Code Diagnostics" }
 
 			return {
@@ -113,21 +137,22 @@ return {
 							},
 						},
 					},
-
+					-- typescript LSP
 					tsserver = { enabled = false },
 					ts_ls = { enabled = false },
 					vtsls = {
 						init_options = {
 							hostInfo = "neovim",
 						},
-						root_dir = function(startpath)
-							return vim.fs.dirname(
-								vim.fs.find(
-									{ ".git", "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "bun.lockb" },
-									{ path = startpath, upward = true }
-								)[1]
-							)
-						end,
+						root_dir = getRepoRoot,
+						-- root_dir = function(startpath)
+						-- 	return vim.fs.dirname(
+						-- 		vim.fs.find(
+						-- 			{ ".git", "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "bun.lockb" },
+						-- 			{ path = startpath, upward = true }
+						-- 		)[1]
+						-- 	)
+						-- end,
 						settings = {
 							complete_function_calls = true,
 							vtsls = {

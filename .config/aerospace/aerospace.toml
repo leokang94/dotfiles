@@ -129,8 +129,8 @@ alt-shift-k = 'move up'
 alt-shift-l = 'move right'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#resize
-alt-shift-minus = 'resize smart -50'
-alt-shift-equal = 'resize smart +50'
+alt-shift-minus = 'resize smart -100'
+alt-shift-equal = 'resize smart +100'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#workspace
 ctrl-7 = 'workspace 7'
@@ -188,7 +188,7 @@ M = ['Built-in', 'main']
 T = ['dell', 'built-in']
 B = ['main', 'built-in']
 
-# # force workspace T (Terminal)
+# force workspace T (Terminal)
 
 [[on-window-detected]]
 if.app-id = 'com.github.wez.wezterm'
@@ -196,8 +196,7 @@ run = "move-node-to-workspace T"
 
 [[on-window-detected]]
 if.app-id = "com.mitchellh.ghostty"
-run = ["layout floating", "move-node-to-workspace T"]
-
+run = ["layout tiling", "move-node-to-workspace T"]
 
 # force workspace B (Browser)
 [[on-window-detected]]

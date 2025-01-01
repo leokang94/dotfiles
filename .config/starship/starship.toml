@@ -19,10 +19,8 @@ $character"""
 symbol = ' '
 
 [username]
-style_user = "bright-yellow bold italic"
-style_root = "purple bold italic"
+style_user = "yellow bold italic"
 format = "[$user]($style) 🦁 "
-disabled = false
 show_always = true
 
 
