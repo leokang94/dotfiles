@@ -4,7 +4,8 @@
     "lazyvim.plugins.extras.ai.copilot-chat",
     "lazyvim.plugins.extras.lsp.neoconf",
     "lazyvim.plugins.extras.ui.dashboard-nvim",
-    "lazyvim.plugins.extras.ui.mini-indentscope"
+    "lazyvim.plugins.extras.ui.mini-indentscope",
+    "lazyvim.plugins.extras.ui.smear-cursor"
   ],
   "news": {
     "NEWS.md": "10960"

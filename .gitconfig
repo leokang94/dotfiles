@@ -8,9 +8,9 @@
 	precomposeunicode = true
   quotepath = false
 [delta]
+  feature = decorations
   navigate = true
   syntax-theme = Dracula
-
 [commit]
 	template = ~/.stCommitMsg
 [merge]

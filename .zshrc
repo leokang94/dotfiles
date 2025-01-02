@@ -1,9 +1,14 @@
+# when use my own zshrc, copy following line to ~/.zshrc
+# [ -f ~/.dotfiles/.zshrc ] && source ~/.dotfiles/.zshrc
+
 zmodload zsh/zprof
 
 alias resh="exec zsh"
 
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:/usr/local/bin:$PATH
+
+export XDG_CONFIG_HOME="$HOME/.config"
 
 # setup Editor & Terminal
 export EDITOR=nvim
@@ -41,6 +46,7 @@ eval "$(tmuxifier init -)"
 
 alias tmf='tmuxifier'
 alias tmux='tmux -u'
+
 
 # fastfetch
 alias fetch='fastfetch'

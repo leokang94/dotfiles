@@ -1,0 +1,5 @@
+git:
+  paging:
+    colorArg: always
+    pager: delta --paging=never
+  allBranchesLogCmd: colored log --all --graph --date-order --date=format:'%Y-%m-%d %H:%M' --format=format:'%C(yellow)%h%C(reset)%C(auto)%d%C(reset) %C(brightblack)%cN (%cd) /%C(reset) %C(dim brightblack)%aN (%ad)%C(reset)%n''         %C(brightwhite)%s%C(reset)%n'
