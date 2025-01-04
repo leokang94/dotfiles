@@ -11,11 +11,6 @@ return {
 		},
 		dashboard = {
 			enabled = true,
-			width = 60,
-			row = nil,
-			col = nil,
-			pane_gap = 4,
-			autokeys = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
 			preset = {
 				-- Used by the `header` section
 				header = [[
@@ -77,7 +72,7 @@ return {
 						icon = " ",
 						key = "r",
 						desc = "Recent Files",
-						action = ":lua Snacks.dashboard.pick('oldfiles')",
+						action = "<leader>fR",
 					},
 					{
 						icon = " ",
