@@ -33,23 +33,20 @@ return {
 			notify = { replace = true },
 			cmdline_popup = {
 				position = {
-					row = "50%",
+					row = 20,
 					col = "50%",
 				},
 				size = {
-					width = 60,
+					min_width = 60,
+					width = "auto",
 					height = "auto",
 				},
 			},
-			popupmenu = {
+			cmdline_popupmenu = {
 				relative = "editor",
 				position = {
-					row = 8,
+					row = 23,
 					col = "50%",
-				},
-				size = {
-					width = 60,
-					height = 10,
 				},
 				border = {
 					style = "rounded",
