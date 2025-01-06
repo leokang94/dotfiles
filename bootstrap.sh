@@ -30,20 +30,6 @@ if [ "$TEST_MODE" = true ]; then
 fi
 
 ##########################################################
-# Install Homebrew (When MacOS)
-##########################################################
-
-echo "${LEO_PREFIX} Download ${CIAN}homebrew${CLEAR}..."
-
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  if ! command -v brew &>/dev/null; then
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  fi
-fi
-
-echo "${LEO_PREFIX} Download ${CIAN}homebrew${CLEAR}... ${DONE_POSTFIX}"
-
-##########################################################
 # Install packages using brew
 ##########################################################
 
@@ -57,7 +43,6 @@ echo "${LEO_PREFIX} Download ${CIAN}font${CLEAR} from homebrew... ${DONE_POSTFIX
 # Install progrmas
 echo "${LEO_PREFIX} Download ${CIAN}programs${CLEAR} from homebrew..."
 brew install \
-  git \
   nvim \
   starship \
   fastfetch \
