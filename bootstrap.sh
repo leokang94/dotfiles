@@ -58,18 +58,26 @@ echo "${LEO_PREFIX} Download ${CIAN}font${CLEAR} from homebrew... ${DONE_POSTFIX
 echo "${LEO_PREFIX} Download ${CIAN}programs${CLEAR} from homebrew..."
 brew install \
   git \
-  ghostty \
-  raycast \
   nvim \
   starship \
   fastfetch \
-  aerospace \
-  homerow \
   bat \
   zoxide \
   eza \
   yazi \
   node
+
+brew install --cask \
+  google-chrome \
+  raycast \
+  discord \
+  ghostty \
+  obsidian \
+  cleanmymac \
+  karabiner-elements \
+  aerospace \
+  homerow \
+  sf-symbols
 echo "${LEO_PREFIX} Download ${CIAN}programs${CLEAR} from homebrew... ${DONE_POSTFIX}"
 
 ##########################################################
@@ -154,3 +162,9 @@ open -a "Safari" "https://apps.apple.com/us/app/cursor-pro/id1447043133"
 
 # RunCat - CPU Monitor
 open -a "Safari" "https://apps.apple.com/us/app/runcat/id1429033973?mt=12"
+
+# KakaoTalk -- Messenger
+open -a "Safari" "https://apps.apple.com/kr/app/kakaotalk/id869223134?mt=12"
+
+# iShot - Screenshot
+open -a "Safari" "https://apps.apple.com/kr/app/ishot-screenshot-recording-ocr/id1485844094?mt=12"
