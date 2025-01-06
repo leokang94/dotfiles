@@ -60,7 +60,7 @@ brew install --cask \
   obsidian \
   cleanmymac \
   karabiner-elements \
-  aerospace \
+  nikitabobko/tap/aerospace \
   homerow \
   sf-symbols
 echo "${LEO_PREFIX} Download ${CIAN}programs${CLEAR} from homebrew... ${DONE_POSTFIX}"
