@@ -269,6 +269,7 @@ return {
 						},
 					},
 					mdx_analyzer = {},
+					glsl_analyzer = {},
 				},
 				setup = {},
 			}

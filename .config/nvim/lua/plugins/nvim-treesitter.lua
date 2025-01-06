@@ -1,6 +1,9 @@
 return {
 	{
 		"nvim-treesitter/nvim-treesitter",
+		opts = {
+			ensure_installed = { "glsl" },
+		},
 		config = function(_, opts)
 			vim.filetype.add({
 				-- Detect and apply filetypes based on certain patterns of the filenames
