@@ -29,6 +29,12 @@ if [ "$TEST_MODE" = true ]; then
   echo "${LEO_PREFIX} Running in ${CIAN}test mode${CLEAR}..."
 fi
 
+if [ "$TEST_MODE" = true ]; then
+  DOT_FILES_DIR_NAME=".dotfiles_test"
+else
+  DOT_FILES_DIR_NAME=".dotfiles"
+fi
+
 ##########################################################
 # Install packages using brew
 ##########################################################
