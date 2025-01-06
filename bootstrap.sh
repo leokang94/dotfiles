@@ -59,6 +59,7 @@ echo "${LEO_PREFIX} Download ${CIAN}programs${CLEAR} from homebrew..."
 brew install \
   git \
   ghostty \
+  raycast \
   nvim \
   starship \
   fastfetch \
@@ -67,7 +68,8 @@ brew install \
   bat \
   zoxide \
   eza \
-  yazi
+  yazi \
+  node
 echo "${LEO_PREFIX} Download ${CIAN}programs${CLEAR} from homebrew... ${DONE_POSTFIX}"
 
 ##########################################################
@@ -154,3 +156,16 @@ if ! grep -Fxq "[ -f ~/${DOT_FILES_DIR_NAME}/.zshrc ] && source ~/${DOT_FILES_DI
 [ -f ~/${DOT_FILES_DIR_NAME}/.zshrc ] && source ~/${DOT_FILES_DIR_NAME}/.zshrc" | cat - ~/.zshrc >temp && mv temp ~/.zshrc
 fi
 echo "${LEO_PREFIX} Add source code to .zshrc... ${DONE_POSTFIX}"
+
+##########################################################
+# open programs install page that need install at App Store
+##########################################################
+
+# In your face - Meeting Reminder
+open -a "Safari" "https://apps.apple.com/us/app/in-your-face-meeting-reminder/id1476964367?mt=12"
+
+# Cursor Pro - Mouse Pointer
+open -a "Safari" "https://apps.apple.com/us/app/cursor-pro/id1447043133"
+
+# RunCat - CPU Monitor
+open -a "Safari" "https://apps.apple.com/us/app/runcat/id1429033973?mt=12"
