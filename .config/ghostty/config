@@ -9,7 +9,7 @@ font-family = MonaspiceXe Nerd Font Mono
 #font-family = Hack Nerd Font Mono
 #font-family = Monaspace Xenon Var
 #font-family = Monaspace Argon Var
-font-size = 16
+font-size = 14
 font-thicken = true
 
 mouse-hide-while-typing = true
