@@ -73,21 +73,6 @@ brew install \
 echo "${LEO_PREFIX} Download ${CIAN}programs${CLEAR} from homebrew... ${DONE_POSTFIX}"
 
 ##########################################################
-# Linking dotfiles to home directory
-##########################################################
-
-if [ "$TEST_MODE" = true ]; then
-  DOT_FILES_DIR_NAME=".dotfiles_test"
-else
-  DOT_FILES_DIR_NAME=".dotfiles"
-fi
-
-# Clone dotfiles
-echo "${LEO_PREFIX} ${CIAN}Clone to ~/${DOT_FILES_DIR_NAME}${CLEAR}..."
-git clone https://github.com/leokang94/dotfiles.git ~/${DOT_FILES_DIR_NAME}
-echo "${LEO_PREFIX} ${CIAN}Clone to ~/${DOT_FILES_DIR_NAME}${CLEAR}... ${DONE_POSTFIX}"
-
-##########################################################
 # Create a symbolic links
 ##########################################################
 
