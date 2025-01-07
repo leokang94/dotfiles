@@ -2,6 +2,13 @@ return {
 	{
 		"saghen/blink.cmp",
 		opts = {
+			enabled = function()
+				local disabled = false
+
+				disabled = disabled or vim.bo.filetype == "NvimTree"
+
+				return not disabled
+			end,
 			sources = {
 				default = {
 					"lsp",
