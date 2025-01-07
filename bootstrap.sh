@@ -47,6 +47,7 @@ brew install \
   starship \
   fastfetch \
   bat \
+  bottom \
   zoxide \
   eza \
   yazi \
