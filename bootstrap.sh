@@ -29,12 +29,6 @@ if [ "$TEST_MODE" = true ]; then
   echo "${LEO_PREFIX} Running in ${CIAN}test mode${CLEAR}..."
 fi
 
-if [ "$TEST_MODE" = true ]; then
-  DOT_FILES_DIR_NAME=".dotfiles_test"
-else
-  DOT_FILES_DIR_NAME=".dotfiles"
-fi
-
 ##########################################################
 # Install packages using brew
 ##########################################################
@@ -118,9 +112,11 @@ create_symlink() {
 }
 
 if [ "$TEST_MODE" = true ]; then
+  DOT_FILES_DIR_NAME=".dotfiles_test"
   CONFIG_DIR_NAME=".config_test"
   GIT_CUSTOM_COMMANDS_DIR_NAME=".git-custom-commands_test"
 else
+  DOT_FILES_DIR_NAME=".dotfiles"
   CONFIG_DIR_NAME=".config"
   GIT_CUSTOM_COMMANDS_DIR_NAME=".git-custom-commands"
 fi
