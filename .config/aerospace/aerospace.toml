@@ -10,8 +10,8 @@ after-startup-command = [
   # JankyBorders has a built-in detection of already running process,
   # so it won't be run twice on AeroSpace restart
   # jankyBorders 에서는 색상 포맷이 0xAARRGGBB 임.
-  # active_color : #AF95E6
-  'exec-and-forget borders active_color=0xffaf95e6 inactive_color=0x00000000 width=7.0',
+  # active_color : #F081CD
+  'exec-and-forget borders active_color=0xfff081cd inactive_color=0x00000000 width=10.0',
   'workspace B',
   'layout h_accordion',
   'workspace M',
