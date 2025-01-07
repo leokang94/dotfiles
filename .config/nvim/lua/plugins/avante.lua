@@ -1,24 +1,21 @@
 return {
 	"yetone/avante.nvim",
 	event = "VeryLazy",
-	lazy = false,
+	lazy = true,
 	version = false, -- set this if you want to always pull the latest change
-	opts = {
-		provider = "openai",
-		behaviour = {
-			auto_suggestions = false, -- Experimental stage
-			auto_set_highlight_group = true,
-			auto_set_keymaps = true,
-			auto_apply_diff_after_generation = false,
-			support_paste_from_clipboard = true,
-		},
-	},
 	-- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
 	build = "make",
 	-- build = "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" -- for windows
 	dependencies = {
 		"nvim-treesitter/nvim-treesitter",
-		"stevearc/dressing.nvim",
+		{
+			"stevearc/dressing.nvim",
+			lazy = true,
+			opts = {
+				input = { enabled = false },
+				select = { enabled = false },
+			},
+		},
 		"nvim-lua/plenary.nvim",
 		"MunifTanjim/nui.nvim",
 		--- The below dependencies are optional,
@@ -39,6 +36,31 @@ return {
 					use_absolute_path = true,
 				},
 			},
+		},
+		{
+			"MeanderingProgrammer/render-markdown.nvim",
+			dependencies = {
+				"nvim-treesitter/nvim-treesitter",
+				"nvim-tree/nvim-web-devicons",
+			},
+			opts = {
+				file_types = { "markdown", "Avante" },
+			},
+			ft = { "markdown", "Avante" },
+		},
+	},
+	opts = {
+		provider = "openai",
+		behaviour = {
+			auto_suggestions = false, -- Experimental stage
+			auto_set_highlight_group = true,
+			auto_set_keymaps = true,
+			auto_apply_diff_after_generation = false,
+			support_paste_from_clipboard = true,
+		},
+		file_selector = {
+			provider = "fzf",
+			provider_opts = {},
 		},
 	},
 }

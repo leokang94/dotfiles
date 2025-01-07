@@ -12,7 +12,7 @@ return {
 			height = 0.8,
 			preview = {
 				layout = "flex",
-				flip_columns = 120,
+				flip_columns = 150,
 				wrap = "wrap",
 			},
 		}
