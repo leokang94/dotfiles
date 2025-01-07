@@ -8,14 +8,7 @@ return {
 	-- build = "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" -- for windows
 	dependencies = {
 		"nvim-treesitter/nvim-treesitter",
-		{
-			"stevearc/dressing.nvim",
-			lazy = true,
-			opts = {
-				input = { enabled = false },
-				select = { enabled = false },
-			},
-		},
+		"stevearc/dressing.nvim",
 		"nvim-lua/plenary.nvim",
 		"MunifTanjim/nui.nvim",
 		--- The below dependencies are optional,
