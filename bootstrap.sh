@@ -51,6 +51,8 @@ brew install \
   zoxide \
   eza \
   yazi \
+  felixkartz/formulae/sketchybar \
+  felixkartz/formulae/borders \
   node
 
 brew install --cask \
