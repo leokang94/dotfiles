@@ -1,6 +1,3 @@
--- 테스트 코드 (추후 삭제)
--- 안녕하세요 반갑습니다. 이것은 테스트 코드랑께요.
-
 return {
 	{
 		"binhtran432k/dracula.nvim",
@@ -12,6 +9,7 @@ return {
 
 			local util = require("dracula.util")
 
+			---@diagnostic disable-next-line: missing-fields
 			require("dracula").setup({
 				transparent = true,
 				dim_inactive = true,

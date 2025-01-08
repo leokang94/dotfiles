@@ -4,9 +4,12 @@ return {
 	opts = {
 		-- statuscolumn = {},
 		scope = {},
+		indent = { enabled = false },
 		scroll = {
 			animate = {
 				easing = "outExpo",
+				-- duration = 100,
+				fps = 240,
 			},
 		},
 		dashboard = {

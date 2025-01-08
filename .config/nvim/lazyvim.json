@@ -5,7 +5,6 @@
     "lazyvim.plugins.extras.editor.dial",
     "lazyvim.plugins.extras.lsp.neoconf",
     "lazyvim.plugins.extras.ui.dashboard-nvim",
-    "lazyvim.plugins.extras.ui.mini-indentscope",
     "lazyvim.plugins.extras.ui.smear-cursor"
   ],
   "news": {
