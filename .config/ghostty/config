@@ -3,6 +3,7 @@ copy-on-select = true
 theme = Dracula
 #font-family = MonaspiceKr Nerd Font Mono
 font-family = MonaspiceXe Nerd Font Mono
+font-family = D2Coding
 
 #font-family = Monaspace Krypton Var
 #font-family = Monaspace Radon Var

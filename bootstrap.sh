@@ -16,15 +16,18 @@ DONE_POSTFIX="${GREEN}Done${CLEAR}"
 
 # Install Fonts
 echo "${LEO_PREFIX} Download ${CIAN}font${CLEAR} from homebrew..."
-brew install \
+brew install --cask \
   font-monaspace-nerd-font \
-  font-symbols-only-nerd-font
+  font-symbols-only-nerd-font \
+  font-d2coding \
+  font-pretendard
 echo "${LEO_PREFIX} Download ${CIAN}font${CLEAR} from homebrew... ${DONE_POSTFIX}"
 
 # Install progrmas
 echo "${LEO_PREFIX} Download ${CIAN}programs${CLEAR} from homebrew..."
 brew install \
   nvim \
+  fzf \
   starship \
   fastfetch \
   bat \
@@ -32,10 +35,15 @@ brew install \
   zoxide \
   eza \
   yazi \
-  felixkartz/formulae/sketchybar \
-  felixkartz/formulae/borders \
   hwatch \
   node
+
+# felixkartz/formulae
+brew tap FelixKratz/formulae
+brew install \
+  sketchybar \
+  borders \
+
 
 brew install --cask \
   google-chrome \
@@ -135,26 +143,3 @@ if ! grep -Fxq "${ZSHRC_EXTENDS_STRING}" ~/.zshrc; then
 fi
 
 echo "${LEO_PREFIX} Extends source code to .zshrc... ${DONE_POSTFIX}"
-
-# [ -f ~/${DOT_FILES_DIR_NAME}/.zshrc ] && source ~/${DOT_FILES_DIR_NAME}/.zshrc" | cat - ~/.zshrc >temp && mv temp ~/.zshrc
-# fi
-# echo "${LEO_PREFIX} Extends source code to .zshrc... ${DONE_POSTFIX}"
-
-##########################################################
-# open programs install page that need install at App Store
-##########################################################
-
-# In your face - Meeting Reminder
-open -a "Safari" "https://apps.apple.com/us/app/in-your-face-meeting-reminder/id1476964367?mt=12"
-
-# Cursor Pro - Mouse Pointer
-open -a "Safari" "https://apps.apple.com/us/app/cursor-pro/id1447043133"
-
-# RunCat - CPU Monitor
-open -a "Safari" "https://apps.apple.com/us/app/runcat/id1429033973?mt=12"
-
-# KakaoTalk -- Messenger
-open -a "Safari" "https://apps.apple.com/kr/app/kakaotalk/id869223134?mt=12"
-
-# iShot - Screenshot
-open -a "Safari" "https://apps.apple.com/kr/app/ishot-screenshot-recording-ocr/id1485844094?mt=12"

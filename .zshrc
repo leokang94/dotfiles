@@ -12,7 +12,6 @@ export XDG_CONFIG_HOME="$HOME/.config"
 
 # setup Editor & Terminal
 export EDITOR=nvim
-export TERM=wezterm
 
 # setup zinit (zsh plugin manager)
 source ~/.dotfiles/zinit.zsh
@@ -41,11 +40,11 @@ export PATH="$PATH:$HOME/.git-custom-commands"
 alias g='git'
 
 # tmuxifier setting
-export PATH="$HOME/.tmuxifier/bin:$PATH"
-eval "$(tmuxifier init -)"
+# export PATH="$HOME/.tmuxifier/bin:$PATH"
+# eval "$(tmuxifier init -)"
 
-alias tmf='tmuxifier'
-alias tmux='tmux -u'
+# alias tmf='tmuxifier'
+# alias tmux='tmux -u'
 
 
 # fastfetch
