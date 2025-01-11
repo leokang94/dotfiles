@@ -7,6 +7,8 @@
 	excludesfile = ~/.gitignore_global
 	precomposeunicode = true
   quotepath = false
+  ignorecase = false
+  pager = delta
 [delta]
   feature = decorations
   navigate = true
@@ -19,25 +21,31 @@
   tool = diffview
 [pull]
 	ff = yes
+[push]
+  autoSetupRemote = true
+[rebase]
+	updateRefs = true
 
+[difftool "vscode"]
+	cmd = "code --wait --diff \"$LOCAL\" \"$REMOTE\""
 [mergetool]
   prompt = false
   keepBackup = false
 [mergetool "diffview"]
-  cmd = nvim -n -c \"DiffviewOpen\" \"$MERGED\"
-
-[difftool "vscode"]
-	cmd = code --wait --diff \"$LOCAL\" \"$REMOTE\"
+  cmd = "nvim -n -c \"DiffviewOpen\" \"$MERGED\""
 [difftool "diffview"]
-  cmd = nvim -n -c \"DiffviewOpen\" \"$LOCAL\" \"$REMOTE\"
+  cmd = "nvim -n -c \"DiffviewOpen\" \"$LOCAL\" \"$REMOTE\""
 [diff]
 	tool = diffview
+
 [alias]
   a = add
   s = status -s
 	co = checkout
 	br = branch
 	ci = commit
+  cie = commit --allow-empty
+  cif = commit --amend --no-edit
 	db = delete-branch
 	fp = fetch -p -P
 	cp = cherry-pick
@@ -45,15 +53,22 @@
 	swd = switch --detach
 	rb = rebase
 	pfl = push --force-with-lease
-  lg = colored log --all --graph --date-order  --date=format:'%Y-%m-%d %H:%M' --format=format:'%C(yellow)%h%C(reset)%C(auto)%d%C(reset) %C(white)%s%C(reset) - %C(blue)%cN /%C(reset) %C(dim blue)%aN%C(reset) %C(bold cyan)(%cd / %C(reset)%C(dim cyan)%ad)%C(reset)'
-  lg2 = colored log --all --graph --date-order  --date=format:'%Y-%m-%d %H:%M' --format=format:'%C(yellow)%h%C(reset)%C(auto)%d%C(reset) %C(brightblack)%cN (%cd) /%C(reset) %C(dim brightblack)%aN (%ad)%C(reset)%n''         %C(white)%s%C(reset)%n'
-  watch = !viddy -n 1 -c -p 'git lg2 $(git reflog show --format=%h stash)'
+  lg = colored log --all --graph --date-order --date=format:'%Y-%m-%d %H:%M' --format=format:'%C(yellow)%h%C(reset)%C(auto)%d%C(reset) %C(white)%s%C(reset) - %C(blue)%cN /%C(reset) %C(dim blue)%aN%C(reset) %C(bold cyan)(%cd / %C(reset)%C(dim cyan)%ad)%C(reset)'
+  lg2 = log --all --graph --date-order --date=format:'%Y-%m-%d %H:%M' --format=format:'%C(yellow)%h%C(reset)%C(auto)%d%C(reset) %C(brightblack)%cN (%cd) /%C(reset) %C(dim brightblack)%aN (%ad)%C(reset)%n''         %C(brightwhite)%s%C(reset)%n'
+  watch = !hwatch \
+    -K ctrl-u=page_up \
+    -K ctrl-d=page_down \
+    -K k=up \
+    -K j=down \
+    -o stdout \
+    -c -C -t --no-help-banner -n 1\
+    'git -c color.ui=always lg2 $(git reflog show --format=%h stash)'
   stl = !git stash list \
     | fzf --preview 'echo {} \
     | cut -d: -f1 \
     | xargs git stash show -p --color=always' --height 90% \
     | cut -d: -f1
-  ls = !git lg \
+  ls = !git lg2 \
     | fzf -m --ansi --layout=reverse --preview-window down,15,border-horizontal --preview=\"echo {} \
     | sed 's/-.*$//' \
     | egrep -o '[0-9a-z]+' \
