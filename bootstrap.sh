@@ -10,25 +10,6 @@ CLEAR='\033[0m'
 LEO_PREFIX="${MAGENTA}[LEO]${CLEAR}"
 DONE_POSTFIX="${GREEN}Done${CLEAR}"
 
-# 기본적으로 테스트 모드는 비활성화
-TEST_MODE=false
-
-# 인자 파싱
-for arg in "$@"; do
-  case $arg in
-  --test)
-    TEST_MODE=true
-    shift # 인자를 제거
-    ;;
-  *) ;;
-  esac
-done
-
-# 테스트 모드일 경우 메시지 출력
-if [ "$TEST_MODE" = true ]; then
-  echo "${LEO_PREFIX} Running in ${CIAN}test mode${CLEAR}..."
-fi
-
 ##########################################################
 # Install packages using brew
 ##########################################################
@@ -53,6 +34,7 @@ brew install \
   yazi \
   felixkartz/formulae/sketchybar \
   felixkartz/formulae/borders \
+  hwatch \
   node
 
 brew install --cask \
@@ -114,31 +96,49 @@ create_symlink() {
   echo "${LEO_PREFIX} Create ${CIAN}symlink${CLEAR} :: ${CIAN}from${CLEAR}:${from}, ${CIAN}to${CLEAR}:${to}... ${DONE_POSTFIX}"
 }
 
-if [ "$TEST_MODE" = true ]; then
-  DOT_FILES_DIR_NAME=".dotfiles_test"
-  CONFIG_DIR_NAME=".config_test"
-  GIT_CUSTOM_COMMANDS_DIR_NAME=".git-custom-commands_test"
-else
-  DOT_FILES_DIR_NAME=".dotfiles"
-  CONFIG_DIR_NAME=".config"
-  GIT_CUSTOM_COMMANDS_DIR_NAME=".git-custom-commands"
-fi
+DOT_FILES_DIR_NAME=".dotfiles"
+CONFIG_DIR_NAME=".config"
+GIT_CUSTOM_COMMANDS_DIR_NAME=".git-custom-commands"
 
 # 함수를 호출하면서 인자로 dotfiles 디렉토리와 타겟 디렉토리를 전달하세요.
 create_symlink --type=files "$HOME/${DOT_FILES_DIR_NAME}/.config" "$HOME/${CONFIG_DIR_NAME}"
 create_symlink --type=dir "$HOME/${DOT_FILES_DIR_NAME}/.git-custom-commands" "$HOME/${GIT_CUSTOM_COMMANDS_DIR_NAME}"
 
 ##########################################################
-# Add my .zshrc to ~/.zshrc
+# Extends my .gitconfig to ~/.gitconfig
 ##########################################################
 
-# ~/.zshrc 최상단에 dotfiles의 .zshrc를 source 하는 코드를 추가
-echo "${LEO_PREFIX} Add source code to .zshrc..."
-if ! grep -Fxq "[ -f ~/${DOT_FILES_DIR_NAME}/.zshrc ] && source ~/${DOT_FILES_DIR_NAME}/.zshrc" ~/.zshrc; then
-  echo "# use my own zshrc
-[ -f ~/${DOT_FILES_DIR_NAME}/.zshrc ] && source ~/${DOT_FILES_DIR_NAME}/.zshrc" | cat - ~/.zshrc >temp && mv temp ~/.zshrc
+echo "${LEO_PREFIX} Extends source code to .gitconfig..."
+
+GIT_CONFIG_EXTENDS_STRING="[include]
+  path = ~/.dotfiles/.gitconfig
+  "
+
+if ! grep -Fxq "${GIT_CONFIG_EXTENDS_STRING}" ~/.gitconfig; then
+  echo "${GIT_CONFIG_EXTENDS_STRING}" | cat - ~/.gitconfig >temp && mv temp ~/.gitconfig
 fi
-echo "${LEO_PREFIX} Add source code to .zshrc... ${DONE_POSTFIX}"
+
+echo "${LEO_PREFIX} Extends source code to .gitconfig... ${DONE_POSTFIX}"
+
+##########################################################
+# Extends my .zshrc to ~/.zshrc
+##########################################################
+
+echo "${LEO_PREFIX} Extends source code to .zshrc..."
+
+ZSHRC_EXTENDS_STRING="# use my own zshrc
+  [ -f ~/${DOT_FILES_DIR_NAME}/.zshrc ] && source ~/${DOT_FILES_DIR_NAME}/.zshrc
+  "
+
+if ! grep -Fxq "${ZSHRC_EXTENDS_STRING}" ~/.zshrc; then
+  echo "${ZSHRC_EXTENDS_STRING}" | cat - ~/.zshrc >temp && mv temp ~/.zshrc
+fi
+
+echo "${LEO_PREFIX} Extends source code to .zshrc... ${DONE_POSTFIX}"
+
+# [ -f ~/${DOT_FILES_DIR_NAME}/.zshrc ] && source ~/${DOT_FILES_DIR_NAME}/.zshrc" | cat - ~/.zshrc >temp && mv temp ~/.zshrc
+# fi
+# echo "${LEO_PREFIX} Extends source code to .zshrc... ${DONE_POSTFIX}"
 
 ##########################################################
 # open programs install page that need install at App Store
