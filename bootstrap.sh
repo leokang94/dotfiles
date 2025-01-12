@@ -35,8 +35,20 @@ brew install \
   zoxide \
   eza \
   yazi \
-  hwatch \
-  node
+  ripgrep \
+  hwatch 
+
+
+# for Nvim plugins
+brew install \
+  imagemagick \
+  fd \
+  git-delta
+  
+# Language & runtime
+brew install \
+  node \
+  rust
 
 # felixkartz/formulae
 brew tap FelixKratz/formulae
