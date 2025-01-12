@@ -36,15 +36,14 @@ brew install \
   eza \
   yazi \
   ripgrep \
-  hwatch 
-
+  hwatch
 
 # for Nvim plugins
 brew install \
   imagemagick \
   fd \
   git-delta
-  
+
 # Language & runtime
 brew install \
   node \
@@ -54,8 +53,7 @@ brew install \
 brew tap FelixKratz/formulae
 brew install \
   sketchybar \
-  borders \
-
+  borders
 
 brew install --cask \
   google-chrome \
@@ -122,7 +120,7 @@ GIT_CUSTOM_COMMANDS_DIR_NAME=".git-custom-commands"
 
 # 함수를 호출하면서 인자로 dotfiles 디렉토리와 타겟 디렉토리를 전달하세요.
 create_symlink --type=files "$HOME/${DOT_FILES_DIR_NAME}/.config" "$HOME/${CONFIG_DIR_NAME}"
-create_symlink --type=dir "$HOME/${DOT_FILES_DIR_NAME}/.git-custom-commands" "$HOME/${GIT_CUSTOM_COMMANDS_DIR_NAME}"
+create_symlink --type=dir "$HOME/${DOT_FILES_DIR_NAME}/.git-custom-commands" "$HOME"
 
 ##########################################################
 # Extends my .gitconfig to ~/.gitconfig
