@@ -18,6 +18,3 @@ mapKey("<leader>e", ":NvimTreeToggle<CR>")
 -- tab navigation
 mapKey("<A-Right>", ":tabnext<CR>")
 mapKey("<A-Left>", ":tabprevious<CR>")
-
--- terminal mode out
-vim.api.nvim_set_keymap("t", "<Esc>", "<C-\\><C-n>", { noremap = true })

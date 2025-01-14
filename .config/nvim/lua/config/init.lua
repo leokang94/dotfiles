@@ -15,6 +15,9 @@ require("config.globals")
 require("config.keymaps")
 require("config.options")
 
+-- my custom plugins(?)
+require("config.my.git-tab")
+
 require("lazy").setup({
 	rocks = {
 		hererocks = true, -- recommended if you do not have global installation of Lua 5.1.
