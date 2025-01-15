@@ -1,26 +1,28 @@
-_G.git_watch_job_id_list = _G.git_watch_job_id_list or {}
+_G.channel_buf_map = {}
 
 local function open_terminals()
 	vim.cmd("tabnew")
 
-	local width = vim.api.nvim_get_option("columns")
-	local height = vim.api.nvim_get_option("lines")
+	local width = vim.o.columns
+	local height = vim.o.lines
 	local is_vsplit = width > height * 3
 	local split_cmd = is_vsplit and "vsplit" or "split"
 
 	vim.cmd("terminal")
 	vim.cmd("startinsert")
+	local terminal_1_buf = vim.api.nvim_get_current_buf()
 
 	vim.cmd(split_cmd)
 	vim.cmd("terminal")
 	vim.cmd("startinsert")
+	local terminal_2_buf = vim.api.nvim_get_current_buf()
+	local current_channel = vim.bo.channel
+	_G.channel_buf_map[current_channel] = { terminal_1_buf, terminal_2_buf }
 
-	local current_job_id = vim.b.terminal_job_id
-	table.insert(_G.git_watch_job_id_list, current_job_id)
-	vim.api.nvim_chan_send(current_job_id, "git watch\n")
+	vim.api.nvim_chan_send(current_channel, "git watch\n")
 
 	if is_vsplit then
-		vim.cmd("vertical resize " .. math.floor(width * 0.8))
+		vim.cmd("vertical resize " .. math.floor(width * 0.7))
 	else
 		vim.cmd("resize " .. math.floor(height * 0.8))
 	end
@@ -43,14 +45,21 @@ vim.api.nvim_set_keymap(
 
 vim.api.nvim_create_autocmd("TabClosed", {
 	pattern = "*",
-	callback = function()
-		print("tab closed")
-		for _, job_id in ipairs(_G.git_watch_job_id_list) do
-			local jobstop_result = vim.fn.jobstop(job_id)
-			print("Stopped job ID:", job_id, "Result:", (jobstop_result == 1 and "Success" or "Failed"))
+	callback = function(ev)
+		for channel, buffers in pairs(_G.channel_buf_map) do
+			if vim.tbl_contains(buffers, ev.buf) then
+				local jobstop_result = vim.fn.jobstop(channel)
+				print("Stopped channel:", channel, "Result:", (jobstop_result == 1 and "Success" or "Failed"))
+				_G.channel_buf_map[channel] = nil
+				break
+			end
 		end
+	end,
+})
 
-		-- 리스트 초기화
-		_G.git_watch_job_id_list = {}
+vim.api.nvim_create_autocmd("TabEnter", {
+	pattern = "*",
+	callback = function(ev)
+		print("TabEnter event ->", vim.inspect(ev))
 	end,
 })
