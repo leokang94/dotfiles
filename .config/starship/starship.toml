@@ -4,6 +4,7 @@ $username\
 $directory\
 $git_branch\
 $git_status\
+${custom.git_wip}\
 $fill\
 $lua\
 $nodejs\
@@ -48,6 +49,14 @@ symbol = " "
 
 [git_commit]
 tag_symbol = '  '
+
+[custom.git_wip]
+command = """
+git rev-parse --abbrev-ref HEAD | xargs git log -1 --format=%s | grep -q "wip" && echo "🚧 WIP"
+"""
+when = "git rev-parse --git-dir 2> /dev/null"
+format = "[$output]($style) "
+style = "bold yellow"
 
 [nodejs]
 format = "[$symbol($version )]($style)"
