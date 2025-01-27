@@ -47,8 +47,8 @@ return {
 					filetype = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
 					handle = function(mode, line, _)
 						local npm_domain = "https://www.npmjs.com/package/"
-						local esm_package = require("gx.helper").find(line, mode, "import.+from.+['\"](.+)['\"]")
-						local cjs_package = require("gx.helper").find(line, mode, "const.+require%(['\"](.+)['\"]%)")
+						local esm_package = require("gx.helper").find(line, mode, ".*from.+['\"](.+)['\"]")
+						local cjs_package = require("gx.helper").find(line, mode, ".*require%(['\"](.+)['\"]%)")
 
 						if esm_package then
 							return npm_domain .. esm_package
