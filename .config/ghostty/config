@@ -18,8 +18,8 @@ mouse-hide-while-typing = true
 cursor-style = block
 cursor-style-blink = false
 
-# background-opacity = 0.8
-# background-blur-radius = 20
+background-opacity = 0.8
+background-blur-radius = 20
 
 window-padding-y = 0
 window-padding-x = 0
@@ -32,9 +32,9 @@ macos-option-as-alt = true
 macos-titlebar-style = hidden
 
 # custom-shader = shaders/better-crt.glsl
-custom-shader = shaders/mnoise.glsl
+# custom-shader = shaders/mnoise.glsl
 # custom-shader = shaders/test.glsl
-custom-shader-animation = false
+# custom-shader-animation = false
 
 
 ############################################################################
