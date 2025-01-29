@@ -4,9 +4,9 @@ return {
 	config = function()
 		local util = require("dracula.util")
 
-		local function get_blank_bg_color(color)
-			return util.blend_bg(color, 0.1)
-		end
+		-- local function get_blank_bg_color(color)
+		-- 	return util.blend_bg(color, 0.1)
+		-- end
 
 		require("hlchunk").setup({
 			chunk = {
@@ -21,27 +21,27 @@ return {
 					right_arrow = "─",
 				},
 			},
-			-- indent = {
-			-- 	enable = true,
-			-- 	chars = {
-			-- 		"│",
-			-- 		"¦",
-			-- 		"┆",
-			-- 		"┊",
-			-- 	},
-			-- },
-			blank = {
+			indent = {
 				enable = true,
 				chars = {
-					" ",
-				},
-				style = {
-					{ bg = get_blank_bg_color(vim.g.color.green) },
-					{ bg = get_blank_bg_color(vim.g.color.yellow) },
-					{ bg = get_blank_bg_color(vim.g.color.pink) },
-					{ bg = get_blank_bg_color(vim.g.color.white) },
+					"│",
+					"¦",
+					"┆",
+					"┊",
 				},
 			},
+			-- blank = {
+			-- 	enable = true,
+			-- 	chars = {
+			-- 		" ",
+			-- 	},
+			-- 	style = {
+			-- 		{ bg = get_blank_bg_color(vim.g.color.green) },
+			-- 		{ bg = get_blank_bg_color(vim.g.color.yellow) },
+			-- 		{ bg = get_blank_bg_color(vim.g.color.pink) },
+			-- 		{ bg = get_blank_bg_color(vim.g.color.white) },
+			-- 	},
+			-- },
 		})
 	end,
 }

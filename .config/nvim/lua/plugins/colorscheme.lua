@@ -24,10 +24,10 @@ return {
 					vim.api.nvim_set_hl(0, "lCursor", { bg = colors.purple })
 					vim.api.nvim_set_hl(0, "CursorIM", { bg = colors.purple })
 
-					vim.api.nvim_set_hl(0, "DiffDelete", { bg = util.blend_bg(colors.diff.delete, 0.8) })
-					vim.api.nvim_set_hl(0, "DiffAdd", { bg = util.blend_bg(colors.diff.add, 0.8) })
-					vim.api.nvim_set_hl(0, "DiffChange", { bg = util.blend_bg(colors.diff.change, 0.8) })
-					vim.api.nvim_set_hl(0, "DiffText", { bg = util.blend_bg(colors.diff.text, 0.5) })
+					vim.api.nvim_set_hl(0, "DiffDelete", { bg = util.blend_bg(colors.diff.delete, 0.7) })
+					vim.api.nvim_set_hl(0, "DiffAdd", { bg = util.blend_bg(colors.diff.add, 0.7) })
+					vim.api.nvim_set_hl(0, "DiffChange", { bg = util.blend_bg(colors.diff.change, 0.7) })
+					vim.api.nvim_set_hl(0, "DiffText", { bg = util.blend_bg(colors.pink, 0.4) })
 
 					local types = { "Error", "Warn", "Info", "Hint" }
 					for _, type in pairs(types) do
