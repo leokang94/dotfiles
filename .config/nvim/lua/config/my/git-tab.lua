@@ -1,4 +1,4 @@
-local is_vsplit_func = require("utils.screen").is_vsplit
+local get_is_vsplit = require("utils.screen").is_vsplit
 
 _G.channel_buf_map = {}
 
@@ -8,7 +8,7 @@ local function open_terminals()
 	local width = vim.o.columns
 	local height = vim.o.lines
 	-- local is_vsplit = width > height * 3
-	local is_vsplit = is_vsplit_func()
+	local is_vsplit = get_is_vsplit()
 	local split_cmd = is_vsplit and "vsplit" or "split"
 
 	vim.cmd("terminal")
@@ -60,9 +60,9 @@ vim.api.nvim_create_autocmd("TabClosed", {
 	end,
 })
 
-vim.api.nvim_create_autocmd("TabEnter", {
-	pattern = "*",
-	callback = function(ev)
-		print("TabEnter event ->", vim.inspect(ev))
-	end,
-})
+-- vim.api.nvim_create_autocmd("TabEnter", {
+-- 	pattern = "*",
+-- 	callback = function(ev)
+-- 		print("TabEnter event ->", vim.inspect(ev))
+-- 	end,
+-- })
