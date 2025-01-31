@@ -1,3 +1,5 @@
+local is_vsplit = require("utils.screen").is_vsplit
+
 return {
 	"stevearc/oil.nvim",
 	opts = {
@@ -34,15 +36,16 @@ return {
 			"<leader>o",
 			function()
 				local oil = require("oil")
-				oil.open()
+				oil.open(nil, {
+					preview = {
+						vertical = is_vsplit() and true or false,
+					},
+				})
 
 				-- Wait until oil has opened, for a maximum of 1 second.
 				vim.wait(1000, function()
 					return oil.get_cursor_entry() ~= nil
 				end)
-				if oil.get_cursor_entry() then
-					oil.open_preview()
-				end
 			end,
 			desc = "Open File Explorer",
 		},

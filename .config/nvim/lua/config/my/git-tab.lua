@@ -1,3 +1,5 @@
+local is_vsplit_func = require("utils.screen").is_vsplit
+
 _G.channel_buf_map = {}
 
 local function open_terminals()
@@ -5,7 +7,8 @@ local function open_terminals()
 
 	local width = vim.o.columns
 	local height = vim.o.lines
-	local is_vsplit = width > height * 3
+	-- local is_vsplit = width > height * 3
+	local is_vsplit = is_vsplit_func()
 	local split_cmd = is_vsplit and "vsplit" or "split"
 
 	vim.cmd("terminal")
