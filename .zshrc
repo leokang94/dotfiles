@@ -51,7 +51,10 @@ alias g='git'
 alias fetch='fastfetch'
 
 # for AI Keys
+## OpenAI
 export OPENAI_API_KEY=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
+## Claude
+export ANTHROPIC_API_KEY=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
 
 
 ###############################
