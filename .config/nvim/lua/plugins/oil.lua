@@ -36,7 +36,7 @@ return {
 			"<leader>o",
 			function()
 				local oil = require("oil")
-				oil.open(nil, {
+				oil.open_float(nil, {
 					preview = {
 						vertical = is_vsplit() and true or false,
 					},
