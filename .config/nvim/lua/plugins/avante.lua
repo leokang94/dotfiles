@@ -43,7 +43,7 @@ return {
 		},
 	},
 	opts = {
-		provider = "openai",
+		provider = "claude",
 		behaviour = {
 			auto_suggestions = false, -- Experimental stage
 			auto_set_highlight_group = true,
@@ -54,6 +54,10 @@ return {
 		file_selector = {
 			provider = "fzf",
 			provider_opts = {},
+		},
+		windows = {
+			width = 40,
+			position = "smart",
 		},
 	},
 }
