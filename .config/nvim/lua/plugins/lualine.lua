@@ -6,7 +6,8 @@ return {
 	"nvim-lualine/lualine.nvim",
 	dependencies = {
 		"DaikyXendo/nvim-material-icon",
-		{ "justinhj/battery.nvim", config = true },
+		{ "justinhj/battery.nvim" },
+		{ "piersolenski/wtf.nvim" },
 		-- "nvim-tree/nvim-web-devicons",
 	},
 	opts = {
