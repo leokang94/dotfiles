@@ -71,12 +71,10 @@ return {
 			keys[#keys + 1] = { "[[", false }
 			keys[#keys + 1] = { "]]", false }
 
-			keys[#keys + 1] = { "gr", ":FzfLua lsp_references jump_to_single_result=true ignore_current_line=true<CR>" }
-			keys[#keys + 1] =
-				{ "gd", ":FzfLua lsp_definitions jump_to_single_result=true ignore_current_line=true<CR>" }
-			keys[#keys + 1] = { "gt", ":FzfLua lsp_typedefs jump_to_single_result=true ignore_current_line=true<CR>" }
-			keys[#keys + 1] =
-				{ "gi", ":FzfLua lsp_implementations jump_to_single_result=true ignore_current_line=true<CR>" }
+			keys[#keys + 1] = { "gr", ":FzfLua lsp_references jump1=true ignore_current_line=true<CR>" }
+			keys[#keys + 1] = { "gd", ":FzfLua lsp_definitions jump1=true ignore_current_line=true<CR>" }
+			keys[#keys + 1] = { "gt", ":FzfLua lsp_typedefs jump1=true ignore_current_line=true<CR>" }
+			keys[#keys + 1] = { "gi", ":FzfLua lsp_implementations jump1=true ignore_current_line=true<CR>" }
 			keys[#keys + 1] = {
 				"<leader>ca",
 				function()
