@@ -55,7 +55,7 @@ brew install \
   sketchybar \
   borders
 
-brew install --cask \
+brew install --force --cask \
   google-chrome \
   raycast \
   discord \
@@ -65,6 +65,8 @@ brew install --cask \
   karabiner-elements \
   nikitabobko/tap/aerospace \
   homerow \
+  1password \
+  1password-cli \
   sf-symbols
 echo "${LEO_PREFIX} Download ${CIAN}programs${CLEAR} from homebrew... ${DONE_POSTFIX}"
 
@@ -139,17 +141,25 @@ fi
 echo "${LEO_PREFIX} Extends source code to .gitconfig... ${DONE_POSTFIX}"
 
 ##########################################################
-# Extends my .zshrc to ~/.zshrc
+# Extends my .zprofile, .zshrc to ~/.zprofile, ~/.zshrc
 ##########################################################
 
-echo "${LEO_PREFIX} Extends source code to .zshrc..."
+echo "${LEO_PREFIX} Extends source code to .zprofile, .zshrc..."
 
-ZSHRC_EXTENDS_STRING="# use my own zshrc
+ZPROFILE_EXTENDS_STRING="# use my own .zprofile
+  [ -f ~/${DOT_FILES_DIR_NAME}/.zprofile ] && source ~/${DOT_FILES_DIR_NAME}/.zprofile
+  "
+
+ZSHRC_EXTENDS_STRING="# use my own .zshrc
   [ -f ~/${DOT_FILES_DIR_NAME}/.zshrc ] && source ~/${DOT_FILES_DIR_NAME}/.zshrc
   "
+
+if ! grep -Fxq "${ZPROFILE_EXTENDS_STRING}" ~/.zprofile; then
+  echo "${ZPROFILE_EXTENDS_STRING}" | cat - ~/.zprofile >temp && mv temp ~/.zprofile
+fi
 
 if ! grep -Fxq "${ZSHRC_EXTENDS_STRING}" ~/.zshrc; then
   echo "${ZSHRC_EXTENDS_STRING}" | cat - ~/.zshrc >temp && mv temp ~/.zshrc
 fi
 
-echo "${LEO_PREFIX} Extends source code to .zshrc... ${DONE_POSTFIX}"
+echo "${LEO_PREFIX} Extends source code to .zprofile, .zshrc... ${DONE_POSTFIX}"
