@@ -154,6 +154,11 @@ ZSHRC_EXTENDS_STRING="# use my own .zshrc
   [ -f ~/${DOT_FILES_DIR_NAME}/.zshrc ] && source ~/${DOT_FILES_DIR_NAME}/.zshrc
   "
 
+# Create files if they don't exist
+[ ! -f ~/.zprofile ] && touch ~/.zprofile
+[ ! -f ~/.zshrc ] && touch ~/.zshrc
+
+
 if ! grep -Fxq "${ZPROFILE_EXTENDS_STRING}" ~/.zprofile; then
   echo "${ZPROFILE_EXTENDS_STRING}" | cat - ~/.zprofile >temp && mv temp ~/.zprofile
 fi
