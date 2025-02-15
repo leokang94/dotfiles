@@ -188,15 +188,31 @@ M = ['Built-in', 'main']
 T = ['dell', 'built-in']
 B = ['main', 'built-in']
 
-# force workspace T (Terminal)
+
+# workspace T,B,M layout
+# 현재는 on-window-detected callback 에서 run command가 `layout tiling`, `layout floating` 만 가능함. 추후 변경되는 것에 따라 accordion 으로 바꿀 수 있는지 체크 필요.
+# ref: https://github.com/nikitabobko/AeroSpace/issues/20
+[[on-window-detected]]
+if.workspace = 'T'
+run = ['layout tiling']
 
 [[on-window-detected]]
-if.app-id = 'com.github.wez.wezterm'
-run = "move-node-to-workspace T"
+if.workspace = 'B'
+run = ['layout tiling']
 
+[[on-window-detected]]
+if.workspace = 'M'
+run = ['layout tiling']
+
+# set default window layout to floating
+[[on-window-detected]]
+check-further-callbacks = true
+run = 'layout floating'
+
+# force workspace T (Terminal)
 [[on-window-detected]]
 if.app-id = "com.mitchellh.ghostty"
-run = ["layout tiling", "move-node-to-workspace T"]
+run = "move-node-to-workspace T"
 
 # force workspace B (Browser)
 [[on-window-detected]]
@@ -225,50 +241,3 @@ run = "move-node-to-workspace M"
 [[on-window-detected]]
 if.app-id = 'com.apple.MobileSMS'
 run = "move-node-to-workspace M"
-
-# force floating
-
-[[on-window-detected]]
-if.app-id = 'com.macpaw.CleanMyMac5'
-run = 'layout floating'
-
-[[on-window-detected]]
-if.app-id = 'com.apple.SFSymbols'
-run = 'layout floating'
-
-[[on-window-detected]]
-if.app-id = 'com.apple.Music'
-run = 'layout floating'
-
-[[on-window-detected]]
-if.app-id = 'com.apple.finder'
-run = 'layout floating'
-
-[[on-window-detected]]
-if.app-id = 'com.apple.iCal'
-run = 'layout floating'
-
-[[on-window-detected]]
-if.app-id = 'com.apple.systempreferences'
-run = 'layout floating'
-
-[[on-window-detected]]
-if.app-id = 'com.apple.AppStore'
-run = "layout floating"
-
-[[on-window-detected]]
-if.app-id = 'com.apple.ActivityMonitor'
-run = 'layout floating'
-
-[[on-window-detected]]
-if.app-id = 'com.bluebanana-software.inyourface'
-run = 'layout floating'
-
-[[on-window-detected]]
-if.app-id = 'com.superultra.Homerow'
-run = 'layout floating'
-
-# workspace T layout
-[[on-window-detected]]
-if.workspace = 'T'
-run = ['layout tiling']
