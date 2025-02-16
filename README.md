@@ -49,3 +49,10 @@ zsh --login
 - Aerospace
 - Homerow
 - Ghostty 
+
+### 7-3 nvim 내에서 추가 설정
+
+#### github-copilot 세팅
+```
+:Copilot auth
+```
