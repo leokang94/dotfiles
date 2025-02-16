@@ -7,53 +7,16 @@ return {
       "onsails/lspkind.nvim", -- VSCode-like pictograms
     },
     version = '*',
-    opts = {
-      enabled = function()
+    opts = function(_, opts)
+      opts.enabled = function()
         local disabled = false
 
         disabled = disabled or vim.bo.filetype == "NvimTree"
 
         return not disabled
-      end,
+      end
 
-
-      -- NOTE :: suggestion이 동작하지 않는 문제가 있어서, 임시 비활성화 함.
-      --  ref: https://github.com/Saghen/blink.cmp/issues/1241
-      --
-      -- sources = {
-      --   default = {
-      --     "lsp",
-      --     "path",
-      --     "buffer",
-      --     "avante_commands",
-      --     "avante_mentions",
-      --   },
-      --   compat = {
-      --     "avante_commands",
-      --     "avante_mentions",
-      --   },
-      --   providers = {
-      --     avante_commands = {
-      --       name = "avante_commands",
-      --       module = "blink.compat.source",
-      --       score_offset = 90,
-      --       opts = {},
-      --     },
-      --     avante_files = {
-      --       name = "avante_commands",
-      --       module = "blink.compat.source",
-      --       score_offset = 100,
-      --       opts = {},
-      --     },
-      --   },
-      --   transform_items = function(_, items)
-      --     return vim.tbl_filter(function(item)
-      --       return item.kind ~= require("blink.cmp.types").CompletionItemKind.Snippet
-      --     end, items)
-      --   end,
-      -- },
-
-      keymap = {
+      opts.keymap = {
         preset = "enter",
         ["<C-u>"] = { "scroll_documentation_up", "fallback" },
         ["<C-d>"] = { "scroll_documentation_down", "fallback" },
@@ -107,9 +70,10 @@ return {
             cmp.accept({ index = 10 })
           end,
         },
-      },
+      }
 
-      completion = {
+
+      opts.completion = {
         menu = {
           border = "single",
           scrollbar = false,
@@ -248,9 +212,9 @@ return {
             border = "single",
           },
         },
-      },
+      }
 
-      cmdline = {
+      opts.cmdline = {
         enabled = true,
         keymap = nil, -- Inherits from top level `keymap` config when not set
         sources = function()
@@ -273,13 +237,40 @@ return {
             },
           }
         }
-      },
+      }
 
-      signature = {
-        window = {
-          border = "single",
+      opts.sources = {
+        default = {
+          "lsp",
+          "path",
+          "buffer",
+          "avante_commands",
+          "avante_mentions",
         },
-      },
-    },
+        compat = {
+          "avante_commands",
+          "avante_mentions",
+        },
+        providers = {
+          avante_commands = {
+            name = "avante_commands",
+            module = "blink.compat.source",
+            score_offset = 90,
+            opts = {},
+          },
+          avante_files = {
+            name = "avante_commands",
+            module = "blink.compat.source",
+            score_offset = 100,
+            opts = {},
+          },
+        },
+        transform_items = function(_, items)
+          return vim.tbl_filter(function(item)
+            return item.kind ~= require("blink.cmp.types").CompletionItemKind.Snippet
+          end, items)
+        end,
+      }
+    end
   },
 }
