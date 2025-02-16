@@ -46,6 +46,13 @@ alias g='git'
 # alias tmf='tmuxifier'
 # alias tmux='tmux -u'
 
+# Setup AI API Keys
+# 1password cli must be installed and configured
+if command -v op &> /dev/null; then
+  # Only fetch from 1password if the keys are not already set
+  [ -z "$OPENAI_API_KEY" ] && export OPENAI_API_KEY=$(op item get OPENAI_API_KEY --reveal --vault ZSH --fields label=password)
+  [ -z "$ANTHROPIC_API_KEY" ] && export ANTHROPIC_API_KEY=$(op item get ANTHROPIC_API_KEY --reveal --vault ZSH --fields label=password)
+fi
 
 # fastfetch
 alias fetch='fastfetch'
