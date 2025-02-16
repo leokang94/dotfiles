@@ -1,6 +1,11 @@
 return {
   {
     "saghen/blink.cmp",
+    dependencies = {
+      "avante.nvim",
+      "saghen/blink.compat",
+      "onsails/lspkind.nvim", -- VSCode-like pictograms
+    },
     version = '*',
     opts = {
       enabled = function()
@@ -10,18 +15,43 @@ return {
 
         return not disabled
       end,
-      sources = {
-        default = {
-          "lsp",
-          "path",
-          "buffer",
-        },
-        transform_items = function(_, items)
-          return vim.tbl_filter(function(item)
-            return item.kind ~= require("blink.cmp.types").CompletionItemKind.Snippet
-          end, items)
-        end,
-      },
+
+
+      -- NOTE :: suggestion이 동작하지 않는 문제가 있어서, 임시 비활성화 함.
+      --  ref: https://github.com/Saghen/blink.cmp/issues/1241
+      --
+      -- sources = {
+      --   default = {
+      --     "lsp",
+      --     "path",
+      --     "buffer",
+      --     "avante_commands",
+      --     "avante_mentions",
+      --   },
+      --   compat = {
+      --     "avante_commands",
+      --     "avante_mentions",
+      --   },
+      --   providers = {
+      --     avante_commands = {
+      --       name = "avante_commands",
+      --       module = "blink.compat.source",
+      --       score_offset = 90,
+      --       opts = {},
+      --     },
+      --     avante_files = {
+      --       name = "avante_commands",
+      --       module = "blink.compat.source",
+      --       score_offset = 100,
+      --       opts = {},
+      --     },
+      --   },
+      --   transform_items = function(_, items)
+      --     return vim.tbl_filter(function(item)
+      --       return item.kind ~= require("blink.cmp.types").CompletionItemKind.Snippet
+      --     end, items)
+      --   end,
+      -- },
 
       keymap = {
         preset = "enter",
@@ -95,15 +125,44 @@ return {
 
               kind_icon = {
                 ellipsis = false,
+                -- text = function(ctx)
+                --   return ctx.kind_icon .. ctx.icon_gap
+                -- end,
                 text = function(ctx)
-                  return ctx.kind_icon .. ctx.icon_gap
+                  local icon = ctx.kind_icon
+                  if vim.tbl_contains({ "Path" }, ctx.source_name) then
+                    local dev_icon, _ = require("nvim-web-devicons").get_icon(ctx.label)
+                    if dev_icon then
+                      icon = dev_icon
+                    end
+                  else
+                    icon = require("lspkind").symbolic(ctx.kind, {
+                      mode = "symbol",
+                    })
+                  end
+
+                  return icon .. ctx.icon_gap
                 end,
+                -- Optionally, use the highlight groups from nvim-web-devicons
+                -- You can also add the same function for `kind.highlight` if you want to
+                -- keep the highlight groups in sync with the icons.
                 highlight = function(ctx)
-                  return (
-                    require("blink.cmp.completion.windows.render.tailwind").get_hl(ctx)
-                    or "BlinkCmpKind"
-                  ) .. ctx.kind
+                  local hl = "BlinkCmpKind" .. ctx.kind
+                      or require("blink.cmp.completion.windows.render.tailwind").get_hl(ctx)
+                  if vim.tbl_contains({ "Path" }, ctx.source_name) then
+                    local dev_icon, dev_hl = require("nvim-web-devicons").get_icon(ctx.label)
+                    if dev_icon then
+                      hl = dev_hl
+                    end
+                  end
+                  return hl
                 end,
+                -- highlight = function(ctx)
+                --   return (
+                --     require("blink.cmp.completion.windows.render.tailwind").get_hl(ctx)
+                --     or "BlinkCmpKind"
+                --   ) .. ctx.kind
+                -- end,
               },
 
               kind = {
@@ -175,6 +234,12 @@ return {
                 highlight = "BlinkCmpSource",
               },
             },
+          },
+        },
+        list = {
+          selection = {
+            preselect = true,
+            auto_insert = false
           },
         },
         documentation = {
