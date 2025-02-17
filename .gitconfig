@@ -13,8 +13,6 @@
   feature = decorations
   navigate = true
   syntax-theme = Dracula
-[commit]
-	template = ~/.stCommitMsg
 [merge]
 	ff = no
 	commit = no
