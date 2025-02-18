@@ -40,6 +40,7 @@ return {
 			},
 		},
 	},
+	-- auto formatter
 	{
 		"stevearc/conform.nvim",
 		opts = {
@@ -57,11 +58,20 @@ return {
 				-- sh = { "shfmt" },
 				-- zsh = { "shfmt" },
 			},
-
-			format_on_save = {
-				-- These options will be passed to conform.format()
-				timeout_ms = 500,
-				lsp_format = "fallback",
+		},
+	},
+	-- auto lint
+	{
+		"mfussenegger/nvim-lint",
+		event = { "BufReadPre", "BufWritePost", "BufEnter", "InsertLeave", "BufNewFile" },
+		opts = {
+			linters_by_ft = {
+				-- lua = { "luacheck" },
+				yaml = { "yamllint" },
+				javascript = { "cspell" },
+				typescript = { "cspell" },
+				javascriptreact = { "cspell" },
+				typescriptreact = { "cspell" },
 			},
 		},
 	},
