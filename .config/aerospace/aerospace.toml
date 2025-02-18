@@ -204,11 +204,6 @@ run = ['layout tiling']
 if.workspace = 'M'
 run = ['layout tiling']
 
-# set default window layout to floating
-[[on-window-detected]]
-check-further-callbacks = true
-run = 'layout floating'
-
 # force workspace T (Terminal)
 [[on-window-detected]]
 if.app-id = "com.mitchellh.ghostty"
@@ -241,3 +236,8 @@ run = "move-node-to-workspace M"
 [[on-window-detected]]
 if.app-id = 'com.apple.MobileSMS'
 run = "move-node-to-workspace M"
+
+# set default window layout to floating
+[[on-window-detected]]
+check-further-callbacks = true
+run = 'layout floating'
