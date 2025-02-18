@@ -30,8 +30,6 @@ return {
 				"stylua",
 				"prettier",
 				"yamlfmt",
-				"markdownlist-cli2",
-				"markdown-toc",
 				"taplo",
 			},
 		},
