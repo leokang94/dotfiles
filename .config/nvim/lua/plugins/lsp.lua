@@ -21,7 +21,19 @@ return {
 	{
 		"williamboman/mason-lspconfig.nvim",
 		opts = {
-			ensure_installed = { "lua_ls", "vtsls", "eslint", "yamlls", "jsonls" },
+			ensure_installed = {
+				"lua_ls",
+				"vtsls",
+				"eslint",
+				"yamlls",
+				"jsonls",
+				"stylua",
+				"prettier",
+				"yamlfmt",
+				"markdownlist-cli2",
+				"markdown-toc",
+				"taplo",
+			},
 		},
 	},
 	{
