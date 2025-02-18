@@ -1,11 +1,15 @@
 return {
 	"mfussenegger/nvim-lint",
 	event = { "BufReadPre", "BufWritePost", "BufEnter", "InsertLeave", "BufNewFile" },
-	linters_by_ft = {
-		lua = { "luacheck" },
-		yaml = { "yamllint" },
-		typescript = { "cspell" },
-		typescriptreact = { "cspell" },
+	opts = {
+		linters_by_ft = {
+			lua = { "luacheck" },
+			yaml = { "yamllint" },
+			javascript = { "cspell" },
+			typescript = { "cspell" },
+			javascriptreact = { "cspell" },
+			typescriptreact = { "cspell" },
+		},
 	},
 	-- config = function()
 	-- 	local lint = require("lint")

@@ -8,29 +8,60 @@ local function getRepoRoot(startpath)
 end
 
 return {
+	{ "williamboman/mason.nvim" },
 	{
-		"williamboman/mason.nvim",
-		opts = function(_, opts)
-			opts.ensure_installed = opts.ensure_installed or {}
-			vim.list_extend(opts.ensure_installed, { "shellcheck" })
-		end,
-		config = function()
-			require("mason").setup()
-		end,
-	},
-	{
-		"williamboman/mason-lspconfig.nvim",
+		"WhoIsSethDaniel/mason-tool-installer.nvim",
 		opts = {
 			ensure_installed = {
+				-- lsp
 				"lua_ls",
 				"vtsls",
 				"eslint",
-				"yamlls",
+				"glsl_analyzer",
+				"html",
 				"jsonls",
-				"stylua",
-				"prettier",
-				"yamlfmt",
+				"mdx_analyzer",
+				"tailwindcss",
 				"taplo",
+				"yamlls",
+
+				-- linter
+				-- "luacheck", -- NOTE :: luarock 관련 에러가 나는데, 체크 필요.
+				"yamllint",
+				"markdownlint-cli2",
+				"shellcheck",
+				"cspell",
+
+				-- formatter
+				"prettier",
+				"markdown-toc",
+				"stylua",
+				"yamlfmt",
+			},
+		},
+	},
+	{
+		"stevearc/conform.nvim",
+		opts = {
+			formatters_by_ft = {
+				lua = { "stylua" },
+				javascript = { "prettier" },
+				typescript = { "prettier" },
+				javascriptreact = { "prettier" },
+				typescriptreact = { "prettier" },
+				yaml = { "yamlfmt" },
+				json = { "prettier" },
+				jsonc = { "prettier" },
+				mdx = { "prettier", "markdownlint-cli2", "markdown-toc" },
+				toml = { "taplo" },
+				-- sh = { "shfmt" },
+				-- zsh = { "shfmt" },
+			},
+
+			format_on_save = {
+				-- These options will be passed to conform.format()
+				timeout_ms = 500,
+				lsp_format = "fallback",
 			},
 		},
 	},
@@ -156,14 +187,6 @@ return {
 							hostInfo = "neovim",
 						},
 						root_dir = getRepoRoot,
-						-- root_dir = function(startpath)
-						-- 	return vim.fs.dirname(
-						-- 		vim.fs.find(
-						-- 			{ ".git", "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "bun.lockb" },
-						-- 			{ path = startpath, upward = true }
-						-- 		)[1]
-						-- 	)
-						-- end,
 						settings = {
 							complete_function_calls = true,
 							vtsls = {
