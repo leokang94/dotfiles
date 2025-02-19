@@ -185,10 +185,12 @@ alt-shift-k = ['join-with up', 'mode main']
 alt-shift-l = ['join-with right', 'mode main']
 
 [workspace-to-monitor-force-assignment]
-M = ['Built-in', 'main']
-T = ['dell', 'built-in']
-B = ['main', 'built-in']
-
+M = ['built-in', 'main']
+T = ['dell', 'main']
+B = ['main']
+7 = ['main']
+8 = ['main']
+9 = ['main']
 
 # workspace T,B,M layout
 # 현재는 on-window-detected callback 에서 run command가 `layout tiling`, `layout floating` 만 가능함. 추후 변경되는 것에 따라 accordion 으로 바꿀 수 있는지 체크 필요.
