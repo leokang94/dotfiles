@@ -192,20 +192,6 @@ B = ['main']
 8 = ['main']
 9 = ['main']
 
-# workspace T,B,M layout
-# 현재는 on-window-detected callback 에서 run command가 `layout tiling`, `layout floating` 만 가능함. 추후 변경되는 것에 따라 accordion 으로 바꿀 수 있는지 체크 필요.
-# ref: https://github.com/nikitabobko/AeroSpace/issues/20
-[[on-window-detected]]
-if.workspace = 'T'
-run = ['layout tiling']
-
-[[on-window-detected]]
-if.workspace = 'B'
-run = ['layout tiling']
-
-[[on-window-detected]]
-if.workspace = 'M'
-run = ['layout tiling']
 
 # force workspace T (Terminal)
 [[on-window-detected]]
@@ -240,7 +226,30 @@ run = "move-node-to-workspace M"
 if.app-id = 'com.apple.MobileSMS'
 run = "move-node-to-workspace M"
 
-# set default window layout to floating
+
+# workspace T,B,M layout
+# 현재는 on-window-detected callback 에서 run command가 `layout tiling`, `layout floating` 만 가능함. 추후 변경되는 것에 따라 accordion 으로 바꿀 수 있는지 체크 필요.
+# ref: https://github.com/nikitabobko/AeroSpace/issues/20
 [[on-window-detected]]
-check-further-callbacks = true
-run = 'layout floating'
+if.workspace = 'T'
+run = ['layout tiling']
+
+[[on-window-detected]]
+if.workspace = 'B'
+run = ['layout tiling']
+
+[[on-window-detected]]
+if.workspace = 'M'
+run = ['layout tiling']
+
+[[on-window-detected]]
+if.workspace = '7'
+run = ['layout floating']
+
+[[on-window-detected]]
+if.workspace = '8'
+run = ['layout floating']
+
+[[on-window-detected]]
+if.workspace = '9'
+run = ['layout floating']
