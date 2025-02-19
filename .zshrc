@@ -3,7 +3,22 @@
 
 zmodload zsh/zprof
 
-alias resh="exec zsh"
+# Function to handle shell restart with optional cache invalidation
+resh() {
+  if [ "$1" = "--cache-invalidate" ]; then
+    echo "Invalidating API keys cache..."
+    if command -v op &> /dev/null; then
+      # Force update OPENAI key
+      local op_key=$(op item get OPENAI_API_KEY --reveal --vault ZSH --fields label=password)
+      [ ! -z "$op_key" ] && set_cached_key "OPENAI_API_KEY" "$op_key"
+      
+      # Force update ANTHROPIC key
+      op_key=$(op item get ANTHROPIC_API_KEY --reveal --vault ZSH --fields label=password)
+      [ ! -z "$op_key" ] && set_cached_key "ANTHROPIC_API_KEY" "$op_key"
+    fi
+  fi
+  exec zsh
+}
 
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:/usr/local/bin:$PATH
