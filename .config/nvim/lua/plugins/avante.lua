@@ -44,12 +44,16 @@ return {
 	},
 	opts = {
 		provider = "claude",
+		-- claude = {
+		-- 	disable_tools = true,
+		-- },
 		behaviour = {
 			auto_suggestions = false, -- Experimental stage
 			auto_set_highlight_group = true,
 			auto_set_keymaps = true,
 			auto_apply_diff_after_generation = false,
 			support_paste_from_clipboard = true,
+			enable_claude_text_editor_tool_mode = true, -- only for claude provider
 		},
 		file_selector = {
 			provider = "fzf",
@@ -70,5 +74,17 @@ return {
 				start_insert = false,
 			},
 		},
+
+		-- The system_prompt type supports both a string and a function that returns a string. Using a function here allows dynamically updating the prompt with mcphub
+		system_prompt = function()
+			local hub = require("mcphub").get_hub_instance()
+			return hub:get_active_servers_prompt()
+		end,
+		-- The custom_tools type supports both a list and a function that returns a list. Using a function here prevents requiring mcphub before it's loaded
+		custom_tools = function()
+			return {
+				require("mcphub.extensions.avante").mcp_tool(),
+			}
+		end,
 	},
 }
