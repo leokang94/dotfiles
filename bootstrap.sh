@@ -55,6 +55,10 @@ brew install \
   sketchybar \
   borders
 
+# macism (for auto-input-switch)
+brew tap laishulu/homebrew
+brew install macism
+
 brew install --force --cask \
   google-chrome \
   raycast \
@@ -157,7 +161,6 @@ ZSHRC_EXTENDS_STRING="# use my own .zshrc
 # Create files if they don't exist
 [ ! -f ~/.zprofile ] && touch ~/.zprofile
 [ ! -f ~/.zshrc ] && touch ~/.zshrc
-
 
 if ! grep -Fxq "${ZPROFILE_EXTENDS_STRING}" ~/.zprofile; then
   echo "${ZPROFILE_EXTENDS_STRING}" | cat - ~/.zprofile >temp && mv temp ~/.zprofile
