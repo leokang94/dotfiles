@@ -55,10 +55,6 @@ brew install \
   sketchybar \
   borders
 
-# macism (for auto-input-switch)
-brew tap laishulu/homebrew
-brew install macism
-
 brew install --force --cask \
   google-chrome \
   raycast \
