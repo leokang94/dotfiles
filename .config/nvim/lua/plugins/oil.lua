@@ -7,6 +7,13 @@ return {
 		view_options = {
 			show_hidden = true,
 		},
+		preview_win = {
+			-- 파일 크기가 1MB(1048576 bytes) 이상이면 미리보기 비활성화
+			disable_preview = function(filename)
+				local stat = vim.loop.fs_stat(filename)
+				return stat and stat.size > 1048576
+			end,
+		},
 
 		keymaps = {
 			["g?"] = { "actions.show_help", mode = "n" },

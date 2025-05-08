@@ -3,6 +3,7 @@ return {
 	---@type snacks.Config
 	opts = {
 		-- statuscolumn = {},
+		bigfile = { enabled = true, line_length = 100 },
 		scope = {},
 		indent = { enabled = false },
 		scroll = {

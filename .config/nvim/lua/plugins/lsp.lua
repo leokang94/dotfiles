@@ -8,25 +8,28 @@ local function getRepoRoot(startpath)
 end
 
 return {
-	{ "williamboman/mason.nvim" },
+	-- NOTE :: mason 2.0 으로 올라가면서, LazyVim 에서 아직 호환되지 않는 부분에 대한 workaround. mason, mason-lspconfig 버전을 우선 고정함.
+	-- ref : https://www.reddit.com/r/neovim/comments/1kgu748/comment/mr41tkr/
+	{ "mason-org/mason.nvim", version = "1.11.0" },
+	{ "mason-org/mason-lspconfig.nvim", version = "1.32.0" },
 	{
 		"WhoIsSethDaniel/mason-tool-installer.nvim",
 		opts = {
 			ensure_installed = {
 				-- lsp
-				"lua_ls",
+				"lua-language-server",
 				"vtsls",
-				"eslint",
+				"eslint-lsp",
 				"glsl_analyzer",
-				"html",
-				"jsonls",
-				"mdx_analyzer",
-				"tailwindcss",
+				"html-lsp",
+				"json-lsp",
+				"mdx-analyzer",
+				"tailwindcss-language-server",
 				"taplo",
-				"yamlls",
+				"yaml-language-server",
 
 				-- linter
-				-- "luacheck", -- NOTE :: luarock 관련 에러가 나는데, 체크 필요.
+				"luacheck",
 				"yamllint",
 				"markdownlint-cli2",
 				"shellcheck",
