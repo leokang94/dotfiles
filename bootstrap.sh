@@ -27,6 +27,7 @@ echo "${LEO_PREFIX} Download ${CIAN}font${CLEAR} from homebrew... ${DONE_POSTFIX
 echo "${LEO_PREFIX} Download ${CIAN}programs${CLEAR} from homebrew..."
 brew install \
   nvim \
+  luarocks \
   fzf \
   starship \
   fastfetch \
