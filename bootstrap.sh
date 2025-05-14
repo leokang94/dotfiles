@@ -35,7 +35,6 @@ brew install \
   bottom \
   zoxide \
   eza \
-  yazi \
   ripgrep \
   hwatch
 
