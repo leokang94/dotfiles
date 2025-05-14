@@ -69,10 +69,6 @@ return {
 			width = 50,
 			height = 30,
 			position = "smart",
-
-			ask = {
-				start_insert = false,
-			},
 		},
 
 		-- The system_prompt type supports both a string and a function that returns a string. Using a function here allows dynamically updating the prompt with mcphub

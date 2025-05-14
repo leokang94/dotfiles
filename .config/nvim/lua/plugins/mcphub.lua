@@ -8,22 +8,6 @@ return {
 	-- build = "bundled_build.lua",
 	-- use_bundleed_binary = true,
 	opts = {
-		-- Required options
-		port = 9999, -- Port for MCP Hub server
-		config = vim.fn.expand("~/mcpservers.json"), -- Absolute path to config file
-
-		-- Optional options
-		on_ready = function(hub)
-			-- Called when hub is ready
-		end,
-		on_error = function(err)
-			-- Called on errors
-		end,
-		log = {
-			level = vim.log.levels.WARN,
-			to_file = false,
-			file_path = nil,
-			prefix = "MCPHub",
-		},
+		auto_approve = true,
 	},
 }
