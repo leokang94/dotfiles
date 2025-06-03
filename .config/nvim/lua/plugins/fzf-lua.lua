@@ -1,12 +1,6 @@
 return {
 	"ibhagwan/fzf-lua",
 	opts = function(_, opts)
-		local config = require("fzf-lua.config")
-		local actions = require("fzf-lua.actions")
-		config.defaults.actions.files["alt-t"] = actions.file_tabedit
-		config.defaults.actions.files["alt-\\"] = actions.file_vsplit
-		config.defaults.actions.files["alt--"] = actions.file_split
-
 		opts.winopts = {
 			width = 0.9,
 			height = 0.8,

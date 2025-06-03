@@ -16,18 +16,27 @@ return {
 				lualine_bold = true,
 				on_colors = function(colors)
 					vim.g.color = colors
+				end,
 
-					vim.api.nvim_set_hl(0, "LineNrAbove", { fg = colors.comment, bold = true })
-					vim.api.nvim_set_hl(0, "LineNrBelow", { fg = colors.comment, bold = true })
-					vim.api.nvim_set_hl(0, "WinSeparator", { fg = colors.bright_blue, bold = true })
-					vim.api.nvim_set_hl(0, "Cursor", { bg = colors.purple })
-					vim.api.nvim_set_hl(0, "lCursor", { bg = colors.purple })
-					vim.api.nvim_set_hl(0, "CursorIM", { bg = colors.purple })
+				on_highlights = function(hl, c)
+					hl.LineNrAbove = { fg = c.comment, bold = true }
+					hl.LineNrBelow = { fg = c.comment, bold = true }
+					hl.WinSeparator = { fg = c.bright_blue, bold = true }
+					hl.Cursor = { bg = c.purple }
+					hl.lCursor = { bg = c.purple }
+					hl.CursorIM = { bg = c.purple }
 
-					vim.api.nvim_set_hl(0, "DiffDelete", { bg = util.blend_bg(colors.diff.delete, 0.7) })
-					vim.api.nvim_set_hl(0, "DiffAdd", { bg = util.blend_bg(colors.diff.add, 0.7) })
-					vim.api.nvim_set_hl(0, "DiffChange", { bg = util.blend_bg(colors.diff.change, 0.7) })
-					vim.api.nvim_set_hl(0, "DiffText", { bg = util.blend_bg(colors.pink, 0.4) })
+					hl.DiffDelete = { bg = util.blend_bg(c.diff.delete, 0.2) }
+					hl.DiffAdd = { bg = util.blend_bg(c.diff.add, 0.3) }
+					hl.DiffChange = { bg = util.blend_bg(c.diff.change, 0.2) }
+					-- hl.DiffText = { bg = util.blend_bg(c.diff.change, 0.8) }
+					hl.DiffAddAsDelete = { bg = util.blend_bg(c.diff.delete, 0.2) }
+					hl.DiffviewDiffAddAsDelete = { bg = util.blend_bg(c.diff.delete, 0.2) }
+					hl.DiffviewDiffDelete = { bg = "none", fg = util.blend_fg(c.black, 0.9) }
+					hl.DiffDeleteText = { bg = util.blend_bg(c.diff.delete, 0.8) }
+					-- hl.DiffDeleteText = { bg = c.diff.delete }
+					hl.DiffAddText = { bg = util.blend_bg(c.diff.add, 0.8) }
+					-- hl.DiffAddText = { bg = c.diff.add }
 
 					local types = { "Error", "Warn", "Info", "Hint" }
 					for _, type in pairs(types) do
@@ -35,19 +44,12 @@ return {
 						local virtual_text_new_values =
 							vim.tbl_extend("force", vim.api.nvim_get_hl(0, { name = virtual_text_hl }), { bg = "NONE" })
 
-						vim.api.nvim_set_hl(0, virtual_text_hl, virtual_text_new_values)
+						hl[virtual_text_hl] = virtual_text_new_values
 					end
 				end,
-				on_highlights = function(highlight)
-					vim.g.highlight = highlight
-				end,
 			})
+
+			vim.cmd([[colorscheme dracula]])
 		end,
-	},
-	{
-		"LazyVim/LazyVim",
-		opts = {
-			colorscheme = "dracula",
-		},
 	},
 }

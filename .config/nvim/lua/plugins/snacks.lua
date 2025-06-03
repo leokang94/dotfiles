@@ -13,6 +13,11 @@ return {
 				fps = 240,
 			},
 		},
+		picker = {
+			files = {
+				hidden = true,
+			},
+		},
 		dashboard = {
 			enabled = true,
 			preset = {
@@ -99,6 +104,37 @@ return {
 				{ pane = 2, section = "keys", gap = 1, padding = 4 },
 				{ pane = 2, section = "startup" },
 			},
+		},
+	},
+
+	keys = {
+		{
+			"<leader>e",
+			function()
+				---@diagnostic disable-next-line: missing-fields
+				Snacks.explorer({
+					layout = {
+						layout = {
+							position = "right",
+						},
+					},
+				})
+			end,
+			desc = "File Explorer",
+		},
+		{
+			"<leader>fb",
+			function()
+				Snacks.picker.buffers({ hidden = true })
+			end,
+			desc = "Buffers",
+		},
+		{
+			"<leader>ff",
+			function()
+				Snacks.picker.files({ hidden = true })
+			end,
+			desc = "Find Files",
 		},
 	},
 }

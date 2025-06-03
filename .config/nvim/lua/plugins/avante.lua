@@ -47,6 +47,17 @@ return {
 		-- claude = {
 		-- 	disable_tools = true,
 		-- },
+		providers = {
+			claude = {
+				model = "claude-sonnet-4-20250514",
+				timeout = 30000, -- Timeout in milliseconds
+
+				extra_request_body = {
+					temperature = 0,
+					max_tokens = 20480,
+				},
+			},
+		},
 		behaviour = {
 			auto_suggestions = false, -- Experimental stage
 			auto_set_highlight_group = true,
@@ -69,6 +80,10 @@ return {
 			width = 50,
 			height = 30,
 			position = "smart",
+
+			ask = {
+				start_insert = false,
+			},
 		},
 
 		-- The system_prompt type supports both a string and a function that returns a string. Using a function here allows dynamically updating the prompt with mcphub
@@ -82,5 +97,18 @@ return {
 				require("mcphub.extensions.avante").mcp_tool(),
 			}
 		end,
+
+		disabled_tools = {
+			"list_files", -- Built-in file operations
+			"search_files",
+			"read_file",
+			"create_file",
+			"rename_file",
+			"delete_file",
+			"create_dir",
+			"rename_dir",
+			"delete_dir",
+			"bash", -- Built-in terminal access
+		},
 	},
 }

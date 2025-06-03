@@ -59,3 +59,14 @@ vim.o.formatexpr = "v:lua.require'lazyvim.util'.format.formatexpr()"
 
 -- Fix markdown indentation settings
 vim.g.markdown_recommended_style = 0
+
+vim.opt.diffopt = {
+	"internal", -- 내부 diff 알고리즘 사용
+	"filler", -- 변경되지 않은 줄에 대해서도 빈 줄을 채워 표시
+	"closeoff", -- diff 영역이 끝날 때, 변경되지 않은 줄을 완전히 숨기지 않고 약간의 컨텍스트를 제공
+	"context:12", -- 변경된 줄 주변으로 12줄의 컨텍스트를 표시
+	"algorithm:histogram", -- diff 알고리즘으로 histogram 방식 사용
+	"linematch:200", -- (git diff의 linematch와 유사) 줄 단위로 변경된 블록을 찾을 때, 200줄 이내에서 일치하는 줄을 찾아 더 정확하게 비교
+	"indent-heuristic", -- 들여쓰기 변경을 감지하여 diff를 더 효율적으로 표시
+	-- "iwhite",   -- 공백 문자 변경을 무시 (토글 가능)
+}

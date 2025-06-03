@@ -14,13 +14,6 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-require("config.globals")
--- require("config.keymaps")
--- require("config.options")
-
--- my custom plugins(?)
-require("config.my.git-tab")
-
 require("lazy").setup({
 	rocks = {
 		hererocks = true, -- recommended if you do not have global installation of Lua 5.1.
@@ -35,6 +28,7 @@ require("lazy").setup({
 		{ "echasnovski/mini.icons", enabled = false },
 		{ "CopilotC-Nvim/CopilotChat.nvim", enabled = false },
 		{ "williamboman/mason-lspconfig.nvim", enabled = false },
+		{ "akinsho/bufferline.nvim", enabled = false },
 	},
 	defaults = {
 		-- By default, only LazyVim plugins will be lazy-loaded. Your custom plugins will load during startup.
