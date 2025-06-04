@@ -128,7 +128,12 @@ return {
 					Hint = "󰠠 ",
 					Info = " ",
 				},
-				virtual_lines = true,
+				virtual_lines = {
+					current_line = true,
+					format = function(diagnostic)
+						return "[" .. diagnostic.source .. "] " .. diagnostic.message
+					end,
+				},
 				virtual_text = false,
 				underline = true,
 				update_in_insert = true,

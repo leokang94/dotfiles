@@ -37,20 +37,3 @@ local lsp_servers = get_lsp_servers()
 if #lsp_servers > 0 then
 	vim.lsp.enable(lsp_servers)
 end
-
--- vim.diagnostic.config({
--- 	signs = {
--- 		Error = " ",
--- 		Warn = " ",
--- 		Hint = "󰠠 ",
--- 		Info = " ",
--- 	},
--- 	virtual_lines = true,
--- 	virtual_text = false,
--- 	underline = true,
--- 	update_in_insert = true,
--- 	severity_sort = true,
--- 	float = {
--- 		border = "rounded",
--- 	},
--- })

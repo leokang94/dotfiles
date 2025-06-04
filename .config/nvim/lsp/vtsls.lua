@@ -15,9 +15,67 @@ local settings = {
 	inlayHints = inlay_hints,
 }
 
+-- Function to read VSCode settings and extract TypeScript configurations
+local function get_vscode_typescript_settings(root_dir)
+	local vscode_settings_path = root_dir .. "/.vscode/settings.json"
+
+	-- Check if .vscode/settings.json exists
+	if vim.fn.filereadable(vscode_settings_path) == 0 then
+		return {}
+	end
+
+	-- Read and parse the JSON file
+	local ok, content = pcall(vim.fn.readfile, vscode_settings_path)
+	if not ok then
+		return {}
+	end
+
+	local json_str = table.concat(content, "\n")
+	local ok_decode, vscode_settings = pcall(vim.json.decode, json_str)
+	if not ok_decode then
+		return {}
+	end
+
+	-- Extract TypeScript related settings
+	local typescript_settings = {}
+	for key, value in pairs(vscode_settings) do
+		if key:match("^typescript%.") then
+			-- Convert "typescript.preferences.something" to nested table structure
+			local parts = vim.split(key, "%.")
+			if #parts >= 2 then
+				local current = typescript_settings
+				for i = 2, #parts - 1 do
+					if not current[parts[i]] then
+						current[parts[i]] = {}
+					end
+					current = current[parts[i]]
+				end
+				current[parts[#parts]] = value
+			end
+		end
+	end
+
+	return typescript_settings
+end
+
 ---@type vim.lsp.Config
 return {
+	before_init = function(_, config)
+		-- Read VSCode settings when a new config is created
+		local vscode_ts_settings = get_vscode_typescript_settings(config.root_dir)
+
+		vim.notify(vim.inspect(vscode_ts_settings), vim.log.levels.DEBUG, {
+			title = "VSCode TypeScript Settings",
+		})
+
+		-- Merge VSCode TypeScript settings with default settings
+		if next(vscode_ts_settings) then
+			config.settings.typescript = vim.tbl_deep_extend("keep", settings, vscode_ts_settings)
+		end
+	end,
+
 	cmd = { "vtsls", "--stdio" },
+
 	filetypes = {
 		"javascript",
 		"javascriptreact",
@@ -45,10 +103,7 @@ return {
 				},
 			},
 		},
-		typescript = vim.tbl_deep_extend("keep", settings, {
-			enablePromptUseWorkspaceTsdk = true,
-			tsdk = ".yarn/sdks/typescript/lib",
-		}),
+		typescript = settings,
 		javascript = settings,
 	},
 
