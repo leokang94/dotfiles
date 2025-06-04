@@ -52,9 +52,6 @@ return {
 		javascript = settings,
 	},
 
-	-- ?? 이건 아직 잘 모르겠음
-	single_file_support = true,
-
 	on_attach = function(client, bufnr)
 		require("twoslash-queries").attach(client, bufnr)
 
@@ -90,14 +87,5 @@ return {
 				command = "typescript.selectTypeScriptVersion",
 			})
 		end, { buffer = bufnr, desc = "Select TypeScript Version" })
-
-		-- vim.keymap.set("n", "<leader>ci", function()
-		-- 	vim.lsp.buf.inlay_hint(0, not client.server_capabilities.inlayHintProvider)
-		-- end, { buffer = bufnr, desc = "Toggle Inlay Hints" })
-		--
-		--   if client.server_capabilities.inlayHintProvider then
-		--     vim.lsp.buf.inlay_hint(0, true)
-		--   end
-		--
 	end,
 }

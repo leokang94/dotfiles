@@ -11,6 +11,7 @@ return {
 			end
 		end
 
+		---@diagnostic disable-next-line: param-type-mismatch
 		client.config.settings.Lua = vim.tbl_deep_extend("force", client.config.settings.Lua, {
 			runtime = {
 				-- Tell the language server which version of Lua you're using (most

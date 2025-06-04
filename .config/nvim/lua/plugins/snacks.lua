@@ -14,8 +14,25 @@ return {
 			},
 		},
 		picker = {
-			files = {
-				hidden = true,
+			sources = {
+				files = {
+					hidden = true,
+				},
+				grep = { hidden = true },
+				explorer = {
+					hidden = true,
+					layout = {
+						preset = "right",
+					},
+				},
+			},
+			layout = {
+				preset = function()
+					return require("utils.screen").is_vsplit() and "default" or "vertical"
+				end,
+				layout = {
+					width = 0.8,
+				},
 			},
 		},
 		dashboard = {
@@ -107,34 +124,23 @@ return {
 		},
 	},
 
-	keys = {
-		{
-			"<leader>e",
-			function()
-				---@diagnostic disable-next-line: missing-fields
-				Snacks.explorer({
-					layout = {
-						layout = {
-							position = "right",
-						},
-					},
-				})
-			end,
-			desc = "File Explorer",
-		},
-		{
-			"<leader>fb",
-			function()
-				Snacks.picker.buffers({ hidden = true })
-			end,
-			desc = "Buffers",
-		},
-		{
-			"<leader>ff",
-			function()
-				Snacks.picker.files({ hidden = true })
-			end,
-			desc = "Find Files",
-		},
-	},
+	-- keys = {
+	-- 	-- explorer
+	-- 	{
+	-- 		"<leader>e",
+	-- 		function()
+	-- 			---@diagnostic disable-next-line: missing-fields
+	-- 			Snacks.explorer({
+	-- 				layout = {
+	-- 					layout = {
+	-- 						position = "right",
+	-- 					},
+	-- 				},
+	--
+	-- 				hidden = true,
+	-- 			})
+	-- 		end,
+	-- 		desc = "File Explorer",
+	-- 	},
+	-- },
 }

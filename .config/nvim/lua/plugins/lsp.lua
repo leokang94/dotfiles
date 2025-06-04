@@ -69,30 +69,24 @@ return {
 			},
 		},
 	},
-	{
-		"yioneko/nvim-vtsls",
-		config = function()
-			require("vtsls").config({})
-		end,
-	},
 	-- for diagnostics visualization
-	{
-		"rachartier/tiny-inline-diagnostic.nvim",
-		event = "LspAttach", -- Or `LspAttach`
-		priority = 1000, -- needs to be loaded in first
-		config = function()
-			require("tiny-inline-diagnostic").setup({
-				preset = "ghost",
-				transparent_bg = true,
-				options = {
-					multilines = true,
-					format = function(diagnostic)
-						return "[" .. diagnostic.source .. "] " .. diagnostic.message
-					end,
-				},
-			})
-		end,
-	},
+	-- {
+	-- 	"rachartier/tiny-inline-diagnostic.nvim",
+	-- 	event = "LspAttach", -- Or `LspAttach`
+	-- 	priority = 1000, -- needs to be loaded in first
+	-- 	config = function()
+	-- 		require("tiny-inline-diagnostic").setup({
+	-- 			preset = "ghost",
+	-- 			transparent_bg = true,
+	-- 			options = {
+	-- 				multilines = true,
+	-- 				format = function(diagnostic)
+	-- 					return "[" .. diagnostic.source .. "] " .. diagnostic.message
+	-- 				end,
+	-- 			},
+	-- 		})
+	-- 	end,
+	-- },
 	{
 		"ray-x/lsp_signature.nvim",
 		event = "InsertEnter",
@@ -107,72 +101,43 @@ return {
 	},
 	{
 		"neovim/nvim-lspconfig",
-		opts = function()
-			local keys = require("lazyvim.plugins.lsp.keymaps").get()
-
-			keys[#keys + 1] = { "[[", false }
-			keys[#keys + 1] = { "]]", false }
-
-			-- keys[#keys + 1] = { "gr", ":FzfLua lsp_references jump1=true ignore_current_line=true<CR>" }
-			-- keys[#keys + 1] = { "gd", ":FzfLua lsp_definitions jump1=true ignore_current_line=true<CR>" }
-			-- keys[#keys + 1] = { "gt", ":FzfLua lsp_typedefs jump1=true ignore_current_line=true<CR>" }
-			-- keys[#keys + 1] = { "gi", ":FzfLua lsp_implementations jump1=true ignore_current_line=true<CR>" }
-			keys[#keys + 1] = {
+		keys = {
+			{ "[[", false },
+			{ "]] ", false },
+			-- code
+			{
 				"<leader>ca",
 				function()
-					require("fzf-lua").lsp_code_actions({
-						winopts = {
-							relative = "cursor",
-							width = 0.8,
-							height = 0.8,
-							row = 1,
-							preview = { vertical = "up:70%" },
-						},
-					})
+					vim.lsp.buf.code_action()
 				end,
-				"Code Actions",
-				{ "n", "v" },
-			}
-			keys[#keys + 1] = { "<leader>cd", ":FzfLua lsp_document_diagnostics<CR>", desc = "Open Code Diagnostics" }
+				desc = "Code Action",
+			},
+			{
+				"<leader>ci",
+				function()
+					vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+				end,
+				desc = "Toggle Inlay Hints",
+			},
+		},
+		opts = {
+			diagnostics = {
+				signs = {
+					Error = " ",
+					Warn = " ",
+					Hint = "󰠠 ",
+					Info = " ",
+				},
+				virtual_lines = true,
+				virtual_text = false,
+				underline = true,
+				update_in_insert = true,
+				severity_sort = true,
+			},
 
-			return {
-				diagnostics = {
-					signs = {
-						Error = " ",
-						Warn = " ",
-						Hint = "󰠠 ",
-						Info = " ",
-					},
-					virtual_text = false,
-					underline = true,
-					update_in_insert = true,
-					severity_sort = true,
-					float = {
-						border = "rounded",
-					},
-				},
-
-				inlay_hints = {
-					enabled = false,
-				},
-				codelens = { enabled = false },
-				document_highlight = { enabled = true },
-				capabilities = {
-					workspace = {
-						fileOperations = {
-							didRename = true,
-							willRename = true,
-						},
-					},
-				},
-
-				format = {
-					formatting_options = nil,
-					timeout_ms = nil,
-				},
-				servers = {},
-				setup = {},
-			}
-		end,
+			inlay_hints = {
+				enabled = false,
+			},
+		},
 	},
 }

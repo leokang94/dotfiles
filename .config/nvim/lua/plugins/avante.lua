@@ -44,9 +44,6 @@ return {
 	},
 	opts = {
 		provider = "claude",
-		-- claude = {
-		-- 	disable_tools = true,
-		-- },
 		providers = {
 			claude = {
 				model = "claude-sonnet-4-20250514",
@@ -67,7 +64,7 @@ return {
 			enable_claude_text_editor_tool_mode = true, -- only for claude provider
 		},
 		file_selector = {
-			provider = "fzf",
+			provider = "snacks",
 			provider_opts = {},
 		},
 		mappings = {
