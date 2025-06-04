@@ -17,21 +17,42 @@ return {
 			sources = {
 				files = {
 					hidden = true,
+					layout = {
+						preset = function()
+							return require("utils.screen").is_vsplit() and "default" or "vertical"
+						end,
+						layout = {
+							width = 0.8,
+						},
+					},
 				},
-				grep = { hidden = true },
+				buffers = {
+					layout = {
+						preset = function()
+							return require("utils.screen").is_vsplit() and "default" or "vertical"
+						end,
+						layout = {
+							width = 0.8,
+						},
+					},
+				},
+				grep = {
+					hidden = true,
+					layout = {
+						preset = function()
+							return require("utils.screen").is_vsplit() and "default" or "vertical"
+						end,
+						layout = {
+							width = 0.8,
+						},
+					},
+				},
 				explorer = {
 					hidden = true,
+					ignored = true,
 					layout = {
 						preset = "right",
 					},
-				},
-			},
-			layout = {
-				preset = function()
-					return require("utils.screen").is_vsplit() and "default" or "vertical"
-				end,
-				layout = {
-					width = 0.8,
 				},
 			},
 		},
@@ -123,24 +144,4 @@ return {
 			},
 		},
 	},
-
-	-- keys = {
-	-- 	-- explorer
-	-- 	{
-	-- 		"<leader>e",
-	-- 		function()
-	-- 			---@diagnostic disable-next-line: missing-fields
-	-- 			Snacks.explorer({
-	-- 				layout = {
-	-- 					layout = {
-	-- 						position = "right",
-	-- 					},
-	-- 				},
-	--
-	-- 				hidden = true,
-	-- 			})
-	-- 		end,
-	-- 		desc = "File Explorer",
-	-- 	},
-	-- },
 }
