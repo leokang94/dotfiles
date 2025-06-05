@@ -1,3 +1,4 @@
+local LspUtils = require("core.lsp.utils")
 local util = require("lspconfig.util")
 
 ---@type vim.lsp.Config
@@ -86,6 +87,18 @@ return {
 		},
 	},
 	before_init = function(_, config)
+		local vscode_eslint_settings = LspUtils.get_vscode_settings(config.root_dir, "eslint")
+		vim.notify(vim.inspect(vscode_eslint_settings), vim.log.levels.DEBUG, {
+			title = "VSCode Eslint Settings",
+		})
+
+		-- Merge VSCode  settings with default settings
+		if next(vscode_eslint_settings) and vscode_eslint_settings.nodePath then
+			-- 이건 왜 안되지?
+			-- config.settings = vim.tbl_deep_extend("force", config.settings, vscode_eslint_settings)
+			config.settings.nodePath = vscode_eslint_settings.nodePath or config.settings.nodePath
+		end
+
 		-- The "workspaceFolder" is a VSCode concept. It limits how far the
 		-- server will traverse the file system when locating the ESLint config
 		-- file (e.g., .eslintrc).
@@ -116,13 +129,13 @@ return {
 				end
 			end
 
-			-- Support Yarn2 (PnP) projects
-			local pnp_cjs = root_dir .. "/.pnp.cjs"
-			local pnp_js = root_dir .. "/.pnp.js"
-			if vim.uv.fs_stat(pnp_cjs) or vim.uv.fs_stat(pnp_js) then
-				local cmd = config.cmd
-				config.cmd = vim.list_extend({ "yarn", "exec" }, cmd)
-			end
+			-- -- Support Yarn2 (PnP) projects
+			-- local pnp_cjs = root_dir .. "/.pnp.cjs"
+			-- local pnp_js = root_dir .. "/.pnp.js"
+			-- if vim.uv.fs_stat(pnp_cjs) or vim.uv.fs_stat(pnp_js) then
+			-- 	local cmd = config.cmd
+			-- 	config.cmd = vim.list_extend({ "yarn", "exec" }, cmd)
+			-- end
 		end
 	end,
 	handlers = {
