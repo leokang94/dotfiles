@@ -33,9 +33,9 @@ return {
 					hl.DiffAddAsDelete = { bg = util.blend_bg(c.diff.delete, 0.3) }
 					hl.DiffviewDiffAddAsDelete = { bg = util.blend_bg(c.diff.delete, 0.3) }
 					hl.DiffviewDiffDelete = { bg = "none", fg = util.blend_fg(c.black, 0.9) }
-					hl.DiffDeleteText = { bg = util.blend_bg(c.diff.delete, 0.8) }
+					hl.DiffDeleteText = { bg = util.blend_bg(c.diff.delete, 0.9) }
 					-- hl.DiffDeleteText = { bg = c.diff.delete }
-					hl.DiffAddText = { bg = util.blend_bg(c.diff.add, 0.8) }
+					hl.DiffAddText = { bg = util.blend_bg(c.diff.add, 1.4) }
 					-- hl.DiffAddText = { bg = c.diff.add }
 
 					local types = { "Error", "Warn", "Info", "Hint" }

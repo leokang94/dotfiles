@@ -17,35 +17,9 @@ return {
 			sources = {
 				files = {
 					hidden = true,
-					layout = {
-						preset = function()
-							return require("utils.screen").is_vsplit() and "default" or "vertical"
-						end,
-						layout = {
-							width = 0.8,
-						},
-					},
-				},
-				buffers = {
-					layout = {
-						preset = function()
-							return require("utils.screen").is_vsplit() and "default" or "vertical"
-						end,
-						layout = {
-							width = 0.8,
-						},
-					},
 				},
 				grep = {
 					hidden = true,
-					layout = {
-						preset = function()
-							return require("utils.screen").is_vsplit() and "default" or "vertical"
-						end,
-						layout = {
-							width = 0.8,
-						},
-					},
 				},
 				explorer = {
 					hidden = true,
@@ -53,6 +27,15 @@ return {
 					layout = {
 						preset = "right",
 					},
+				},
+			},
+
+			layout = {
+				preset = function()
+					return require("utils.screen").is_vsplit() and "default" or "vertical"
+				end,
+				layout = {
+					width = 0.8,
 				},
 			},
 		},
