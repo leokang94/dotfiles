@@ -8,5 +8,9 @@ return {
 				accept = "<Tab>",
 			},
 		},
+
+		server = {
+			type = "binary",
+		},
 	},
 }
