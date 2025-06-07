@@ -1,16 +1,15 @@
 return {
 	"yetone/avante.nvim",
 	event = "VeryLazy",
-	lazy = true,
 	version = false, -- set this if you want to always pull the latest change
 	-- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
 	build = "make",
 	-- build = "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" -- for windows
 	dependencies = {
 		"nvim-treesitter/nvim-treesitter",
-		"stevearc/dressing.nvim",
 		"nvim-lua/plenary.nvim",
 		"MunifTanjim/nui.nvim",
+		"folke/snacks.nvim", -- for input provider snacks
 		--- The below dependencies are optional,
 		"nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
 		{
@@ -62,6 +61,10 @@ return {
 			auto_apply_diff_after_generation = false,
 			support_paste_from_clipboard = true,
 			enable_claude_text_editor_tool_mode = true, -- only for claude provider
+		},
+		input = {
+			provider = "snacks",
+			provider_opts = {},
 		},
 		file_selector = {
 			provider = "snacks",

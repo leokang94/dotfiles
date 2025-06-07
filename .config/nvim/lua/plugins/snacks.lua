@@ -2,7 +2,7 @@ return {
 	"folke/snacks.nvim",
 	---@type snacks.Config
 	opts = {
-		-- statuscolumn = {},
+		statuscolumn = { enabled = true },
 		bigfile = { enabled = true, line_length = 100 },
 		scope = {},
 		indent = { enabled = false },
@@ -13,7 +13,10 @@ return {
 				fps = 240,
 			},
 		},
+		input = { enabled = true },
 		picker = {
+			enabled = true,
+			ui_select = true,
 			sources = {
 				files = {
 					hidden = true,
@@ -39,6 +42,7 @@ return {
 				},
 			},
 		},
+
 		dashboard = {
 			enabled = true,
 			preset = {
