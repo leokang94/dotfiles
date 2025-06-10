@@ -4,7 +4,7 @@ return {
 		{ "<leader>do", "<cmd>DiffviewOpen<CR>", desc = "Diffview open" },
 		{ "<leader>dO", "<cmd>DiffviewOpen HEAD^<CR>", desc = "Diffview open HEAD^..HEAD" },
 		{ "<leader>dc", "<cmd>DiffviewClose<CR>", desc = "Diffview close" },
-		{ "<leader>dh", "<cmd>DiffviewFileHistory<CR>", desc = "Diffview File history" },
+		{ "<leader>dh", ":DiffviewFileHistory", desc = "Diffview File history" },
 		{ "<leader>dl", ":.DiffviewFileHistory --follow<CR>", desc = "File history for the current line" },
 		{
 			mode = "v",
