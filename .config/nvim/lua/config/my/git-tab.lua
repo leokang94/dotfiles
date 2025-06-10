@@ -21,11 +21,6 @@ local function apply_window_sizes(tab_id, is_vsplit)
 			-- Set height of terminal_2_win (bottom window)
 			vim.api.nvim_win_set_height(tab_info.terminal_2_win, math.floor(height * 0.8))
 		end
-
-		-- Move cursor to the first terminal window
-		if vim.api.nvim_win_is_valid(tab_info.terminal_1_win) then
-			vim.api.nvim_set_current_win(tab_info.terminal_1_win)
-		end
 	end
 end
 
@@ -69,6 +64,8 @@ local function open_terminals()
 	else
 		vim.cmd("wincmd k")
 	end
+
+	vim.api.nvim_set_current_win(terminal_1_win)
 end
 
 _G.open_terminals = open_terminals
