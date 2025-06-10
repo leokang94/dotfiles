@@ -82,52 +82,48 @@ vim.api.nvim_set_keymap(
 
 -- Function to handle screen resize and maintain window proportions
 local function handle_screen_resize()
-	for tab_id, tab_info in pairs(_G.git_tab_windows) do
-		-- Check if the tab still exists
-		local tabs = vim.api.nvim_list_tabpages()
-		if vim.tbl_contains(tabs, tab_id) then
-			-- Check if we need to change split orientation based on new screen size
-			local new_is_vsplit = get_is_vsplit()
+	local current_tab = vim.api.nvim_get_current_tabpage()
+	local tab_info = _G.git_tab_windows[current_tab]
 
-			-- If split orientation should change, reorganize the windows
-			if new_is_vsplit ~= tab_info.is_vsplit then
-				-- Switch to the tab to reorganize
-				local current_tab = vim.api.nvim_get_current_tabpage()
-				vim.api.nvim_set_current_tabpage(tab_id)
+	-- Only handle resize if current tab is a git-tab
+	if tab_info then
+		-- Check if we need to change split orientation based on new screen size
+		local new_is_vsplit = get_is_vsplit()
 
-				-- Close all windows except one
-				local windows = vim.api.nvim_tabpage_list_wins(tab_id)
-				for i = 2, #windows do
-					vim.api.nvim_win_close(windows[i], false)
-				end
-
-				-- Make sure we're in the first terminal window
-				vim.api.nvim_win_set_buf(vim.api.nvim_get_current_win(), tab_info.terminal_1_buf)
-				local terminal_1_win = vim.api.nvim_get_current_win()
-
-				-- Create new split with correct orientation
-				local split_cmd = new_is_vsplit and "vsplit" or "split"
-				vim.cmd(split_cmd)
-
-				-- Set the second terminal buffer in the new window
-				vim.api.nvim_win_set_buf(vim.api.nvim_get_current_win(), tab_info.terminal_2_buf)
-				local terminal_2_win = vim.api.nvim_get_current_win()
-
-				-- Update the stored information
-				tab_info.is_vsplit = new_is_vsplit
-				tab_info.terminal_1_win = terminal_1_win
-				tab_info.terminal_2_win = terminal_2_win
-
-				-- Go back to original tab if needed
-				if current_tab ~= tab_id then
-					vim.api.nvim_set_current_tabpage(current_tab)
-				end
+		-- If split orientation should change, reorganize the windows
+		if new_is_vsplit ~= tab_info.is_vsplit then
+			-- Close all windows except one
+			local windows = vim.api.nvim_tabpage_list_wins(current_tab)
+			for i = 2, #windows do
+				vim.api.nvim_win_close(windows[i], false)
 			end
 
-			-- Apply window sizes regardless of orientation change
-			apply_window_sizes(tab_id, tab_info.is_vsplit)
-		else
-			-- Clean up if tab no longer exists
+			-- Make sure we're in the first terminal window
+			vim.api.nvim_win_set_buf(vim.api.nvim_get_current_win(), tab_info.terminal_1_buf)
+			local terminal_1_win = vim.api.nvim_get_current_win()
+
+			-- Create new split with correct orientation
+			local split_cmd = new_is_vsplit and "vsplit" or "split"
+			vim.cmd(split_cmd)
+
+			-- Set the second terminal buffer in the new window
+			vim.api.nvim_win_set_buf(vim.api.nvim_get_current_win(), tab_info.terminal_2_buf)
+			local terminal_2_win = vim.api.nvim_get_current_win()
+
+			-- Update the stored information
+			tab_info.is_vsplit = new_is_vsplit
+			tab_info.terminal_1_win = terminal_1_win
+			tab_info.terminal_2_win = terminal_2_win
+		end
+
+		-- Apply window sizes regardless of orientation change
+		apply_window_sizes(current_tab, tab_info.is_vsplit)
+	end
+
+	-- Clean up any tabs that no longer exist
+	local existing_tabs = vim.api.nvim_list_tabpages()
+	for tab_id, _ in pairs(_G.git_tab_windows) do
+		if not vim.tbl_contains(existing_tabs, tab_id) then
 			_G.git_tab_windows[tab_id] = nil
 		end
 	end
