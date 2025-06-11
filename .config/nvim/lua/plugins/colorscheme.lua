@@ -26,16 +26,16 @@ return {
 					hl.lCursor = { bg = c.purple }
 					hl.CursorIM = { bg = c.purple }
 
-					hl.DiffDelete = { bg = util.blend_bg(c.diff.delete, 0.3) }
-					hl.DiffAdd = { bg = util.blend_bg(c.diff.add, 0.4) }
-					hl.DiffChange = { bg = util.blend_bg(c.diff.change, 0.3) }
+					hl.DiffDelete = { bg = util.blend_bg(c.diff.delete, 0.2) }
+					hl.DiffAdd = { bg = util.blend_bg(c.diff.add, 0.3) }
+					hl.DiffChange = { bg = util.blend_bg(c.diff.change, 0.2) }
 					-- hl.DiffText = { bg = util.blend_bg(c.diff.change, 0.8) }
-					hl.DiffAddAsDelete = { bg = util.blend_bg(c.diff.delete, 0.3) }
-					hl.DiffviewDiffAddAsDelete = { bg = util.blend_bg(c.diff.delete, 0.3) }
-					hl.DiffviewDiffDelete = { bg = "none", fg = util.blend_fg(c.black, 0.9) }
-					hl.DiffDeleteText = { bg = util.blend_bg(c.diff.delete, 0.8) }
+					hl.DiffAddAsDelete = { bg = util.blend_bg(c.diff.delete, 0.2) }
+					hl.DiffviewDiffAddAsDelete = { bg = util.blend_bg(c.diff.delete, 0.2) }
+					hl.DiffviewDiffDelete = { bg = "none", fg = util.blend_fg(c.black, 0.8) }
+					hl.DiffDeleteText = { bg = util.blend_bg(c.diff.delete, 0.7) }
 					-- hl.DiffDeleteText = { bg = c.diff.delete }
-					hl.DiffAddText = { bg = util.blend_bg(c.diff.add, 1) }
+					hl.DiffAddText = { bg = util.blend_bg(c.diff.add, 0.9) }
 					-- hl.DiffAddText = { bg = c.diff.add }
 
 					local types = { "Error", "Warn", "Info", "Hint" }
