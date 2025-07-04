@@ -24,6 +24,10 @@ return {
 		config = function()
 			require("treesitter-context").setup({
 				separator = "",
+				multiwindow = true,
+				max_lines = 5,
+				multiline_threshold = 5,
+				trim_scope = "inner",
 			})
 
 			local colorUtils = require("dracula.util")
