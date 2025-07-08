@@ -230,6 +230,10 @@ run = "move-node-to-workspace M"
 if.app-id = 'com.google.Chrome.app.fmgjjmmmlfnkbppncabfkddbjimcfncm'
 run = "move-node-to-workspace M"
 
+[[on-window-detected]]
+if.app-id = 'com.apple.ScreenContinuity'
+run = 'move-node-to-workspace M'
+
 
 # workspace T,B,M layout
 # 현재는 on-window-detected callback 에서 run command가 `layout tiling`, `layout floating` 만 가능함. 추후 변경되는 것에 따라 accordion 으로 바꿀 수 있는지 체크 필요.
