@@ -36,6 +36,25 @@
 [diff]
 	tool = diffview
 
+[color]
+  ui = always
+[color "branch"]
+	current = cyan
+  local = green
+  remote = red
+[color "decorate"]
+	head = bold italic cyan
+  tag = yellow
+  branch = green
+  remote = red
+  stash = magenta
+  grafted = blue
+
+[color "status"]
+  untracked = cyan
+  changed = yellow
+  added = green
+
 [alias]
   a = add
   s = status -s
@@ -51,8 +70,7 @@
 	swd = switch --detach
 	rb = rebase
 	pfl = push --force-with-lease
-  lg = colored log --all --graph --date-order --date=format:'%Y-%m-%d %H:%M' --format=format:'%C(yellow)%h%C(reset)%C(auto)%d%C(reset) %C(white)%s%C(reset) - %C(blue)%cN /%C(reset) %C(dim blue)%aN%C(reset) %C(bold cyan)(%cd / %C(reset)%C(dim cyan)%ad)%C(reset)'
-  lg2 = log --all --graph --date-order --date=format:'%Y-%m-%d %H:%M' --format=format:'%C(yellow)%h%C(reset)%C(auto)%d%C(reset) %C(brightblack)%cN (%cd) /%C(reset) %C(dim brightblack)%aN (%ad)%C(reset)%n''         %C(brightwhite)%s%C(reset)%n'
+  graph-log = log --all --graph --date-order --date=format:'%Y-%m-%d %H:%M' --format=format:'%C(yellow)%h%C(reset)%C(reset) %C(brightblack)%cN (%cd) /%C(reset) %C(dim brightblack)%aN (%ad)%C(reset)%n%C(auto)%(decorate:prefix=        ,suffix=\n,pointer= 󰁔 )        %C(brightwhite)%s%C(reset)%n'
   watch = !hwatch \
     -K ctrl-u=page_up \
     -K ctrl-d=page_down \
@@ -60,13 +78,13 @@
     -K j=down \
     -o stdout \
     -c -C -t --no-help-banner -n 1\
-    'git -c color.ui=always lg2 $(git reflog show --format=%h stash)'
+    'git graph-log $(git reflog show --format=%h stash)'
   stl = !git stash list \
     | fzf --preview 'echo {} \
     | cut -d: -f1 \
     | xargs git stash show -p --color=always' --height 90% \
     | cut -d: -f1
-  ls = !git lg2 \
+  ls = !git graph-log \
     | fzf -m --ansi --layout=reverse --preview-window down,15,border-horizontal --preview=\"echo {} \
     | sed 's/-.*$//' \
     | egrep -o '[0-9a-z]+' \
