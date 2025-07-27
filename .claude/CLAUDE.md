@@ -37,16 +37,28 @@
 - Ensure changes don't break existing functionality
 
 ## Git Commands & Version Control
-- Use `g` alias instead of `git` command for all git operations (e.g., `g s`, `g sw`, `g pfl`)
-- Use configured git aliases from dotfiles/.gitconfig when performing git operations
-- Prefer `git sw` (switch) over `git co` (checkout) for branch switching
-- Use `git pfl` (push --force-with-lease) instead of regular push for safer force pushes
+- **MANDATORY**: ALWAYS use `g` alias instead of `git` command for ALL git operations - NO EXCEPTIONS
+- **NEVER** use raw `git` commands - ONLY use the configured aliases from dotfiles/.gitconfig
+- **REQUIRED**: Use `g sw` (switch) instead of `g co` (checkout) for branch switching
+- **REQUIRED**: Use `g pfl` (push --force-with-lease) instead of regular push for safer force pushes
+- **Commit Message Review**: Always run `g s` to show staging status before confirming commit messages
 - Available useful aliases:
   - `g s` for short status (`git status -s`)
-  - `g sw` for switch operations
+  - `g a` for add (`git add`)
+  - `g ci` for commit (`git commit`)
+  - `g cie` for empty commit (`git commit --allow-empty`)
+  - `g cif` for amend commit (`git commit --amend --no-edit`)
+  - `g sw` for switch operations (`git switch`)
   - `g swd` for detached switch (`git switch --detach`)
+  - `g co` for checkout (`git checkout`) - prefer `g sw` when possible
+  - `g br` for branch (`git branch`)
+  - `g rb` for rebase operations (`git rebase`)
   - `g pfl` for safe force push (`git push --force-with-lease`)
   - `g fp` for fetch with prune (`git fetch -p -P`)
-  - `g cif` for amend commit (`git commit --amend --no-edit`)
-  - `g rb` for rebase operations
-- Always use these aliases when executing git commands to maintain consistency with user's workflow
+  - `g cp` for cherry-pick (`git cherry-pick`)
+  - `g db` for delete-branch
+  - `g graph-log` for enhanced log with graph view
+  - `g watch` for interactive log watching with hwatch
+  - `g stl` for interactive stash list with fzf
+  - `g ls` for interactive log selection with fzf
+- **CRITICAL**: These aliases are MANDATORY for ALL git operations - violating this rule is unacceptable
