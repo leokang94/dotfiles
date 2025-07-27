@@ -38,6 +38,10 @@ brew install \
   ripgrep \
   hwatch
 
+# for AI Agent Tools
+brew install \
+  claude-code
+
 # for Nvim plugins
 brew install \
   imagemagick \

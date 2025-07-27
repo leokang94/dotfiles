@@ -3,14 +3,19 @@ local is_vsplit = require("utils.screen").is_vsplit
 return {
 	"piersolenski/wtf.nvim",
 	dependencies = {
+		"nvim-lua/plenary.nvim",
 		"MunifTanjim/nui.nvim",
 	},
 	opts = {
 		popup_type = "horizontal",
-		openai_api_key = vim.env.OPENAI_API_KEY,
-		openai_model_id = "gpt-4o",
+		provider = "anthropic",
+		providers = {
+			anthropic = {
+				-- Your preferred model
+				model_id = "claude-sonnet-4-20250514",
+			},
+		},
 		language = "korean",
-		search_engine = "perplexity",
 	},
 	keys = {
 		{
@@ -23,6 +28,14 @@ return {
 				require("wtf").ai()
 			end,
 			desc = "[WTF] Debug diagnostic with AI",
+		},
+		{
+			"<leader>wf",
+			mode = { "n", "x" },
+			function()
+				require("wtf").fix()
+			end,
+			desc = "[WTF] Fix diagnostic with AI",
 		},
 		{
 			"<leader>wp",

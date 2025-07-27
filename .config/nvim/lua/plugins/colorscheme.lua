@@ -29,7 +29,7 @@ return {
 					hl.DiffDelete = { bg = util.blend_bg(c.diff.delete, 0.2) }
 					hl.DiffAdd = { bg = util.blend_bg(c.diff.add, 0.3) }
 					hl.DiffChange = { bg = util.blend_bg(c.diff.change, 0.2) }
-					-- hl.DiffText = { bg = util.blend_bg(c.diff.change, 0.8) }
+					hl.DiffText = { bg = util.blend_bg(c.diff.change, 0.8) }
 					hl.DiffAddAsDelete = { bg = util.blend_bg(c.diff.delete, 0.2) }
 					hl.DiffviewDiffAddAsDelete = { bg = util.blend_bg(c.diff.delete, 0.2) }
 					hl.DiffviewDiffDelete = { bg = "none", fg = util.blend_fg(c.black, 0.8) }
