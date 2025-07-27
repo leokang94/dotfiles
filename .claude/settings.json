@@ -5,11 +5,14 @@
       "Bash(git s:*)",
       "Bash(g s)",
       "Bash(g diff)",
+      "Bash(g fp)",
       "Bash(g log --oneline -5)",
-      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(g log --oneline origin/main..HEAD)",
       "Bash(find:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "WebFetch(domain:docs.anthropic.com)"
     ],
     "deny": []
   }
 }
+
