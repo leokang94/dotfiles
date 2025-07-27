@@ -35,3 +35,17 @@
 - Verify functionality when possible
 - Consider test coverage for new features
 - Ensure changes don't break existing functionality
+
+## Git Commands & Version Control
+- Use configured git aliases from dotfiles/.gitconfig when performing git operations
+- Prefer `git sw` (switch) over `git co` (checkout) for branch switching
+- Use `git pfl` (push --force-with-lease) instead of regular push for safer force pushes
+- Available useful aliases:
+  - `git s` for short status (`git status -s`)
+  - `git sw` for switch operations
+  - `git swd` for detached switch (`git switch --detach`)
+  - `git pfl` for safe force push (`git push --force-with-lease`)
+  - `git fp` for fetch with prune (`git fetch -p -P`)
+  - `git cif` for amend commit (`git commit --amend --no-edit`)
+  - `git rb` for rebase operations
+- Always use these aliases when executing git commands to maintain consistency with user's workflow
