@@ -1,3 +1,5 @@
+-- picker {win, action} options :: inspired by https://github.com/gibfahn/dot/blob/bf37585f4376ac098c4b33f6ea4cf2a6b7944d32/dotfiles/.config/nvim/lua/plugins/init.lua
+
 return {
 	"folke/snacks.nvim",
 	---@type snacks.Config
@@ -38,8 +40,34 @@ return {
 					return require("utils.screen").is_vsplit() and "default" or "vertical"
 				end,
 				layout = {
-					width = 0.8,
+					width = 0.9,
 				},
+			},
+
+			win = {
+				-- Make file truncation consider window width.
+				-- <https://github.com/folke/snacks.nvim/issues/1217#issuecomment-2661465574>
+				list = {
+					on_buf = function(self)
+						self:execute("calculate_file_truncate_width")
+					end,
+				},
+				preview = {
+					on_buf = function(self)
+						self:execute("calculate_file_truncate_width")
+					end,
+					on_close = function(self)
+						self:execute("calculate_file_truncate_width")
+					end,
+				},
+			},
+			actions = {
+				-- Make file truncation consider window width.
+				-- <https://github.com/folke/snacks.nvim/issues/1217#issuecomment-2661465574>
+				calculate_file_truncate_width = function(self)
+					local width = self.list.win:size().width
+					self.opts.formatters.file.truncate = width - 6
+				end,
 			},
 		},
 
