@@ -117,7 +117,7 @@ cmd-alt-h = []
 # **                             Service Mode Key Bindings                                ** #
 ##############################################################################################
 # See: https://nikitabobko.github.io/AeroSpace/commands#mode
-alt-shift-semicolon = 'mode service'
+alt-cmd-semicolon = 'mode service'
 #
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
 [mode.service.binding]
