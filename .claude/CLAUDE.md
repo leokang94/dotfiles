@@ -38,9 +38,9 @@
 
 ## Git Commands & Version Control
 - **MANDATORY**: ALWAYS use `g` alias instead of `git` command for ALL git operations - NO EXCEPTIONS
+- **MANDATORY**: Use `g pfl` (push --force-with-lease) instead of regular push for safer force pushes
 - **NEVER** use raw `git` commands - ONLY use the configured aliases from dotfiles/.gitconfig
 - **REQUIRED**: Use `g sw` (switch) instead of `g co` (checkout) for branch switching
-- **REQUIRED**: Use `g pfl` (push --force-with-lease) instead of regular push for safer force pushes
 - **Commit Message Review**: Always run `g s` to show staging status before confirming commit messages
 - Available useful aliases:
   - `g s` for short status (`git status -s`)
