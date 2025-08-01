@@ -7,14 +7,14 @@ return {
 		{
 			"[h",
 			function()
-				require("vgit").hunk_down()
+				require("vgit").hunk_up()
 			end,
 			desc = "Previous Hunk",
 		},
 		{
 			"]h",
 			function()
-				require("vgit").hunk_up()
+				require("vgit").hunk_down()
 			end,
 			desc = "Next Hunk",
 		},
