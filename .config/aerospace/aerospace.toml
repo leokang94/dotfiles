@@ -130,7 +130,7 @@ ctrl-f = ['layout floating tiling'] # Toggle between floating and tiling layout
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#layout
 alt-shift-slash = 'layout tiles horizontal vertical'
-alt-shift-comma = 'layout accordion horizontal vertical'
+ctrl-comma = 'layout accordion horizontal vertical'
 
 # Focus
 # See: https://nikitabobko.github.io/AeroSpace/commands#focus
@@ -151,8 +151,7 @@ ctrl-l = 'move right'
 minus = 'resize smart -100'
 equal = 'resize smart +100'
 0 = 'balance-sizes'
-# f = 'fullscreen'
-f = 'macos-native-fullscreen'
+# f = 'macos-native-fullscreen'
 
 # Workspace
 # See: https://nikitabobko.github.io/AeroSpace/commands#workspace
@@ -212,6 +211,10 @@ run = "move-node-to-workspace B"
 [[on-window-detected]]
 if.app-id = 'com.apple.Safari'
 run = "move-node-to-workspace B"
+[[on-window-detected]]
+if.app-id = 'com.mozilla.firefox'
+run = "move-node-to-workspace B"
+
 
 # force workspace M (Messages)
 [[on-window-detected]]
@@ -237,6 +240,10 @@ run = "move-node-to-workspace M"
 [[on-window-detected]]
 if.app-id = 'com.apple.ScreenContinuity'
 run = 'move-node-to-workspace M'
+
+[[on-window-detected]]
+if.app-id = 'com.spotify.client'
+run = 'move-node-to-workspace 9'
 
 
 # workspace T,B,M layout
