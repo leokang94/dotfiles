@@ -129,7 +129,7 @@ GIT_CUSTOM_COMMANDS_DIR_NAME=".git-custom-commands"
 # 함수를 호출하면서 인자로 dotfiles 디렉토리와 타겟 디렉토리를 전달하세요.
 create_symlink --type=files "$HOME/${DOT_FILES_DIR_NAME}/.config" "$HOME/${CONFIG_DIR_NAME}"
 create_symlink --type=dir "$HOME/${DOT_FILES_DIR_NAME}/.git-custom-commands" "$HOME"
-create_symlink --type=files "$HOME/${DOT_FILES_DIR_NAME}/.claude" "$HOME/.claude"
+create_symlink --type=files "$HOME/.claude" "$HOME/.claude"
 
 ##########################################################
 # Extends my .gitconfig to ~/.gitconfig
