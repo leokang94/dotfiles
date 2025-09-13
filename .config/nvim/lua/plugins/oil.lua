@@ -44,9 +44,7 @@ return {
 				"<leader>o",
 				function()
 					local oil = require("oil")
-					oil.open_float(nil, {
-						preview = {},
-					})
+					oil.open_float(nil)
 
 					-- Wait until oil has opened, for a maximum of 1 second.
 					vim.wait(1000, function()
