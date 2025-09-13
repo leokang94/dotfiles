@@ -14,6 +14,7 @@ return {
 		"vue",
 		"svelte",
 		"astro",
+		"json",
 	},
 	workspace_required = true,
 	on_attach = function(client, bufnr)
