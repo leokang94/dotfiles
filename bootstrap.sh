@@ -64,11 +64,13 @@ brew install --force --cask \
   raycast \
   discord \
   ghostty \
+  spotify \
   obsidian \
   cleanmymac \
   karabiner-elements \
   nikitabobko/tap/aerospace \
   homerow \
+  mouseless \
   1password \
   1password-cli \
   sf-symbols

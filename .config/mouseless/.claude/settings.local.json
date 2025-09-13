@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(g diff --cached)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

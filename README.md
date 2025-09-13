@@ -56,3 +56,12 @@ zsh --login
 ```
 :Copilot auth
 ```
+
+### 7-4 mouseless config 하드링크
+
+```bash
+rm -rf "$HOME/Library/Containers/net.sonuscape.mouseless/Data/.mouseless/configs/config.yaml" && \
+ln ~/.dotfiles/.config/mouseless/config.yaml "$HOME/Library/Containers/net.sonuscape.mouseless/Data/.mouseless/configs/config.yaml"
+```
+
+> v0.5 에서 customizable config 지원 예정 ([문서](https://mouseless.click/docs/roadmap_and_issues.html#v05-upcoming))
