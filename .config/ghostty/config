@@ -35,7 +35,7 @@ macos-titlebar-style = hidden
 # custom-shader = shaders/mnoise.glsl
 # custom-shader = shaders/test.glsl
 # custom-shader-animation = false
-
+# custom-shader = shaders/cursor_blaze.glsl
 
 ############################################################################
 # keybindings
@@ -70,3 +70,4 @@ keybind = f12=inspector:toggle
 
 
 
+keybind = shift+enter=text:\n
