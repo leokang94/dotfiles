@@ -31,6 +31,13 @@ zsh --login
 
 ## 7. 이후 추가 세팅 진행
 
+### 7-0. MacOS 세팅
+키보드 -> 키보드 단축키 -> 앱 단축키 -> `모든 응용프로그램` 내 아래 내용들 추가
+- Minimize All : control+opts+shift+cmd+N
+- 모두 최소화 : control+opts+shift+cmd+N
+- Minimize : control+opts+shift+cmd+M 
+- 최소화 : control+opts+shift+cmd+M
+
 ### 7-1. App Store 를 통한 app 설치 및 활성화
 
 - RunCat
