@@ -25,9 +25,9 @@ require("lazy").setup({
 		{ import = "plugins" },
 		-- disable lazy's default plugins
 		{ "nvim-neo-tree/neo-tree.nvim", enabled = false },
-		{ "echasnovski/mini.icons", enabled = false },
+		{ "nvim-mini/mini.icons", enabled = false },
 		{ "CopilotC-Nvim/CopilotChat.nvim", enabled = false },
-		{ "williamboman/mason-lspconfig.nvim", enabled = false },
+		{ "mason-org/mason-lspconfig.nvim", enabled = false },
 		{ "akinsho/bufferline.nvim", enabled = false },
 	},
 	defaults = {

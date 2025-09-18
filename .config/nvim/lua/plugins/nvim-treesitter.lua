@@ -1,6 +1,9 @@
 return {
 	{
 		"nvim-treesitter/nvim-treesitter",
+		branch = "main",
+		lazy = false,
+		build = ":TSUpdate",
 		opts = {
 			ensure_installed = { "glsl" },
 		},
@@ -16,7 +19,7 @@ return {
 			if type(opts.ensure_installed) == "table" then
 				opts.ensure_installed = LazyVim.dedup(opts.ensure_installed)
 			end
-			require("nvim-treesitter.configs").setup(opts)
+			require("nvim-treesitter").setup(opts)
 		end,
 	},
 	{
