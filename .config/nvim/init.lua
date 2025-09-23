@@ -9,8 +9,7 @@ require("config.my.git-tab")
 
 require("config.lazy")
 
-vim.api.nvim_create_autocmd("BufReadPost", {
-	pattern = { "*.tsx", "*.ts", "*.jsx", "*.js", "*.html", "*.css" },
+vim.api.nvim_create_autocmd({ "BufReadPost" }, {
 	callback = function()
 		vim.treesitter.start()
 	end,
