@@ -13,8 +13,7 @@ vim.api.nvim_create_autocmd("User", {
 	end,
 })
 
-vim.api.nvim_create_autocmd("FileType", {
-	pattern = { "<filetype>" },
+vim.api.nvim_create_autocmd({ "BufReadPost" }, {
 	callback = function()
 		vim.treesitter.start()
 	end,
