@@ -1,8 +1,4 @@
 return {
-	-- NOTE :: mason 2.0 으로 올라가면서, LazyVim 에서 아직 호환되지 않는 부분에 대한 workaround. mason, mason-lspconfig 버전을 우선 고정함.
-	-- ref : https://www.reddit.com/r/neovim/comments/1kgu748/comment/mr41tkr/
-	{ "mason-org/mason.nvim", version = "1.11.0" },
-	{ "mason-org/mason-lspconfig.nvim", version = "1.32.0" },
 	{
 		"WhoIsSethDaniel/mason-tool-installer.nvim",
 		opts = {
@@ -18,6 +14,7 @@ return {
 				"tailwindcss-language-server",
 				"taplo",
 				"yaml-language-server",
+				"emmet-ls",
 
 				-- linter
 				"luacheck",

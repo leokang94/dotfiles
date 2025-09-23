@@ -1,5 +1,6 @@
 return {
 	"sindrets/diffview.nvim",
+	lazy = false,
 	keys = {
 		{ "<leader>do", "<cmd>DiffviewOpen<CR>", desc = "Diffview open" },
 		{ "<leader>dO", "<cmd>DiffviewOpen HEAD^<CR>", desc = "Diffview open HEAD^..HEAD" },

@@ -9,6 +9,7 @@ opt.smartindent = true
 opt.wrap = false
 opt.linebreak = true
 opt.breakindent = true
+vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
 
 -- search
 opt.incsearch = true
@@ -48,12 +49,9 @@ opt.ttimeoutlen = 10
 opt.smoothscroll = true
 
 -- Folding
-opt.foldlevel = 99
-
-opt.foldmethod = "expr"
-opt.foldexpr = "v:lua.require'lazyvim.util'.ui.foldexpr()"
-opt.foldtext = ""
-opt.fillchars = "fold: ,"
+vim.wo.foldlevel = 99
+vim.wo.foldmethod = "expr"
+vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 
 vim.o.formatexpr = "v:lua.require'lazyvim.util'.format.formatexpr()"
 

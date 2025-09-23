@@ -5,7 +5,33 @@ return {
 		lazy = false,
 		build = ":TSUpdate",
 		opts = {
-			ensure_installed = { "glsl" },
+			ensure_installed = {
+				"glsl",
+				"bash",
+				"c",
+				"diff",
+				"html",
+				"javascript",
+				"jsdoc",
+				"json",
+				"jsonc",
+				"lua",
+				"luadoc",
+				"luap",
+				"markdown",
+				"markdown_inline",
+				"printf",
+				"python",
+				"query",
+				"regex",
+				"toml",
+				"typescript",
+				"tsx",
+				"vim",
+				"vimdoc",
+				"xml",
+				"yaml",
+			},
 		},
 		config = function(_, opts)
 			vim.filetype.add({
@@ -19,8 +45,18 @@ return {
 			if type(opts.ensure_installed) == "table" then
 				opts.ensure_installed = LazyVim.dedup(opts.ensure_installed)
 			end
-			require("nvim-treesitter").setup(opts)
+
+			local TS = require("nvim-treesitter")
+
+			TS.install(opts.ensure_installed)
 		end,
+	},
+	{
+		"MeanderingProgrammer/treesitter-modules.nvim",
+		dependencies = { "nvim-treesitter/nvim-treesitter" },
+		---@module 'treesitter-modules'
+		---@type ts.mod.UserConfig
+		opts = {},
 	},
 	{
 		"nvim-treesitter/nvim-treesitter-context",
