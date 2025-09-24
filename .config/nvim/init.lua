@@ -8,9 +8,3 @@ require("core.lsp")
 require("config.my.git-tab")
 
 require("config.lazy")
-
-vim.api.nvim_create_autocmd({ "BufReadPost" }, {
-	callback = function()
-		vim.treesitter.start()
-	end,
-})
