@@ -72,3 +72,11 @@ ln ~/.dotfiles/.config/mouseless/config.yaml "$HOME/Library/Containers/net.sonus
 ```
 
 > v0.5 에서 customizable config 지원 예정 ([문서](https://mouseless.click/docs/roadmap_and_issues.html#v05-upcoming))
+
+## 8. 혹시 nvim 관련 충돌이 생긴다면?
+```sh
+rm -rf ~/.local/share/nvim && \
+rm -rf ~/.local/state/nvim && \
+rm -rf ~/.cache/nvim &&
+```
+을 통해 로컬 데이터들을 싹 정리하고 다시 설치하기
