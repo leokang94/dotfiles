@@ -77,6 +77,13 @@ brew install --force --cask \
 echo "${LEO_PREFIX} Download ${CIAN}programs${CLEAR} from homebrew... ${DONE_POSTFIX}"
 
 ##########################################################
+# Install lsp server that not included in Mason
+##########################################################
+
+# cssls
+npm i -g vscode-langservers-extracted
+
+##########################################################
 # Create a symbolic links
 ##########################################################
 

@@ -15,6 +15,9 @@ return {
 				"taplo",
 				"yaml-language-server",
 				"emmet-ls",
+				"css-variables-language-server",
+				"cssmodules-language-server",
+				"css-lsp",
 
 				-- linter
 				"stylelint",

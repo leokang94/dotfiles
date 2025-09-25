@@ -9,6 +9,7 @@ return {
 				"glsl",
 				"bash",
 				"c",
+				"css",
 				"diff",
 				"html",
 				"javascript",
