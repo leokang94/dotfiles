@@ -16,5 +16,8 @@ vim.api.nvim_create_autocmd("User", {
 vim.api.nvim_create_autocmd({ "BufReadPost" }, {
 	callback = function()
 		vim.treesitter.start()
+		vim.defer_fn(function()
+			vim.cmd("TSContext enable")
+		end, 100) -- 100ms 딜레이
 	end,
 })
