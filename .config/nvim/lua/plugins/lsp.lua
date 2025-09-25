@@ -17,6 +17,7 @@ return {
 				"emmet-ls",
 
 				-- linter
+				"stylelint",
 				"luacheck",
 				"yamllint",
 				"markdownlint-cli2",
