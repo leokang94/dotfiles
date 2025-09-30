@@ -76,6 +76,9 @@ brew install --force --cask \
   sf-symbols
 echo "${LEO_PREFIX} Download ${CIAN}programs${CLEAR} from homebrew... ${DONE_POSTFIX}"
 
+# services start
+brew services start borders
+
 ##########################################################
 # Install lsp server that not included in Mason
 ##########################################################
