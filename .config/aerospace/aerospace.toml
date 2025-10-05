@@ -143,6 +143,13 @@ ctrl-j = 'move down'
 ctrl-k = 'move up'
 ctrl-l = 'move right'
 
+# join-with
+# See: https://nikitabobko.github.io/AeroSpace/commands#join-with
+alt-h = 'join-with left'
+alt-j = 'join-with down'
+alt-k = 'join-with up'
+alt-l = 'join-with right'
+
 # Resize
 # See: https://nikitabobko.github.io/AeroSpace/commands#resize
 minus = 'resize smart -100'
