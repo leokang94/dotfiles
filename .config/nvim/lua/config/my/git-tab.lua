@@ -89,6 +89,11 @@ local function handle_screen_resize()
 
 		-- If split orientation should change, reorganize the windows
 		if new_is_vsplit ~= tab_info.is_vsplit then
+			-- Save which buffer/window currently has focus
+			local current_win = vim.api.nvim_get_current_win()
+			local current_buf = vim.api.nvim_win_get_buf(current_win)
+			local was_in_terminal_1 = (current_buf == tab_info.terminal_1_buf)
+
 			-- Close all windows except one
 			local windows = vim.api.nvim_tabpage_list_wins(current_tab)
 			for i = 2, #windows do
@@ -111,6 +116,13 @@ local function handle_screen_resize()
 			tab_info.is_vsplit = new_is_vsplit
 			tab_info.terminal_1_win = terminal_1_win
 			tab_info.terminal_2_win = terminal_2_win
+
+			-- Restore focus to the original window
+			if was_in_terminal_1 then
+				vim.api.nvim_set_current_win(terminal_1_win)
+			else
+				vim.api.nvim_set_current_win(terminal_2_win)
+			end
 		end
 
 		-- Apply window sizes regardless of orientation change
