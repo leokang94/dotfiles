@@ -46,7 +46,8 @@ brew install \
 brew install \
   imagemagick \
   fd \
-  git-delta
+  git-delta \
+  zellij
 
 # Language & runtime
 brew install \
