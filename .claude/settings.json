@@ -13,6 +13,6 @@
       "WebFetch(domain:docs.anthropic.com)"
     ],
     "deny": []
-  }
+  },
+  "alwaysThinkingEnabled": true
 }
-

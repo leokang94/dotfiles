@@ -9,14 +9,13 @@
   quotepath = false
   ignorecase = false
   pager = delta
+  attributesfile = ~/.gitattributes
 [delta]
   feature = decorations
   navigate = true
   syntax-theme = Dracula
-[merge]
-	ff = no
-	commit = no
-  tool = diffview
+[pager]
+  difftool = true
 [pull]
 	ff = yes
 [push]
@@ -26,15 +25,24 @@
 
 [difftool "vscode"]
 	cmd = "code --wait --diff \"$LOCAL\" \"$REMOTE\""
+[difftool "diffview"]
+  cmd = "nvim -n -c \"DiffviewOpen\" \"$LOCAL\" \"$REMOTE\""
+[difftool]
+  # Run the difftool immediately, don't ask 'are you sure' each time.
+  prompt = false
 [mergetool]
   prompt = false
   keepBackup = false
-[mergetool "diffview"]
-  cmd = "nvim -n -c \"DiffviewOpen\" \"$MERGED\""
-[difftool "diffview"]
-  cmd = "nvim -n -c \"DiffviewOpen\" \"$LOCAL\" \"$REMOTE\""
+[merge "mergiraf"]
+  name = mergiraf
+  driver = mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P -l %L
 [diff]
 	tool = diffview
+[merge]
+	ff = no
+	commit = no
+  tool = diffview
+
 
 [color]
   ui = always
@@ -97,4 +105,6 @@
 [i18n]
 	commitEncoding = utf-8
 	logOutputEncoding = utf-8
+
+
 
