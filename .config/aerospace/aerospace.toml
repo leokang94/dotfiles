@@ -193,8 +193,8 @@ ctrl-alt-l = 'join-with right'
 
 [workspace-to-monitor-force-assignment]
 M = ['built-in', 'main']
-T = ['dell', 'main']
-B = ['main']
+T = ['dell', 'Q27P2G5', 'main']
+B = ['LG HDR 4K', 'main']
 7 = ['main']
 8 = ['main']
 9 = ['main']
