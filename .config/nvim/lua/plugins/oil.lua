@@ -5,6 +5,7 @@ return {
 			default_file_explorer = true,
 			columns = { "icon", "size" },
 			watch_for_chagnes = true,
+			skip_confirm_for_simple_edits = true,
 			view_options = {
 				show_hidden = true,
 			},
@@ -17,6 +18,11 @@ return {
 					local stat = vim.loop.fs_stat(filename)
 					return stat and stat.size > 1048576
 				end,
+			},
+
+			float = {
+				padding = 5,
+				border = "rounded",
 			},
 
 			keymaps = {
