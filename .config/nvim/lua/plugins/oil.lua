@@ -21,8 +21,7 @@ return {
 			},
 
 			float = {
-				padding = 5,
-				border = "rounded",
+				padding = 4,
 			},
 
 			keymaps = {

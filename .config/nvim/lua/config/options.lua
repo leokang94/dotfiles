@@ -58,6 +58,8 @@ vim.o.formatexpr = "v:lua.require'lazyvim.util'.format.formatexpr()"
 -- Fix markdown indentation settings
 vim.g.markdown_recommended_style = 0
 
+vim.o.winborder = "rounded"
+
 vim.opt.diffopt = {
 	"internal", -- 내부 diff 알고리즘 사용
 	"filler", -- 변경되지 않은 줄에 대해서도 빈 줄을 채워 표시
