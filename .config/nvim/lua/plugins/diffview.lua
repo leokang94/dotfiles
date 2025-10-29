@@ -14,8 +14,8 @@ return {
 			desc = "File history for the visual selection",
 		},
 	},
-	opts = {
-		view = {
+	opts = function(_, opts)
+		opts.view = {
 			default = {
 				disable_diagnostics = true,
 				winbar_info = true,
@@ -29,22 +29,42 @@ return {
 				disable_diagnostics = true,
 				winbar_info = true,
 			},
-		},
+		}
 
-		signs = {
+		opts.signs = {
 			fold_closed = "",
 			fold_open = "󰅀",
-		},
+		}
 
-		file_panel = {
+		opts.file_panel = {
 			win_config = { -- See |diffview-config-win_config|
 				position = "right",
 				width = 35,
 				win_opts = {},
 			},
-		},
+		}
 
-		hooks = {
+		local actions = require("diffview.actions")
+		opts.keymaps = {
+			file_panel = {
+				{
+					"n",
+					"x",
+					actions.restore_entry,
+					{ desc = "Restore entry to the state on the left side" },
+				},
+				{
+					"n",
+					"X",
+					function()
+						vim.cmd("!git restore .")
+					end,
+					{ desc = "Restore all entries" },
+				},
+			},
+		}
+
+		opts.hooks = {
 			view_opened = function()
 				vim.cmd("VimadeDisable")
 			end,
@@ -83,6 +103,6 @@ return {
 					end
 				end
 			end,
-		},
-	},
+		}
+	end,
 }
