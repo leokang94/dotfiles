@@ -19,12 +19,17 @@ return {
 		picker = {
 			enabled = true,
 			ui_select = true,
+
 			sources = {
 				files = {
 					hidden = true,
 				},
 				grep = {
 					hidden = true,
+					-- args = {
+					-- 	"--glob",
+					-- 	"!*-lock.json",
+					-- },
 				},
 				explorer = {
 					hidden = true,
