@@ -168,6 +168,8 @@ b = 'workspace B'
 t = 'workspace T'
 # Messages (Slack, Discord, KakaoTalk, etc..)
 m = 'workspace M'
+# Statistics (btop)
+s = 'workspace S'
 
 # sticky is not yet supported https://github.com/nikitabobko/AeroSpace/issues/2
 #s = ['layout sticky tiling', 'mode main']
@@ -180,6 +182,7 @@ ctrl-9 = ['move-node-to-workspace 9', 'workspace 9']
 ctrl-b = ['move-node-to-workspace B', 'workspace B']
 ctrl-t = ['move-node-to-workspace T', 'workspace T']
 ctrl-m = ['move-node-to-workspace M', 'workspace M']
+ctrl-s = ['move-node-to-workspace S', 'workspace S']
 
 ctrl-alt-h = 'join-with left'
 ctrl-alt-j = 'join-with down'
@@ -264,6 +267,11 @@ run = ['layout tiling']
 [[on-window-detected]]
 if.workspace = 'M'
 run = ['layout tiling']
+
+[[on-window-detected]]
+if.workspace = 'S'
+run = ['layout tiling']
+
 
 [[on-window-detected]]
 if.workspace = '7'
