@@ -65,6 +65,13 @@ return {
 						self:execute("calculate_file_truncate_width")
 					end,
 				},
+
+				input = {
+					keys = {
+						["<C-j>"] = { "history_forward", mode = { "i", "n" } },
+						["<C-k>"] = { "history_back", mode = { "i", "n" } },
+					},
+				},
 			},
 			actions = {
 				-- Make file truncation consider window width.
