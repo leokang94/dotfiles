@@ -37,6 +37,11 @@ source ~/.dotfiles/zinit.zsh
 autoload -Uz _zinit
 (( ${+_comps} )) && _comps[zinit]=_zinit
 
+# setup custom completions
+fpath=(~/.dotfiles/.zsh/completions $fpath)
+autoload -Uz compinit
+compinit
+
 
 # setup zoxide
 eval "$(zoxide init --cmd cd zsh)"
@@ -68,6 +73,13 @@ alias g='git'
 # fastfetch
 alias fetch='fastfetch'
 
+###############################
+# Custom Commands Aliases
+###############################
+export PATH="$PATH:$HOME/.custom-commands"
+
+alias pr="pull-request"
+alias ci="open-ci"
 
 ###############################
 # Custom Functions
@@ -97,3 +109,5 @@ fvi() {
     vi "$file" || return
   fi
 }
+
+

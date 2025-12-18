@@ -1,0 +1,34 @@
+#!/bin/sh
+
+branch=$1
+
+pwd=$(echo $PWD)
+
+# `workspaces/**` 경로의 레포에서만 적용되도록 함. 불필요할 경우, 제거해도 됨.
+if [[ ! $pwd =~ workspaces/.+$ ]]; then
+  echo "'PWD' does not end with 'workspaces/*'. Returning..."
+  exit 1
+fi
+
+# 현재 위치한 working directory를 repo로 봄
+repo="${pwd##*/}"
+
+# if 'branch' is 'HEAD', get the current branch name
+if [ "$branch" = "HEAD" ] || [ "$branch" = "@" ]; then
+  branch=$(git symbolic-ref --short HEAD)
+fi
+
+# 기본적으로 Chrome 으로 열리도록 함. 경우에 따라 다른 브라우저 선택 가능
+
+company="leokang94"
+
+# jenkins인 경우
+ci_url="https://jenkins.$company.io/job/$repo"
+
+if [ ! -z "$branch" ]; then
+  url="$ci_url/job/$branch/"
+  open -a "Google Chrome" $url
+else
+  url="$ci_url"
+  open -a "Google Chrome" $url
+fi

@@ -1,0 +1,39 @@
+#!/bin/sh
+
+# from, to 는 필수
+from=$1
+to=$2
+
+pwd=$(echo $PWD)
+
+# `workspaces/**` 경로의 레포에서만 적용되도록 함. 불필요할 경우, 제거해도 됨.
+if [[ ! $pwd =~ workspaces/.+$ ]]; then
+  echo "'PWD' does not end with 'workspaces/*'. Returning..."
+  exit 1
+fi
+
+# 현재 위치한 working directory를 repo로 봄
+repo="${pwd##*/}"
+
+# If 'from' is 'HEAD' or '@', get the current branch name
+if [ "$from" = "HEAD" ] || [ "$from" = "@" ]; then
+  from=$(git symbolic-ref --short HEAD)
+fi
+
+# If 'to' is 'HEAD' or '@', get the current branch name
+if [ "$to" = "HEAD" ] || [ "$to" = "@" ]; then
+  to=$(git symbolic-ref --short HEAD)
+fi
+
+company="leokang94"
+
+# bitbucket 인 경우
+url="https://bitbucket.org/$company/$repo/pull-requests/new?source=$from&dest=$to"
+
+# 기본적으로 Chrome 으로 열리도록 함. 경우에 따라 다른 브라우저 선택 가능
+if [ ! -z "$from" -a ! -z "$to" ]; then
+  open -a "Google Chrome" $url
+else
+  echo "'from' and 'to' is not specified. first argument is 'from' and second argument is 'to'. Returning..."
+  exit 1
+fi
