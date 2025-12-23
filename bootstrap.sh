@@ -78,7 +78,7 @@ brew install --force --cask \
 echo "${LEO_PREFIX} Download ${CIAN}programs${CLEAR} from homebrew... ${DONE_POSTFIX}"
 
 # services start
-brew services start borders
+brew services restart borders
 
 ##########################################################
 # Install lsp server that not included in Mason
@@ -117,11 +117,11 @@ create_symlink() {
   echo "${LEO_PREFIX} Create ${CIAN}symlink${CLEAR} :: ${CIAN}from${CLEAR}:${from}, ${CIAN}to${CLEAR}:${to}..."
 
   case "$type" in
-  files)
+  multiple)
     mkdir -p "${to}"
     ln -sf ${from}/* ${to}/
     ;;
-  dir)
+  single)
     ln -sf ${from} ${to}
     ;;
   *)
@@ -138,9 +138,10 @@ CONFIG_DIR_NAME=".config"
 GIT_CUSTOM_COMMANDS_DIR_NAME=".git-custom-commands"
 
 # 함수를 호출하면서 인자로 dotfiles 디렉토리와 타겟 디렉토리를 전달하세요.
-create_symlink --type=files "$HOME/${DOT_FILES_DIR_NAME}/.config" "$HOME/${CONFIG_DIR_NAME}"
-create_symlink --type=dir "$HOME/${DOT_FILES_DIR_NAME}/.git-custom-commands" "$HOME"
-create_symlink --type=files "$HOME/${DOT_FILES_DIR_NAME}/.claude" "$HOME/.claude"
+create_symlink --type=multiple "$HOME/${DOT_FILES_DIR_NAME}/.config" "$HOME/${CONFIG_DIR_NAME}"
+create_symlink --type=single "$HOME/${DOT_FILES_DIR_NAME}/.git-custom-commands" "$HOME"
+create_symlink --type=multiple "$HOME/${DOT_FILES_DIR_NAME}/.claude" "$HOME/.claude"
+create_symlink --type=single "$HOME/${DOT_FILES_DIR_NAME}/.config/mouseless/config.yaml" "$HOME/Library/Containers/net.sonuscape.mouseless/Data/.mouseless/configs/config.yaml"
 
 ##########################################################
 # Extends my .gitconfig to ~/.gitconfig

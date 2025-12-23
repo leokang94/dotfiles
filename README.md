@@ -38,7 +38,14 @@ zsh --login
 - Minimize : control+opts+shift+cmd+M 
 - 최소화 : control+opts+shift+cmd+M
 
-### 7-1. App Store 를 통한 app 설치 및 활성화
+### 7-1. Karabiner 세팅
+1. `Karabiner` > Simple Modifications > For all devices
+  - caps_lock -> left_control
+  - right_command -> f17 or f18
+2. 시스템 설정 > 키보드 > 키보드 단축키 > 입력소스 > `입력 메뉴에서 다음 소스 선택` 을 f17 or f18 로 변경
+  - 만약 이렇게 하고 안먹힐 경우 re-boot
+
+### 7-2. App Store 를 통한 app 설치 및 활성화
 
 - RunCat
 - Xcode
@@ -48,7 +55,7 @@ zsh --login
 - CleanMyMac
 - In Your Face
 
-### 7-2. brew cask 를 통해 설치된 app 활성화
+### 7-3. brew cask 를 통해 설치된 app 활성화
 
 - Raycast
 - 1Password
@@ -57,14 +64,14 @@ zsh --login
 - Homerow
 - Ghostty 
 
-### 7-3 nvim 내에서 추가 설정
+### 7-4 nvim 내에서 추가 설정
 
 #### github-copilot 세팅
 ```
 :Copilot auth
 ```
 
-### 7-4 mouseless config 하드링크
+### 7-5 mouseless config 하드링크
 
 ```bash
 rm -rf "$HOME/Library/Containers/net.sonuscape.mouseless/Data/.mouseless/configs/config.yaml" && \
