@@ -160,9 +160,17 @@ function M.cleanup_tab(tab_id)
 		return
 	end
 
-	-- watcher 정리
+	-- watcher 정리 (배열일 수 있음)
 	if tab_info.watcher then
-		tab_info.watcher:stop()
+		if type(tab_info.watcher) == "table" then
+			for _, w in ipairs(tab_info.watcher) do
+				if w and w.stop then
+					w:stop()
+				end
+			end
+		elseif tab_info.watcher.stop then
+			tab_info.watcher:stop()
+		end
 	end
 
 	git_graph_tabs[tab_id] = nil
