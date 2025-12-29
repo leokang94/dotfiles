@@ -177,7 +177,10 @@ function M.open_git_graph()
 	local graph_win = vim.api.nvim_get_current_win()
 	vim.api.nvim_win_set_buf(graph_win, graph_buf)
 
-	-- 초기 렌더링 (30개만 로드)
+	-- Winbar 설정 (타이틀 표시)
+	vim.wo[graph_win].winbar = " Git Graph"
+
+	-- 초기 렌더링 (500개 로드)
 	buffer.render_git_log(graph_buf, INITIAL_LOAD_COUNT, 0)
 
 	-- 탭 정보 저장
