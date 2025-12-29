@@ -10,6 +10,11 @@ local DEBOUNCE_DELAY_MS = 100
 local update_scheduled = {}
 local resize_scheduled = false
 
+-- 무한 스크롤 설정
+local INITIAL_LOAD_COUNT = 500 -- 초기 로드 개수
+local LOAD_MORE_COUNT = 500 -- 추가 로드 개수
+local LOAD_MORE_THRESHOLD = 50 -- 끝에서 N줄 전에 로드
+
 --- 모듈 지연 로딩
 local function load_modules()
 	if not buffer then
@@ -88,10 +93,60 @@ function M.update_git_log(tab_id)
 	vim.defer_fn(function()
 		local tab_info = git_graph_tabs[tab_id]
 		if tab_info and vim.api.nvim_buf_is_valid(tab_info.graph_buf) then
-			buffer.render_git_log(tab_info.graph_buf)
+			-- 초기 로드 개수로 렌더링
+			buffer.render_git_log(tab_info.graph_buf, INITIAL_LOAD_COUNT, 0)
+			-- 로드된 개수 초기화
+			tab_info.loaded_count = INITIAL_LOAD_COUNT
 		end
 		update_scheduled[tab_id] = nil
 	end, DEBOUNCE_DELAY_MS)
+end
+
+--- 추가 로그 로드 (무한 스크롤)
+---@param tab_id number 탭 ID
+local function load_more_logs(tab_id)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info or not vim.api.nvim_buf_is_valid(tab_info.graph_buf) then
+		return
+	end
+
+	-- 이미 로드 중이면 무시
+	if tab_info.loading then
+		return
+	end
+
+	tab_info.loading = true
+
+	-- 추가 로그 로드
+	local success = buffer.append_git_log(tab_info.graph_buf, LOAD_MORE_COUNT, tab_info.loaded_count)
+
+	if success then
+		tab_info.loaded_count = tab_info.loaded_count + LOAD_MORE_COUNT
+	end
+
+	tab_info.loading = false
+end
+
+--- 스크롤 위치 확인 및 추가 로드
+---@param tab_id number 탭 ID
+---@param buf number 버퍼 번호
+local function check_scroll_position(tab_id, buf)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info or tab_info.graph_buf ~= buf then
+		return
+	end
+
+	-- 현재 커서 위치
+	local cursor = vim.api.nvim_win_get_cursor(0)
+	local current_line = cursor[1]
+
+	-- 버퍼 총 라인 수
+	local total_lines = vim.api.nvim_buf_line_count(buf)
+
+	-- 끝에서 THRESHOLD 라인 이내면 추가 로드
+	if total_lines - current_line <= LOAD_MORE_THRESHOLD then
+		load_more_logs(tab_id)
+	end
 end
 
 --- Git graph 탭 열기
@@ -122,8 +177,8 @@ function M.open_git_graph()
 	local graph_win = vim.api.nvim_get_current_win()
 	vim.api.nvim_win_set_buf(graph_win, graph_buf)
 
-	-- 초기 렌더링
-	buffer.render_git_log(graph_buf)
+	-- 초기 렌더링 (30개만 로드)
+	buffer.render_git_log(graph_buf, INITIAL_LOAD_COUNT, 0)
 
 	-- 탭 정보 저장
 	git_graph_tabs[tab_id] = {
@@ -133,7 +188,17 @@ function M.open_git_graph()
 		graph_win = graph_win,
 		graph_buf = graph_buf,
 		git_root = git_root,
+		loaded_count = INITIAL_LOAD_COUNT,
+		loading = false,
 	}
+
+	-- 스크롤 감지 autocmd 추가
+	vim.api.nvim_create_autocmd("CursorMoved", {
+		buffer = graph_buf,
+		callback = function()
+			check_scroll_position(tab_id, graph_buf)
+		end,
+	})
 
 	-- .git 디렉토리 감시 시작
 	git_graph_tabs[tab_id].watcher = watcher.watch_git_dir(git_root, function()

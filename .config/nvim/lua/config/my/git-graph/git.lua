@@ -11,19 +11,30 @@ function M.get_git_root()
 end
 
 --- Git graph log를 가져옴 (gitconfig의 graph-log alias와 동일한 형식)
+---@param limit? number 가져올 커밋 개수 (기본값: 30)
+---@param skip? number 건너뛸 커밋 개수 (기본값: 0)
 ---@return table lines Git log 라인들의 배열
-function M.get_graph_log()
+function M.get_graph_log(limit, skip)
+	limit = limit or 30
+	skip = skip or 0
+
 	-- git graph-log alias를 그대로 실행
-	local cmd = [[git log --all --graph --date-order --date=format-local:'%Y-%m-%d %H:%M:%S %Z' --format=format:'%C(yellow)%h%C(reset)%C(reset) %C(brightblack)%cN (%cd) /%C(reset) %C(brightblack)%aN (%ad)%C(reset)%n%C(auto)%(decorate:prefix=        ,suffix=
-,pointer= 󰁔 )        %C(brightwhite)%s%C(reset)%n']]
+	local cmd = string.format(
+		[[git log -n %d --skip=%d --all --graph --date-order --date=format-local:'%%Y-%%m-%%d %%H:%%M:%%S %%Z' --format=format:'%%C(yellow)%%h%%C(reset)%%C(reset) %%C(brightblack)%%cN (%%cd) /%%C(reset) %%C(brightblack)%%aN (%%ad)%%C(reset)%%n%%C(auto)%%(decorate:prefix=        ,suffix=
+,pointer= 󰁔 )        %%C(brightwhite)%%s%%C(reset)%%n']],
+		limit,
+		skip
+	)
 
-	-- stash hash도 포함 (별도 명령어로)
-	local stash_cmd = "git reflog show --format=%h stash 2>/dev/null"
-	local stash_hashes = vim.fn.systemlist(stash_cmd)
+	-- stash hash는 skip=0일 때만 포함
+	if skip == 0 then
+		local stash_cmd = "git reflog show --format=%h stash 2>/dev/null"
+		local stash_hashes = vim.fn.systemlist(stash_cmd)
 
-	if vim.v.shell_error == 0 and #stash_hashes > 0 then
-		-- stash hash를 명령어에 추가
-		cmd = cmd .. " " .. table.concat(stash_hashes, " ")
+		if vim.v.shell_error == 0 and #stash_hashes > 0 then
+			-- stash hash를 명령어에 추가
+			cmd = cmd .. " " .. table.concat(stash_hashes, " ")
+		end
 	end
 
 	local result = vim.fn.systemlist(cmd)
