@@ -60,6 +60,10 @@ brew install \
   sketchybar \
   borders
 
+# im-select (vim 에서 select/input mode 전환 시 추가적인 IME 전환을 하지 않기 위해)
+brew tap daipeihust/tap
+brew install im-select
+
 brew install --force --cask \
   google-chrome \
   raycast \
