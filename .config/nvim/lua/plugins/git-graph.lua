@@ -4,7 +4,7 @@ return {
 	lazy = false,
 	keys = {
 		{
-			"<leader>gt",
+			"<leader>gg",
 			function()
 				require("config.my.git-graph").open_git_graph()
 			end,
