@@ -38,11 +38,14 @@ local function create_watcher(path, callback, uv)
 end
 
 --- .git 디렉토리의 여러 경로를 감시하고 변경 시 콜백 실행
+--- git worktree 환경에서도 올바른 경로를 감시함
 ---@param git_root string Git 저장소 루트 경로
 ---@param callback function 변경 감지 시 실행할 콜백 함수
 ---@return table watchers_list 생성된 watcher 목록
 function M.watch_git_dir(git_root, callback)
-	local git_dir = git_root .. "/.git"
+	local git = require("config.my.git-graph.git")
+	local git_dir = git.get_git_dir() or (git_root .. "/.git")
+	local git_common_dir = git.get_git_common_dir() or git_dir
 	local watcher_key = git_dir
 
 	-- 기존 watcher 정리
@@ -62,15 +65,16 @@ function M.watch_git_dir(git_root, callback)
 		return nil
 	end
 
-	-- 감시할 경로 목록 (우선순위 순)
+	-- 감시할 경로 목록
+	-- worktree-specific 경로와 공유 경로를 분리
 	local watch_paths = {
-		git_dir .. "/refs/heads", -- 로컬 브랜치
-		git_dir .. "/refs/remotes", -- 리모트 브랜치
-		git_dir .. "/refs/tags", -- 태그
-		git_dir .. "/HEAD", -- 현재 브랜치
-		git_dir .. "/index", -- 스테이징 영역
-		git_dir .. "/FETCH_HEAD", -- fetch 결과
-		git_dir .. "/logs", -- reflog
+		git_common_dir .. "/refs/heads", -- 로컬 브랜치 (공유)
+		git_common_dir .. "/refs/remotes", -- 리모트 브랜치 (공유)
+		git_common_dir .. "/refs/tags", -- 태그 (공유)
+		git_dir .. "/HEAD", -- 현재 브랜치 (worktree별)
+		git_dir .. "/index", -- 스테이징 영역 (worktree별)
+		git_dir .. "/FETCH_HEAD", -- fetch 결과 (worktree별)
+		git_common_dir .. "/logs", -- reflog (공유)
 	}
 
 	local watcher_list = {}

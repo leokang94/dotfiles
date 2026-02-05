@@ -45,4 +45,39 @@ function M.get_graph_log(limit, skip)
 	return result
 end
 
+--- 현재 worktree의 git 디렉토리 경로를 반환 (worktree-specific)
+---@return string|nil git_dir Git 디렉토리 경로, 실패 시 nil
+function M.get_git_dir()
+	local result = vim.fn.systemlist("git rev-parse --git-dir")
+	if vim.v.shell_error ~= 0 then
+		return nil
+	end
+	local dir = result[1]
+	-- 상대 경로일 수 있으므로 절대 경로로 변환
+	if not vim.startswith(dir, "/") then
+		local root = M.get_git_root()
+		if root then
+			dir = root .. "/" .. dir
+		end
+	end
+	return dir
+end
+
+--- 공유 git 디렉토리 경로를 반환 (refs, objects 등)
+---@return string|nil git_common_dir 공유 Git 디렉토리 경로, 실패 시 nil
+function M.get_git_common_dir()
+	local result = vim.fn.systemlist("git rev-parse --git-common-dir")
+	if vim.v.shell_error ~= 0 then
+		return nil
+	end
+	local dir = result[1]
+	if not vim.startswith(dir, "/") then
+		local root = M.get_git_root()
+		if root then
+			dir = root .. "/" .. dir
+		end
+	end
+	return dir
+end
+
 return M
