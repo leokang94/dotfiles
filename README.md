@@ -87,3 +87,19 @@ rm -rf ~/.local/state/nvim && \
 rm -rf ~/.cache/nvim &&
 ```
 을 통해 로컬 데이터들을 싹 정리하고 다시 설치하기
+
+## 9. AI api key 세팅
+```zsh
+###############################
+# AI API KEY SETTING
+###############################
+
+# Source API key management functions
+source ~/.dotfiles/api_keys.zsh
+
+# Load API keys
+load_api_keys
+
+```
+
+를 로컬 .zshrc 에 추가하기

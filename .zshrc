@@ -3,17 +3,6 @@
 
 zmodload zsh/zprof
 
-
-###############################
-# AI API KEY SETTING
-###############################
-
-# Source API key management functions
-source ~/.dotfiles/api_keys.zsh
-
-# Load API keys
-load_api_keys
-
 # Function to handle shell restart with optional cache invalidation
 resh() {
   if [ "$1" = "--cache-invalidate" ]; then
