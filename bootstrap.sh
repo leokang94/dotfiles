@@ -37,6 +37,42 @@ npm i -g vscode-langservers-extracted
 # Create a symbolic links
 ##########################################################
 
+# 기존 타겟 처리 헬퍼 함수
+# 반환값: 0 = 진행, 1 = 스킵
+_handle_existing_target() {
+  local target_path="$1"
+  local expected_source="$2"
+
+  # 타겟이 없으면 진행
+  if [ ! -e "$target_path" ] && [ ! -L "$target_path" ]; then
+    return 0
+  fi
+
+  # symlink인 경우
+  if [ -L "$target_path" ]; then
+    local current_link=$(readlink "$target_path")
+    if [ "$current_link" = "$expected_source" ]; then
+      echo "${LEO_PREFIX} ${CIAN}Skipped${CLEAR} :: Already correct symlink at ${target_path}"
+      return 1 # 스킵
+    else
+      rm "$target_path"
+      return 0
+    fi
+  fi
+
+  # 실제 파일/디렉토리 -> 백업
+  local backup_path="${target_path}.bak"
+  local counter=1
+  while [ -e "$backup_path" ]; do
+    backup_path="${target_path}.bak.${counter}"
+    counter=$((counter + 1))
+  done
+
+  mv "$target_path" "$backup_path"
+  echo "${LEO_PREFIX} ${CIAN}Backup${CLEAR} :: Moved ${target_path} to ${backup_path}"
+  return 0
+}
+
 create_symlink() {
   local type=""
   local from=""
@@ -65,10 +101,35 @@ create_symlink() {
   case "$type" in
   multiple)
     mkdir -p "${to}"
-    ln -sf ${from}/* ${to}/
+    for source_file in ${from}/*; do
+      local basename=$(basename "$source_file")
+      local target_path="${to}/${basename}"
+      if _handle_existing_target "$target_path" "$source_file"; then
+        ln -s "$source_file" "$target_path"
+        echo "${LEO_PREFIX} ${CIAN}Created${CLEAR} :: ${target_path} -> ${source_file}"
+      fi
+    done
     ;;
   single)
-    ln -sf ${from} ${to}
+    # single 타입: to의 basename과 from의 basename이 같으면 to를 전체 경로로 사용
+    # 다르면 to를 디렉토리로 간주하고 그 안에 from의 basename으로 생성
+    local target_path
+    local from_basename=$(basename "$from")
+    local to_basename=$(basename "$to")
+
+    if [ "$from_basename" = "$to_basename" ]; then
+      # to가 전체 파일 경로 (예: .../config.yaml -> .../config.yaml)
+      target_path="$to"
+    else
+      # to가 디렉토리 경로 (예: .../dir -> .../dir/.hammerspoon)
+      target_path="${to}/${from_basename}"
+    fi
+
+    if _handle_existing_target "$target_path" "$from"; then
+      mkdir -p "$(dirname "$target_path")"
+      ln -s "$from" "$target_path"
+      echo "${LEO_PREFIX} ${CIAN}Created${CLEAR} :: ${target_path} -> ${from}"
+    fi
     ;;
   *)
     echo "${LEO_PREFIX} Invalid type specified. Use --type=files or --type=dir.${CLEAR}"
