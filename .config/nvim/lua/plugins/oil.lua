@@ -41,6 +41,23 @@ return {
 				["gx"] = "actions.open_external",
 				["g."] = { "actions.toggle_hidden", mode = "n" },
 				["g\\"] = { "actions.toggle_trash", mode = "n" },
+				-- 상대 경로 복사
+				["gy"] = {
+					callback = function()
+						local oil = require("oil")
+						local entry = oil.get_cursor_entry()
+						if entry then
+							local dir = oil.get_current_dir()
+							local full_path = dir .. entry.name
+							local relative_path = vim.fn.fnamemodify(full_path, ":.")
+							vim.fn.setreg("+", relative_path)
+							print("Copied relative path: " .. relative_path)
+						end
+					end,
+					desc = "Copy relative path",
+				},
+				-- 절대 경로 복사
+				["gY"] = "actions.copy_entry_path",
 			},
 			use_default_keymaps = false,
 		},
