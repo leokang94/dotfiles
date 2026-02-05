@@ -29,7 +29,7 @@ window-save-state = always
 window-colorspace = display-p3
 
 macos-option-as-alt = true
-macos-titlebar-style = hidden
+# macos-titlebar-style = hidden
 
 # custom-shader = shaders/better-crt.glsl
 # custom-shader = shaders/mnoise.glsl
