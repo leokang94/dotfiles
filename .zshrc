@@ -51,6 +51,7 @@ export EDITOR=nvim
 # setup git
 export PATH="$PATH:$HOME/.git-custom-commands"
 alias g='git'
+alias c='claude'
 
 # tmuxifier setting
 # export PATH="$HOME/.tmuxifier/bin:$PATH"
