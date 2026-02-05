@@ -511,10 +511,16 @@ function M.show_diff(tab_id, hash, commit_list, index)
 	diff.win = vim.api.nvim_get_current_win()
 	vim.api.nvim_win_set_buf(diff.win, diff.buf)
 
-	-- 터미널에서 git show 실행 (delta 자동 적용)
-	vim.fn.termopen(string.format("git show %s", hash), {
-		on_exit = function()
-			-- 터미널 종료 후에도 버퍼 유지
+	-- 터미널에서 git show 실행 (delta, pager 비활성화)
+	vim.fn.termopen(string.format("git show %s | delta --paging=never", hash), {
+		on_exit = function(_, _, _)
+			-- 터미널 종료 후 Normal 모드로 전환하여 j/k 스크롤 가능하게
+			vim.schedule(function()
+				if diff.buf and vim.api.nvim_buf_is_valid(diff.buf) then
+					-- 터미널 모드 종료
+					vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-\\><C-n>", true, false, true), "n", false)
+				end
+			end)
 		end,
 	})
 
