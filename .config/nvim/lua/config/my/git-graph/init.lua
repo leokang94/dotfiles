@@ -67,6 +67,28 @@ function M.setup()
 			end
 		end,
 	})
+
+	-- WinEnter 이벤트로 diff 윈도우 focus 시 dim 처리
+	vim.api.nvim_create_autocmd("WinEnter", {
+		pattern = "*",
+		callback = function()
+			local current_tab = vim.api.nvim_get_current_tabpage()
+			local tab_info = git_graph_tabs[current_tab]
+
+			if tab_info and tab_info.diff.visible then
+				local current_win = vim.api.nvim_get_current_win()
+				local current_buf = vim.api.nvim_win_get_buf(current_win)
+
+				if current_buf == tab_info.diff.buf then
+					-- diff 윈도우로 이동: dim 적용
+					M.highlight_current_hash(current_tab)
+				elseif current_buf == tab_info.graph_buf then
+					-- graph 윈도우로 이동: dim 해제
+					M.clear_current_hash_highlight(current_tab)
+				end
+			end
+		end,
+	})
 end
 
 --- Git log 업데이트 (debounce 적용)
@@ -213,18 +235,49 @@ local function setup_graph_keymaps(buf, tab_id)
 		end,
 	})
 
-	-- Normal 모드에서 q로 diff 닫기 (diff가 열려있을 때)
+	-- Visual 모드에서 Enter로 선택된 커밋들 diff 표시
+	vim.api.nvim_buf_set_keymap(buf, "v", "<CR>", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			M.show_diff_visual(tab_id)
+		end,
+	})
+
+	-- Normal 모드에서 q로 diff 닫기 (diff가 열려있을 때) 또는 체크 해제
 	vim.api.nvim_buf_set_keymap(buf, "n", "q", "", {
 		noremap = true,
 		silent = true,
 		callback = function()
 			local tab_info = git_graph_tabs[tab_id]
-			if tab_info and tab_info.diff.visible then
-				M.hide_diff(tab_id)
-			else
-				-- diff가 없으면 탭 닫기
-				vim.cmd("tabclose")
+			if tab_info then
+				if tab_info.diff.visible then
+					M.hide_diff(tab_id)
+				elseif #tab_info.checked_commits > 0 then
+					M.clear_checked_commits(tab_id)
+				else
+					-- diff가 없고 체크도 없으면 탭 닫기
+					vim.cmd("tabclose")
+				end
 			end
+		end,
+	})
+
+	-- Normal 모드에서 Tab으로 커밋 체크/언체크
+	vim.api.nvim_buf_set_keymap(buf, "n", "<Tab>", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			M.toggle_check_commit(tab_id)
+		end,
+	})
+
+	-- Normal 모드에서 S-Tab으로 모든 체크 해제
+	vim.api.nvim_buf_set_keymap(buf, "n", "<S-Tab>", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			M.clear_checked_commits(tab_id)
 		end,
 	})
 end
@@ -345,10 +398,60 @@ local function create_diff_terminal_buffer(hash, tab_id)
 	return buf
 end
 
+--- Diff 버퍼 키맵 설정
+---@param buf number diff 버퍼
+---@param tab_id number 탭 ID
+local function setup_diff_keymaps(buf, tab_id)
+	local modes = { "n", "t" }
+
+	for _, mode in ipairs(modes) do
+		-- q로 닫기
+		vim.api.nvim_buf_set_keymap(buf, mode, "q", "", {
+			noremap = true,
+			silent = true,
+			callback = function()
+				M.hide_diff(tab_id)
+			end,
+		})
+
+		-- C-] 로 다음 커밋
+		vim.api.nvim_buf_set_keymap(buf, mode, "<C-]>", "", {
+			noremap = true,
+			silent = true,
+			callback = function()
+				M.next_diff(tab_id)
+			end,
+		})
+
+		-- C-[ 로 이전 커밋
+		vim.api.nvim_buf_set_keymap(buf, mode, "<C-[>", "", {
+			noremap = true,
+			silent = true,
+			callback = function()
+				M.prev_diff(tab_id)
+			end,
+		})
+	end
+end
+
+--- Winbar 텍스트 생성
+---@param diff table diff 상태
+---@return string winbar 텍스트
+local function get_diff_winbar(diff)
+	local hash = diff.current_hash or ""
+	if #diff.commit_list > 1 then
+		return string.format(" Diff: %s [%d/%d]", hash, diff.current_index, #diff.commit_list)
+	else
+		return " Diff: " .. hash
+	end
+end
+
 --- Diff 패널 표시 (터미널 버퍼로 delta 적용)
 ---@param tab_id number 탭 ID
 ---@param hash string 커밋 해시
-function M.show_diff(tab_id, hash)
+---@param commit_list? table 커밋 목록 (multi-select 시)
+---@param index? number 현재 인덱스 (multi-select 시)
+function M.show_diff(tab_id, hash, commit_list, index)
 	local tab_info = git_graph_tabs[tab_id]
 	if not tab_info then
 		return
@@ -357,8 +460,8 @@ function M.show_diff(tab_id, hash)
 	local diff = tab_info.diff
 	local is_vsplit = get_is_vsplit()
 
-	-- 이미 같은 커밋의 diff가 열려있으면 숨기기 (toggle)
-	if diff.visible and diff.current_hash == hash then
+	-- 단일 선택이고 이미 같은 커밋의 diff가 열려있으면 숨기기 (toggle)
+	if not commit_list and diff.visible and diff.current_hash == hash and #diff.commit_list <= 1 then
 		M.hide_diff(tab_id)
 		return
 	end
@@ -377,6 +480,15 @@ function M.show_diff(tab_id, hash)
 	diff.buf = create_diff_terminal_buffer(hash, tab_id)
 	diff.current_hash = hash
 
+	-- commit_list와 index 설정
+	if commit_list then
+		diff.commit_list = commit_list
+		diff.current_index = index or 1
+	else
+		diff.commit_list = { hash }
+		diff.current_index = 1
+	end
+
 	-- graph 윈도우에서 split
 	vim.api.nvim_set_current_win(tab_info.graph_win)
 	local split_cmd = is_vsplit and "rightbelow vsplit" or "rightbelow split"
@@ -393,7 +505,7 @@ function M.show_diff(tab_id, hash)
 	})
 
 	-- Winbar 설정
-	vim.wo[diff.win].winbar = " Diff: " .. hash
+	vim.wo[diff.win].winbar = get_diff_winbar(diff)
 
 	-- 윈도우 크기 설정
 	if is_vsplit then
@@ -407,24 +519,59 @@ function M.show_diff(tab_id, hash)
 	diff.visible = true
 	diff.is_vsplit = is_vsplit
 
-	-- Diff 버퍼 키맵 설정 (터미널 모드와 노말 모드 모두)
-	vim.api.nvim_buf_set_keymap(diff.buf, "n", "q", "", {
-		noremap = true,
-		silent = true,
-		callback = function()
-			M.hide_diff(tab_id)
-		end,
-	})
-	vim.api.nvim_buf_set_keymap(diff.buf, "t", "q", "", {
-		noremap = true,
-		silent = true,
-		callback = function()
-			M.hide_diff(tab_id)
-		end,
-	})
+	-- Diff 버퍼 키맵 설정
+	setup_diff_keymaps(diff.buf, tab_id)
 
-	-- graph 윈도우로 포커스 복원
-	vim.api.nvim_set_current_win(tab_info.graph_win)
+	-- 항상 diff 윈도우로 포커스
+	vim.api.nvim_set_current_win(diff.win)
+	-- 현재 해시 강조
+	M.highlight_current_hash(tab_id)
+	-- 터미널 모드로 진입 (insert mode)
+	vim.cmd("startinsert")
+end
+
+--- 다음 커밋 diff로 이동
+---@param tab_id number 탭 ID
+function M.next_diff(tab_id)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info or not tab_info.diff.visible then
+		return
+	end
+
+	local diff = tab_info.diff
+	if #diff.commit_list <= 1 then
+		return
+	end
+
+	local next_index = diff.current_index + 1
+	if next_index > #diff.commit_list then
+		next_index = 1 -- 순환
+	end
+
+	local next_hash = diff.commit_list[next_index]
+	M.show_diff(tab_id, next_hash, diff.commit_list, next_index)
+end
+
+--- 이전 커밋 diff로 이동
+---@param tab_id number 탭 ID
+function M.prev_diff(tab_id)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info or not tab_info.diff.visible then
+		return
+	end
+
+	local diff = tab_info.diff
+	if #diff.commit_list <= 1 then
+		return
+	end
+
+	local prev_index = diff.current_index - 1
+	if prev_index < 1 then
+		prev_index = #diff.commit_list -- 순환
+	end
+
+	local prev_hash = diff.commit_list[prev_index]
+	M.show_diff(tab_id, prev_hash, diff.commit_list, prev_index)
 end
 
 --- Diff 패널 숨기기
@@ -436,6 +583,9 @@ function M.hide_diff(tab_id)
 	end
 
 	local diff = tab_info.diff
+
+	-- dim 하이라이트 제거
+	M.clear_current_hash_highlight(tab_id)
 
 	-- diff 윈도우 닫기
 	if diff.win and vim.api.nvim_win_is_valid(diff.win) then
@@ -451,6 +601,245 @@ function M.hide_diff(tab_id)
 	diff.buf = nil
 	diff.visible = false
 	diff.current_hash = nil
+	diff.commit_list = {}
+	diff.current_index = 0
+end
+
+--- Visual 선택 범위에서 커밋 해시 목록 추출 (중복 제거, 순서 유지)
+---@param tab_id number 탭 ID
+---@param start_line number 시작 라인
+---@param end_line number 끝 라인
+---@return table commit_list 커밋 해시 목록
+local function get_commits_in_range(tab_id, start_line, end_line)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info or not tab_info.line_to_hash then
+		return {}
+	end
+
+	local seen = {}
+	local commit_list = {}
+
+	for line = start_line, end_line do
+		local hash = tab_info.line_to_hash[line]
+		if hash and not seen[hash] then
+			seen[hash] = true
+			table.insert(commit_list, hash)
+		end
+	end
+
+	return commit_list
+end
+
+--- Visual 선택 범위의 커밋 diff 표시
+---@param tab_id number 탭 ID
+function M.show_diff_visual(tab_id)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info then
+		return
+	end
+
+	-- Visual 모드 선택 범위 가져오기
+	local start_line = vim.fn.line("v")
+	local end_line = vim.fn.line(".")
+
+	-- 시작과 끝 정렬
+	if start_line > end_line then
+		start_line, end_line = end_line, start_line
+	end
+
+	-- Visual 모드 종료
+	vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)
+
+	-- 선택 범위에서 커밋 목록 추출
+	local commit_list = get_commits_in_range(tab_id, start_line, end_line)
+
+	if #commit_list == 0 then
+		return
+	elseif #commit_list == 1 then
+		-- 단일 커밋
+		M.show_diff(tab_id, commit_list[1])
+	else
+		-- 다중 커밋: 첫 번째 커밋 표시
+		M.show_diff(tab_id, commit_list[1], commit_list, 1)
+	end
+end
+
+-- Dim 처리용 namespace
+local dim_ns_id = vim.api.nvim_create_namespace("git-graph-current")
+local ansi_ns_id = vim.api.nvim_create_namespace("git-graph-highlight") -- ANSI 하이라이트와 같은 namespace
+
+--- 체크된 커밋 시각적 표시 업데이트 (Sign column 사용)
+---@param tab_id number 탭 ID
+local function update_check_signs(tab_id)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info or not vim.api.nvim_buf_is_valid(tab_info.graph_buf) then
+		return
+	end
+
+	-- 기존 sign 제거
+	vim.fn.sign_unplace("GitGraphCheckGroup", { buffer = tab_info.graph_buf })
+
+	-- 각 체크된 해시의 첫 번째 라인만 찾기
+	local hash_first_line = {}
+	for line_num, hash in pairs(tab_info.line_to_hash) do
+		if tab_info.checked_set[hash] then
+			if not hash_first_line[hash] or line_num < hash_first_line[hash] then
+				hash_first_line[hash] = line_num
+			end
+		end
+	end
+
+	-- 첫 번째 라인에만 sign 배치
+	local sign_id = 1
+	for _, line_num in pairs(hash_first_line) do
+		vim.fn.sign_place(sign_id, "GitGraphCheckGroup", "GitGraphCheck", tab_info.graph_buf, { lnum = line_num })
+		sign_id = sign_id + 1
+	end
+end
+
+--- 현재 diff 커밋 해시를 강조 표시
+---@param tab_id number 탭 ID
+function M.highlight_current_hash(tab_id)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info or not vim.api.nvim_buf_is_valid(tab_info.graph_buf) then
+		return
+	end
+
+	local diff = tab_info.diff
+	if not diff.visible or not diff.current_hash then
+		return
+	end
+
+	-- 기존 하이라이트 제거
+	vim.api.nvim_buf_clear_namespace(tab_info.graph_buf, dim_ns_id, 0, -1)
+
+	-- 현재 해시에 해당하는 모든 라인 찾기
+	local commit_lines = {}
+	for line_num, hash in pairs(tab_info.line_to_hash) do
+		if hash == diff.current_hash then
+			table.insert(commit_lines, line_num)
+		end
+	end
+	table.sort(commit_lines)
+
+	local target_line = nil
+
+	for _, line_num in ipairs(commit_lines) do
+		local line_text = vim.api.nvim_buf_get_lines(tab_info.graph_buf, line_num - 1, line_num, false)[1]
+		if line_text then
+			-- 라인에서 해시 위치 찾기
+			local hash_start, hash_end = line_text:find(diff.current_hash, 1, true)
+			if hash_start then
+				-- 해시가 있는 라인: 해시는 빨간색으로
+				-- overlay로 기존 노란색 해시 위에 빨간색 해시 덮어쓰기
+				vim.api.nvim_buf_set_extmark(tab_info.graph_buf, dim_ns_id, line_num - 1, hash_start - 1, {
+					virt_text = { { diff.current_hash, "GitGraphCurrentHash" } },
+					virt_text_pos = "overlay",
+				})
+				target_line = line_num
+			else
+				-- 해시가 없는 라인 (커밋 메시지, 데코레이션): bold 처리
+				-- 들여쓰기 후의 텍스트 시작 위치 찾기
+				local content_start = line_text:find("%S")
+				if content_start then
+					-- bold는 기존 색상 위에 추가됨
+					vim.api.nvim_buf_set_extmark(tab_info.graph_buf, dim_ns_id, line_num - 1, 0, {
+						line_hl_group = "GitGraphCurrentCommit",
+					})
+				end
+			end
+		end
+	end
+
+	-- 해당 라인으로 스크롤
+	if target_line and vim.api.nvim_win_is_valid(tab_info.graph_win) then
+		-- 현재 윈도우 저장
+		local current_win = vim.api.nvim_get_current_win()
+		-- graph 윈도우로 이동하여 커서 이동
+		vim.api.nvim_win_set_cursor(tab_info.graph_win, { target_line, 0 })
+		-- 화면 중앙에 위치시키기
+		vim.api.nvim_win_call(tab_info.graph_win, function()
+			vim.cmd("normal! zz")
+		end)
+		-- 원래 윈도우로 복귀
+		if current_win ~= tab_info.graph_win and vim.api.nvim_win_is_valid(current_win) then
+			vim.api.nvim_set_current_win(current_win)
+		end
+	end
+end
+
+--- 현재 해시 하이라이트 제거
+---@param tab_id number 탭 ID
+function M.clear_current_hash_highlight(tab_id)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info or not vim.api.nvim_buf_is_valid(tab_info.graph_buf) then
+		return
+	end
+
+	vim.api.nvim_buf_clear_namespace(tab_info.graph_buf, dim_ns_id, 0, -1)
+end
+
+--- 현재 커서 위치의 커밋 체크/언체크 토글
+---@param tab_id number 탭 ID
+function M.toggle_check_commit(tab_id)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info then
+		return
+	end
+
+	-- 현재 커서 라인 번호 가져오기
+	local cursor = vim.api.nvim_win_get_cursor(0)
+	local row = cursor[1]
+
+	-- line_to_hash 매핑에서 해시 조회
+	local hash = tab_info.line_to_hash and tab_info.line_to_hash[row]
+	if not hash then
+		return
+	end
+
+	if tab_info.checked_set[hash] then
+		-- 이미 체크되어 있으면 해제
+		tab_info.checked_set[hash] = nil
+		for i, h in ipairs(tab_info.checked_commits) do
+			if h == hash then
+				table.remove(tab_info.checked_commits, i)
+				break
+			end
+		end
+	else
+		-- 체크되어 있지 않으면 추가
+		tab_info.checked_set[hash] = true
+		table.insert(tab_info.checked_commits, hash)
+	end
+
+	-- 시각적 표시 업데이트
+	update_check_signs(tab_id)
+
+	-- winbar에 체크된 개수 표시
+	local check_count = #tab_info.checked_commits
+	if check_count > 0 then
+		vim.wo[tab_info.graph_win].winbar = string.format(" Git Graph [%d checked]", check_count)
+	else
+		vim.wo[tab_info.graph_win].winbar = " Git Graph"
+	end
+end
+
+--- 모든 체크 해제
+---@param tab_id number 탭 ID
+function M.clear_checked_commits(tab_id)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info then
+		return
+	end
+
+	tab_info.checked_commits = {}
+	tab_info.checked_set = {}
+
+	-- 시각적 표시 업데이트
+	update_check_signs(tab_id)
+
+	-- winbar 복원
+	vim.wo[tab_info.graph_win].winbar = " Git Graph"
 end
 
 --- 현재 커서 위치의 커밋 diff 표시/토글
@@ -458,6 +847,26 @@ end
 function M.toggle_diff_at_cursor(tab_id)
 	local tab_info = git_graph_tabs[tab_id]
 	if not tab_info then
+		return
+	end
+
+	-- 체크된 커밋이 있으면 multi diff 표시
+	if #tab_info.checked_commits > 0 then
+		-- graph 순서(라인 번호)로 정렬
+		local commit_list = vim.deepcopy(tab_info.checked_commits)
+		local hash_to_line = {}
+		for line_num, hash in pairs(tab_info.line_to_hash) do
+			-- 해시별로 가장 작은 라인 번호 저장 (첫 번째 출현 위치)
+			if not hash_to_line[hash] or line_num < hash_to_line[hash] then
+				hash_to_line[hash] = line_num
+			end
+		end
+		table.sort(commit_list, function(a, b)
+			return (hash_to_line[a] or 0) < (hash_to_line[b] or 0)
+		end)
+		M.show_diff(tab_id, commit_list[1], commit_list, 1)
+		-- 체크 해제
+		M.clear_checked_commits(tab_id)
 		return
 	end
 
@@ -487,9 +896,17 @@ function M.handle_diff_resize(tab_id)
 	-- 방향이 변경되었으면 다시 열기
 	if new_is_vsplit ~= diff.is_vsplit then
 		local hash = diff.current_hash
+		local commit_list = diff.commit_list
+		local current_index = diff.current_index
+
+		-- hide 호출 전에 상태 저장
 		M.hide_diff(tab_id)
 		if hash then
-			M.show_diff(tab_id, hash)
+			if #commit_list > 1 then
+				M.show_diff(tab_id, hash, commit_list, current_index)
+			else
+				M.show_diff(tab_id, hash)
+			end
 		end
 	else
 		-- 같은 방향이면 크기만 조정
@@ -527,6 +944,9 @@ function M.open_git_graph()
 	-- Winbar 설정 (타이틀 표시)
 	vim.wo[graph_win].winbar = " Git Graph"
 
+	-- Sign column 활성화 (체크 표시용)
+	vim.wo[graph_win].signcolumn = "yes:1"
+
 	-- 초기 렌더링 (500개 로드)
 	local line_to_hash = buffer.render_git_log(graph_buf, INITIAL_LOAD_COUNT, 0)
 
@@ -538,6 +958,8 @@ function M.open_git_graph()
 		loaded_count = INITIAL_LOAD_COUNT,
 		loading = false,
 		line_to_hash = line_to_hash,
+		checked_commits = {}, -- 체크된 커밋 목록 (순서 유지)
+		checked_set = {}, -- 체크 여부 빠른 조회용
 		terminal = {
 			buf = nil,
 			float_win = nil,
@@ -550,6 +972,8 @@ function M.open_git_graph()
 			visible = false,
 			current_hash = nil,
 			is_vsplit = nil,
+			commit_list = {}, -- 선택된 커밋 목록
+			current_index = 0, -- 현재 보고 있는 커밋 인덱스
 		},
 	}
 

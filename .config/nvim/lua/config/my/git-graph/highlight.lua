@@ -36,6 +36,18 @@ function M.setup()
 	vim.api.nvim_set_hl(0, "GitGraphBrightBlue", { fg = "#d6acff", ctermfg = 141 })
 	vim.api.nvim_set_hl(0, "GitGraphBrightMagenta", { fg = "#ff92df", ctermfg = 213 })
 	vim.api.nvim_set_hl(0, "GitGraphBrightCyan", { fg = "#a4ffff", ctermfg = 51 })
+
+	-- 체크 표시용 하이라이트
+	vim.api.nvim_set_hl(0, "GitGraphCheck", { fg = "#50fa7b", ctermfg = 46 })
+
+	-- 현재 보고있는 커밋 해시 강조 (빨간색 + bold + 배경)
+	-- 배경색을 지정해서 기존 ANSI 노란색을 완전히 덮어쓰기
+	vim.api.nvim_set_hl(0, "GitGraphCurrentHash", { fg = "#ff5555", bg = "#282a36", bold = true, ctermfg = 203 })
+	-- 현재 보고있는 커밋 메시지/데코레이션 강조 (bold)
+	vim.api.nvim_set_hl(0, "GitGraphCurrentCommit", { bold = true })
+
+	-- 체크 Sign 정의
+	vim.fn.sign_define("GitGraphCheck", { text = "✓", texthl = "GitGraphCheck" })
 end
 
 --- ANSI 이스케이프 시퀀스를 파싱하고 하이라이트 정보 반환
