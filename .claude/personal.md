@@ -62,3 +62,14 @@
   - `g stl` for interactive stash list with fzf
   - `g ls` for interactive log selection with fzf
 - **CRITICAL**: These aliases are MANDATORY for ALL git operations - violating this rule is unacceptable
+
+### Worktree 사용 규칙
+- **MANDATORY**: 다른 브랜치로 이동하여 작업해야 하는 경우(예: 별도 브랜치에서 커밋/PR 생성), 반드
+시 `git worktree`를 사용
+- `g stash` + `g sw`로 브랜치를 전환하지 말 것 — 기존 작업과 충돌 위험이 있음
+- 워크트리 사용 흐름:
+  1. `g worktree add <path> <branch>` 또는 `g worktree add -b <new-branch> <path> <base-branch>`로
+ 임시 워크트리 생성
+  2. 해당 디렉토리에서 작업 수행 (파일 추가, 커밋, push 등)
+  3. 작업 완료 후 `g worktree remove <path>`로 정리
+- 현재 작업 디렉토리는 그대로 유지되므로 기존 변경사항에 영향 없음
