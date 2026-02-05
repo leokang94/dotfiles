@@ -41,7 +41,8 @@ function M.render_git_log(buf, limit, skip)
 	-- git log 가져오기
 	local lines = git.get_graph_log(limit, skip)
 
-	-- modifiable 설정
+	-- readonly 해제 후 modifiable 설정 (W10 경고 방지)
+	vim.api.nvim_set_option_value("readonly", false, { buf = buf })
 	vim.api.nvim_set_option_value("modifiable", true, { buf = buf })
 
 	-- ANSI 색상 코드 파싱 및 하이라이트 정보 수집
@@ -107,7 +108,8 @@ function M.append_git_log(buf, limit, skip, prev_last_hash)
 	-- 현재 버퍼의 마지막 라인 번호
 	local last_line = vim.api.nvim_buf_line_count(buf)
 
-	-- modifiable 설정
+	-- readonly 해제 후 modifiable 설정 (W10 경고 방지)
+	vim.api.nvim_set_option_value("readonly", false, { buf = buf })
 	vim.api.nvim_set_option_value("modifiable", true, { buf = buf })
 
 	-- ANSI 색상 코드 파싱 및 하이라이트 정보 수집
