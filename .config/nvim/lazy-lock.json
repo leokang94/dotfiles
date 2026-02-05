@@ -50,6 +50,7 @@
   "nvim-lsp-file-operations": { "branch": "master", "commit": "b9c795d3973e8eec22706af14959bc60c579e771" },
   "nvim-lspconfig": { "branch": "master", "commit": "0480b120318ec8bab27b530ffab6ee76a8c4d806" },
   "nvim-material-icon": { "branch": "main", "commit": "5e75c5e631cba8f0001f189af9d0d9beb5276501" },
+  "nvim-pnpm-catalog-lens": { "branch": "main", "commit": "190073d6bd3ef6c5bf61681a244cdb4d0443d72a" },
   "nvim-rip-substitute": { "branch": "main", "commit": "6d6b5bfc7b3b502ac4eda200eff9a4ec4b98a0c7" },
   "nvim-scrollbar": { "branch": "main", "commit": "f8e87b96cd6362ef8579be456afee3b38fd7e2a8" },
   "nvim-tree.lua": { "branch": "master", "commit": "037d89e60fb01a6c11a48a19540253b8c72a3c32" },
