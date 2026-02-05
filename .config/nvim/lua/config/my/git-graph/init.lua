@@ -1,8 +1,7 @@
 local M = {}
 
 -- 지연 로딩을 위한 모듈 참조
-local buffer, watcher, window, git, highlight
-local get_is_vsplit = require("utils.screen").is_vsplit
+local buffer, watcher, git, highlight, float
 
 -- 모듈 레벨 상태
 local git_graph_tabs = {}
@@ -21,8 +20,8 @@ local function load_modules()
 		highlight = require("config.my.git-graph.highlight")
 		buffer = require("config.my.git-graph.buffer")
 		watcher = require("config.my.git-graph.watcher")
-		window = require("config.my.git-graph.window")
 		git = require("config.my.git-graph.git")
+		float = require("config.my.git-graph.float")
 	end
 end
 
@@ -57,24 +56,6 @@ function M.setup()
 			for tab_id in pairs(git_graph_tabs) do
 				if not vim.tbl_contains(existing_tabs, tab_id) then
 					M.cleanup_tab(tab_id)
-				end
-			end
-		end,
-	})
-
-	-- WinEnter/BufEnter 이벤트로 윈도우 크기 유지
-	vim.api.nvim_create_autocmd({ "WinEnter", "BufEnter" }, {
-		pattern = "*",
-		callback = function()
-			local current_tab = vim.api.nvim_get_current_tabpage()
-			local tab_info = git_graph_tabs[current_tab]
-
-			if tab_info then
-				local current_win = vim.api.nvim_get_current_win()
-				local current_buf = vim.api.nvim_win_get_buf(current_win)
-
-				if current_buf == tab_info.terminal_buf or current_buf == tab_info.graph_buf then
-					window.apply_window_sizes(tab_info, tab_info.is_vsplit)
 				end
 			end
 		end,
@@ -149,6 +130,164 @@ local function check_scroll_position(tab_id, buf)
 	end
 end
 
+--- 터미널 버퍼 키맵 설정
+---@param buf number 터미널 버퍼
+---@param tab_id number 탭 ID
+local function setup_terminal_keymaps(buf, tab_id)
+	-- Terminal 모드에서 <C-t>로 숨기기
+	vim.api.nvim_buf_set_keymap(buf, "t", "<C-t>", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			M.hide_terminal(tab_id)
+		end,
+	})
+
+	-- Terminal 모드에서 <C-q>로 완전히 닫기
+	vim.api.nvim_buf_set_keymap(buf, "t", "<C-q>", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			M.close_terminal(tab_id)
+		end,
+	})
+
+	-- Normal 모드에서 <C-t>로 숨기기
+	vim.api.nvim_buf_set_keymap(buf, "n", "<C-t>", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			M.hide_terminal(tab_id)
+		end,
+	})
+
+	-- Normal 모드에서 <C-q>로 완전히 닫기
+	vim.api.nvim_buf_set_keymap(buf, "n", "<C-q>", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			M.close_terminal(tab_id)
+		end,
+	})
+end
+
+--- Graph 버퍼 키맵 설정
+---@param buf number graph 버퍼
+---@param tab_id number 탭 ID
+local function setup_graph_keymaps(buf, tab_id)
+	-- Normal 모드에서 <C-t>로 터미널 토글
+	vim.api.nvim_buf_set_keymap(buf, "n", "<C-t>", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			M.toggle_terminal(tab_id)
+		end,
+	})
+end
+
+--- Float 터미널 표시
+---@param tab_id number 탭 ID
+function M.show_terminal(tab_id)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info then
+		return
+	end
+
+	local terminal = tab_info.terminal
+
+	-- 터미널 버퍼가 없거나 유효하지 않으면 새로 생성
+	if not terminal.buf or not vim.api.nvim_buf_is_valid(terminal.buf) then
+		terminal.buf = vim.api.nvim_create_buf(false, true)
+		terminal.initialized = false
+	end
+
+	-- float window 열기
+	terminal.float_win = float.open_float_window(terminal.buf)
+
+	if terminal.float_win then
+		-- 터미널이 초기화되지 않았으면 termopen 호출
+		if not terminal.initialized then
+			vim.fn.termopen(vim.o.shell)
+			terminal.initialized = true
+			-- 새 터미널에 키맵 설정
+			setup_terminal_keymaps(terminal.buf, tab_id)
+		end
+
+		terminal.visible = true
+		vim.cmd("startinsert")
+	end
+end
+
+--- Float 터미널 숨기기 (버퍼 유지)
+---@param tab_id number 탭 ID
+function M.hide_terminal(tab_id)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info then
+		return
+	end
+
+	local terminal = tab_info.terminal
+
+	-- float window 닫기 (버퍼는 유지)
+	if float.is_valid(terminal.float_win) then
+		float.close_float_window(terminal.float_win)
+		terminal.float_win = nil
+		terminal.visible = false
+
+		-- graph 윈도우로 포커스 이동
+		if vim.api.nvim_win_is_valid(tab_info.graph_win) then
+			vim.api.nvim_set_current_win(tab_info.graph_win)
+		end
+	end
+end
+
+--- Float 터미널 완전히 닫기 (버퍼 삭제)
+---@param tab_id number 탭 ID
+function M.close_terminal(tab_id)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info then
+		return
+	end
+
+	local terminal = tab_info.terminal
+
+	-- float window 닫기
+	if float.is_valid(terminal.float_win) then
+		float.close_float_window(terminal.float_win)
+	end
+
+	-- 터미널 버퍼 삭제
+	if terminal.buf and vim.api.nvim_buf_is_valid(terminal.buf) then
+		vim.api.nvim_buf_delete(terminal.buf, { force = true })
+	end
+
+	-- 터미널 상태 초기화
+	terminal.buf = nil
+	terminal.float_win = nil
+	terminal.visible = false
+	terminal.initialized = false
+
+	-- graph 윈도우로 포커스 이동
+	if vim.api.nvim_win_is_valid(tab_info.graph_win) then
+		vim.api.nvim_set_current_win(tab_info.graph_win)
+	end
+end
+
+--- Float 터미널 토글
+---@param tab_id number 탭 ID
+function M.toggle_terminal(tab_id)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info then
+		return
+	end
+
+	if tab_info.terminal.visible then
+		M.hide_terminal(tab_id)
+	else
+		M.show_terminal(tab_id)
+	end
+end
+
 --- Git graph 탭 열기
 function M.open_git_graph()
 	load_modules()
@@ -162,17 +301,8 @@ function M.open_git_graph()
 	-- 새 탭 생성
 	vim.cmd("tabnew")
 	local tab_id = vim.api.nvim_get_current_tabpage()
-	local is_vsplit = get_is_vsplit()
-	local split_cmd = is_vsplit and "vsplit" or "split"
 
-	-- 터미널 생성
-	vim.cmd("terminal")
-	vim.cmd("startinsert")
-	local terminal_buf = vim.api.nvim_get_current_buf()
-	local terminal_win = vim.api.nvim_get_current_win()
-
-	-- git graph 버퍼 생성
-	vim.cmd(split_cmd)
+	-- git graph 버퍼 생성 (전체 화면)
 	local graph_buf = buffer.create_buffer()
 	local graph_win = vim.api.nvim_get_current_win()
 	vim.api.nvim_win_set_buf(graph_win, graph_buf)
@@ -185,15 +315,21 @@ function M.open_git_graph()
 
 	-- 탭 정보 저장
 	git_graph_tabs[tab_id] = {
-		is_vsplit = is_vsplit,
-		terminal_win = terminal_win,
-		terminal_buf = terminal_buf,
 		graph_win = graph_win,
 		graph_buf = graph_buf,
 		git_root = git_root,
 		loaded_count = INITIAL_LOAD_COUNT,
 		loading = false,
+		terminal = {
+			buf = nil,
+			float_win = nil,
+			visible = false,
+			initialized = false,
+		},
 	}
+
+	-- Graph 버퍼 키맵 설정
+	setup_graph_keymaps(graph_buf, tab_id)
 
 	-- 스크롤 감지 autocmd 추가
 	vim.api.nvim_create_autocmd("CursorMoved", {
@@ -207,17 +343,6 @@ function M.open_git_graph()
 	git_graph_tabs[tab_id].watcher = watcher.watch_git_dir(git_root, function()
 		M.update_git_log(tab_id)
 	end)
-
-	-- 윈도우 크기 적용
-	window.apply_window_sizes(git_graph_tabs[tab_id], is_vsplit)
-
-	-- 터미널 윈도우로 포커스 이동
-	if is_vsplit then
-		vim.cmd("wincmd h")
-	else
-		vim.cmd("wincmd k")
-	end
-	vim.api.nvim_set_current_win(terminal_win)
 end
 
 --- 탭 정리
@@ -238,6 +363,21 @@ function M.cleanup_tab(tab_id)
 			end
 		elseif tab_info.watcher.stop then
 			tab_info.watcher:stop()
+		end
+	end
+
+	-- 터미널 정리
+	if tab_info.terminal then
+		local terminal = tab_info.terminal
+
+		-- float window 닫기
+		if float and float.is_valid(terminal.float_win) then
+			float.close_float_window(terminal.float_win)
+		end
+
+		-- 터미널 버퍼 삭제
+		if terminal.buf and vim.api.nvim_buf_is_valid(terminal.buf) then
+			vim.api.nvim_buf_delete(terminal.buf, { force = true })
 		end
 	end
 
@@ -265,8 +405,12 @@ function M.debounced_resize()
 				end
 			end
 		else
-			-- git-graph 탭이면 윈도우 크기 조정
-			window.handle_screen_resize(git_graph_tabs, current_tab)
+			-- float 터미널이 열려있으면 크기 재조정
+			if tab_info.terminal and tab_info.terminal.visible then
+				if float.is_valid(tab_info.terminal.float_win) then
+					float.resize_float_window(tab_info.terminal.float_win)
+				end
+			end
 		end
 
 		resize_scheduled = false
