@@ -92,4 +92,23 @@ function M.get_commit_diff(hash)
 	return result
 end
 
+--- 커밋에서 변경된 파일 목록을 가져옴
+---@param hash string 커밋 해시
+---@return table files 변경된 파일 경로 목록
+function M.get_commit_files(hash)
+	local cmd = string.format("git show --name-only --pretty=format: %s", hash)
+	local result = vim.fn.systemlist(cmd)
+	if vim.v.shell_error ~= 0 then
+		return {}
+	end
+	-- 빈 줄 제거
+	local files = {}
+	for _, line in ipairs(result) do
+		if line ~= "" then
+			table.insert(files, line)
+		end
+	end
+	return files
+end
+
 return M

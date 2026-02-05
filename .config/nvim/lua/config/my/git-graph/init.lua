@@ -412,6 +412,169 @@ local function create_diff_terminal_buffer(hash, tab_id)
 	return buf
 end
 
+--- 커서 라인에서 파일 경로 추출
+---@param line string 라인 텍스트
+---@return string|nil file_path 파일 경로 또는 nil
+local function extract_file_path_from_line(line)
+	-- ANSI escape 코드 제거 (더 포괄적인 패턴)
+	local clean_line = line:gsub("\027%[[\048-\063]*[\032-\047]*[\064-\126]", "")
+
+	-- diff --git a/path b/path 패턴
+	local path = clean_line:match("diff %-%-git a/(.-) b/")
+	if path then
+		return path
+	end
+
+	-- +++ b/path 패턴
+	path = clean_line:match("%+%+%+ b/(.+)$")
+	if path then
+		return path
+	end
+
+	-- --- a/path 패턴
+	path = clean_line:match("%-%-%= a/(.+)$")
+	if path then
+		return path
+	end
+
+	-- delta 파일 헤더 패턴 (파일명만 표시되는 경우)
+	-- 예: "file.lua" 또는 "path/to/file.lua"
+	path = clean_line:match("^([%w%-%._/]+%.[%w]+)$")
+	if path then
+		return path
+	end
+
+	return nil
+end
+
+--- 파일을 새 탭에서 열기 (여러 파일 지원)
+---@param file_paths table|string 파일 경로 또는 파일 경로 목록
+---@param git_root string git root 경로
+local function open_files_in_new_tab(file_paths, git_root)
+	-- 단일 파일인 경우 테이블로 변환
+	if type(file_paths) == "string" then
+		file_paths = { file_paths }
+	end
+
+	local opened = false
+	for i, file_path in ipairs(file_paths) do
+		local full_path = git_root .. "/" .. file_path
+		if vim.fn.filereadable(full_path) == 1 then
+			if i == 1 then
+				-- 첫 번째 파일은 새 탭에서 열기
+				vim.cmd("tabnew " .. vim.fn.fnameescape(full_path))
+			else
+				-- 나머지 파일은 같은 탭에서 버퍼로 열기
+				vim.cmd("edit " .. vim.fn.fnameescape(full_path))
+			end
+			opened = true
+		else
+			vim.notify("File not found: " .. file_path, vim.log.levels.WARN)
+		end
+	end
+
+	return opened
+end
+
+--- 커서 위치의 파일을 새 탭에서 열기
+---@param tab_id number 탭 ID
+local function open_file_at_cursor(tab_id)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info or not tab_info.diff.visible then
+		return
+	end
+
+	-- 커밋의 모든 파일 목록 가져오기
+	local commit_files = git.get_commit_files(tab_info.diff.current_hash)
+	if #commit_files == 0 then
+		vim.notify("No files in this commit", vim.log.levels.INFO)
+		return
+	end
+
+	local cursor = vim.api.nvim_win_get_cursor(0)
+	local current_line = cursor[1]
+
+	-- 현재 라인부터 위로 올라가면서 파일 경로 찾기
+	for line_num = current_line, 1, -1 do
+		local line = vim.api.nvim_buf_get_lines(tab_info.diff.buf, line_num - 1, line_num, false)[1]
+		if line then
+			local file_path = extract_file_path_from_line(line)
+			if file_path then
+				-- 커밋 파일 목록에 있는지 확인
+				for _, commit_file in ipairs(commit_files) do
+					if commit_file == file_path or commit_file:match(file_path .. "$") then
+						open_files_in_new_tab(commit_file, tab_info.git_root)
+						return
+					end
+				end
+			end
+
+			-- 커밋 파일 목록에서 라인에 포함된 파일 찾기
+			for _, commit_file in ipairs(commit_files) do
+				-- ANSI 제거 후 파일명이 라인에 포함되어 있는지 확인
+				local clean_line = line:gsub("\027%[[\048-\063]*[\032-\047]*[\064-\126]", "")
+				if clean_line:find(commit_file, 1, true) then
+					open_files_in_new_tab(commit_file, tab_info.git_root)
+					return
+				end
+			end
+		end
+	end
+
+	vim.notify("No file path found", vim.log.levels.INFO)
+end
+
+--- 커밋의 변경된 파일 목록을 표시하고 선택하여 열기
+---@param tab_id number 탭 ID
+local function show_commit_files(tab_id)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info or not tab_info.diff.visible or not tab_info.diff.current_hash then
+		return
+	end
+
+	local files = git.get_commit_files(tab_info.diff.current_hash)
+	if #files == 0 then
+		vim.notify("No files in this commit", vim.log.levels.INFO)
+		return
+	end
+
+	-- snacks.picker 사용 (multi-select 지원)
+	local ok, Snacks = pcall(require, "snacks")
+	if ok and Snacks.picker then
+		Snacks.picker({
+			title = "Select file(s) to open",
+			items = vim.tbl_map(function(file)
+				return { text = file, file = tab_info.git_root .. "/" .. file }
+			end, files),
+			format = function(item)
+				return { { item.text } }
+			end,
+			confirm = function(picker, item)
+				local selected = picker:selected({ fallback = true })
+				picker:close()
+				if selected and #selected > 0 then
+					local selected_files = vim.tbl_map(function(sel)
+						return sel.text
+					end, selected)
+					open_files_in_new_tab(selected_files, tab_info.git_root)
+				end
+			end,
+		})
+	else
+		-- fallback to vim.ui.select
+		vim.ui.select(files, {
+			prompt = "Select file to open:",
+			format_item = function(item)
+				return item
+			end,
+		}, function(choice)
+			if choice then
+				open_files_in_new_tab(choice, tab_info.git_root)
+			end
+		end)
+	end
+end
+
 --- Diff 버퍼 키맵 설정
 ---@param buf number diff 버퍼
 ---@param tab_id number 탭 ID
@@ -443,6 +606,24 @@ local function setup_diff_keymaps(buf, tab_id)
 			silent = true,
 			callback = function()
 				M.prev_diff(tab_id)
+			end,
+		})
+
+		-- gf로 커서 위치 파일 열기
+		vim.api.nvim_buf_set_keymap(buf, mode, "gf", "", {
+			noremap = true,
+			silent = true,
+			callback = function()
+				open_file_at_cursor(tab_id)
+			end,
+		})
+
+		-- C-o로 파일 목록에서 선택하여 열기
+		vim.api.nvim_buf_set_keymap(buf, mode, "<C-o>", "", {
+			noremap = true,
+			silent = true,
+			callback = function()
+				show_commit_files(tab_id)
 			end,
 		})
 	end
