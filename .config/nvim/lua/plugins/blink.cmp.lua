@@ -5,6 +5,7 @@ return {
 			"avante.nvim",
 			"saghen/blink.compat",
 			"onsails/lspkind.nvim", -- VSCode-like pictograms
+			"rafamadriz/friendly-snippets", -- a bunch of snippets to use
 		},
 		version = "*",
 		opts = function(_, opts)
@@ -100,9 +101,7 @@ return {
 											icon = dev_icon
 										end
 									else
-										icon = require("lspkind").symbolic(ctx.kind, {
-											mode = "symbol",
-										})
+										icon = require("lspkind").symbol_map[ctx.kind]
 									end
 
 									return icon .. ctx.icon_gap
