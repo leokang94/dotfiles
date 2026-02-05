@@ -68,7 +68,6 @@ brew install --force --cask \
   obsidian \
   karabiner-elements \
   flashspace \
-  homerow \
   mouseless \
   1password \
   1password-cli \
@@ -185,3 +184,23 @@ if ! grep -Fxq "${ZSHRC_EXTENDS_STRING}" ~/.zshrc; then
 fi
 
 echo "${LEO_PREFIX} Extends source code to .zprofile, .zshrc... ${DONE_POSTFIX}"
+
+##########################################################
+# Set GX_JIRA_HOST environment variable
+##########################################################
+
+echo "${LEO_PREFIX} Setting ${CIAN}GX_JIRA_HOST${CLEAR} environment variable..."
+
+GX_JIRA_HOST_PATTERN="export GX_JIRA_HOST="
+
+if ! grep -q "${GX_JIRA_HOST_PATTERN}" ~/.zshrc; then
+  read -p "Enter your Jira host (e.g., jira.company.com): " JIRA_HOST
+  if [ -n "$JIRA_HOST" ]; then
+    echo "\n# GX_JIRA_HOST for gx.nvim\nexport GX_JIRA_HOST=\"${JIRA_HOST}\"" >>~/.zshrc
+    echo "${LEO_PREFIX} Added GX_JIRA_HOST=${JIRA_HOST} to ~/.zshrc... ${DONE_POSTFIX}"
+  else
+    echo "${LEO_PREFIX} Skipped (no value provided)... ${DONE_POSTFIX}"
+  fi
+else
+  echo "${LEO_PREFIX} GX_JIRA_HOST already exists in ~/.zshrc... ${DONE_POSTFIX}"
+fi

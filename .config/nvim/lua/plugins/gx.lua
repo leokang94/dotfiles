@@ -25,8 +25,8 @@ return {
 					handle = function(mode, line, _)
 						local ticket = require("gx.helper").find(line, mode, "(%u+-%d+)")
 						if ticket and #ticket < 20 then
-							-- Bunjang
-							return "https://quicket.atlassian.net/browse/" .. ticket
+							local jira_host = vim.env.GX_JIRA_HOST or "jira.atlassian.com"
+							return "https://" .. jira_host .. "/browse/" .. ticket
 						end
 					end,
 				},
