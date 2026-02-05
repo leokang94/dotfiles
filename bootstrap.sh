@@ -35,8 +35,7 @@ brew install \
   bottom \
   zoxide \
   eza \
-  ripgrep \
-  hwatch
+  ripgrep
 
 # for AI Agent Tools
 brew install \
@@ -71,7 +70,6 @@ brew install --force --cask \
   ghostty \
   spotify \
   obsidian \
-  cleanmymac \
   karabiner-elements \
   nikitabobko/tap/aerospace \
   homerow \

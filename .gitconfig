@@ -79,14 +79,6 @@
 	rb = rebase
 	pfl = push --force-with-lease
   graph-log = log --all --graph --date-order --date=format-local:'%Y-%m-%d %H:%M:%S %Z' --format=format:'%C(yellow)%h%C(reset)%C(reset) %C(brightblack)%cN (%cd) /%C(reset) %C(brightblack)%aN (%ad)%C(reset)%n%C(auto)%(decorate:prefix=        ,suffix=\n,pointer= 󰁔 )        %C(brightwhite)%s%C(reset)%n'
-  watch = !hwatch \
-    -K ctrl-u=page_up \
-    -K ctrl-d=page_down \
-    -K k=up \
-    -K j=down \
-    -o stdout \
-    -c -C -t --no-help-banner -n 1\
-    'git graph-log $(git reflog show --format=%h stash)'
   stl = !git stash list \
     | fzf --preview 'echo {} \
     | cut -d: -f1 \
