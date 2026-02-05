@@ -14,5 +14,6 @@
     ],
     "deny": []
   },
-  "alwaysThinkingEnabled": true
+  "alwaysThinkingEnabled": true,
+  "model": "opus"
 }
