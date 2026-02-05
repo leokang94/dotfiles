@@ -83,7 +83,7 @@ create_symlink() {
 create_symlink --type=multiple "$HOME/${DOT_FILES_DIR_NAME}/.config" "$HOME/${CONFIG_DIR_NAME}"
 create_symlink --type=single "$HOME/${DOT_FILES_DIR_NAME}/.git-custom-commands" "$HOME"
 create_symlink --type=multiple "$HOME/${DOT_FILES_DIR_NAME}/.claude" "$HOME/.claude"
-create_symlink --type=single "$HOME/${DOT_FILES_DIR_NAME}/.hammerspoon" "$HOME/.hammerspoon"
+create_symlink --type=single "$HOME/${DOT_FILES_DIR_NAME}/.hammerspoon" "$HOME"
 create_symlink --type=single "$HOME/${DOT_FILES_DIR_NAME}/.config/mouseless/config.yaml" "$HOME/Library/Containers/net.sonuscape.mouseless/Data/.mouseless/configs/config.yaml"
 create_symlink --type=single "$HOME/${DOT_FILES_DIR_NAME}/.config/flashspace/settings.json" "$HOME/${CONFIG_DIR_NAME}/flashspace/settings.json"
 
