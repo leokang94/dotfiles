@@ -26,6 +26,7 @@ return {
 				"markdownlint-cli2",
 				"shellcheck",
 				"cspell",
+				"biome",
 
 				-- formatter
 				"prettier",
@@ -39,15 +40,18 @@ return {
 	{
 		"stevearc/conform.nvim",
 		opts = {
+			default_format_opts = {
+				stop_after_first = true,
+			},
 			formatters_by_ft = {
 				lua = { "stylua" },
-				javascript = { "prettier" },
-				typescript = { "prettier" },
-				javascriptreact = { "prettier" },
-				typescriptreact = { "prettier" },
+				javascript = { "biome", "prettier" },
+				typescript = { "biome", "prettier" },
+				javascriptreact = { "biome", "prettier" },
+				typescriptreact = { "biome", "prettier" },
 				yaml = { "yamlfmt" },
-				json = { "prettier" },
-				jsonc = { "prettier" },
+				json = { "biome", "prettier" },
+				jsonc = { "biome", "prettier" },
 				mdx = { "prettier", "markdownlint-cli2", "markdown-toc" },
 				toml = { "taplo" },
 				-- sh = { "shfmt" },
