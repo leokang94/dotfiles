@@ -10,70 +10,18 @@ CLEAR='\033[0m'
 LEO_PREFIX="${MAGENTA}[LEO]${CLEAR}"
 DONE_POSTFIX="${GREEN}Done${CLEAR}"
 
+# directory variables
+DOT_FILES_DIR_NAME=".dotfiles"
+CONFIG_DIR_NAME=".config"
+GIT_CUSTOM_COMMANDS_DIR_NAME=".git-custom-commands"
+
 ##########################################################
-# Install packages using brew
+# Install packages using brew bundle
 ##########################################################
 
-# Install Fonts
-echo "${LEO_PREFIX} Download ${CIAN}font${CLEAR} from homebrew..."
-brew install --cask \
-  font-monaspace-nerd-font \
-  font-symbols-only-nerd-font \
-  font-d2coding \
-  font-pretendard
-echo "${LEO_PREFIX} Download ${CIAN}font${CLEAR} from homebrew... ${DONE_POSTFIX}"
-
-# Install progrmas
-echo "${LEO_PREFIX} Download ${CIAN}programs${CLEAR} from homebrew..."
-brew install \
-  nvim \
-  luarocks \
-  fzf \
-  starship \
-  fastfetch \
-  bat \
-  bottom \
-  zoxide \
-  eza \
-  ripgrep
-
-# for AI Agent Tools
-brew install \
-  claude-code
-
-# for Nvim plugins
-brew install \
-  imagemagick \
-  fd \
-  git-delta \
-  zellij
-
-# Language & runtime
-brew install \
-  node \
-  rust
-
-# felixkartz/formulae
-brew tap FelixKratz/formulae
-brew install \
-  sketchybar \
-  borders
-
-brew install --force --cask \
-  google-chrome \
-  raycast \
-  discord \
-  ghostty \
-  spotify \
-  obsidian \
-  karabiner-elements \
-  flashspace \
-  mouseless \
-  1password \
-  1password-cli \
-  sf-symbols \
-  hammerspoon
-echo "${LEO_PREFIX} Download ${CIAN}programs${CLEAR} from homebrew... ${DONE_POSTFIX}"
+echo "${LEO_PREFIX} Installing packages from ${CIAN}Brewfile${CLEAR}..."
+brew bundle install --no-upgrade --file="$HOME/${DOT_FILES_DIR_NAME}/Brewfile"
+echo "${LEO_PREFIX} Installing packages from ${CIAN}Brewfile${CLEAR}... ${DONE_POSTFIX}"
 
 # services start
 brew services restart borders
@@ -130,10 +78,6 @@ create_symlink() {
 
   echo "${LEO_PREFIX} Create ${CIAN}symlink${CLEAR} :: ${CIAN}from${CLEAR}:${from}, ${CIAN}to${CLEAR}:${to}... ${DONE_POSTFIX}"
 }
-
-DOT_FILES_DIR_NAME=".dotfiles"
-CONFIG_DIR_NAME=".config"
-GIT_CUSTOM_COMMANDS_DIR_NAME=".git-custom-commands"
 
 # 함수를 호출하면서 인자로 dotfiles 디렉토리와 타겟 디렉토리를 전달하세요.
 create_symlink --type=multiple "$HOME/${DOT_FILES_DIR_NAME}/.config" "$HOME/${CONFIG_DIR_NAME}"
