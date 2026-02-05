@@ -80,4 +80,16 @@ function M.get_git_common_dir()
 	return dir
 end
 
+--- 커밋의 diff를 가져옴
+---@param hash string 커밋 해시
+---@return table lines diff 라인들의 배열
+function M.get_commit_diff(hash)
+	local cmd = string.format("git show --color=always --stat --patch %s", hash)
+	local result = vim.fn.systemlist(cmd)
+	if vim.v.shell_error ~= 0 then
+		return { "Error: Failed to get diff for commit " .. hash }
+	end
+	return result
+end
+
 return M

@@ -2,12 +2,19 @@ local M = {}
 
 -- 지연 로딩을 위한 모듈 참조
 local buffer, watcher, git, highlight, float
+local get_is_vsplit = require("utils.screen").is_vsplit
 
 -- 모듈 레벨 상태
 local git_graph_tabs = {}
 local DEBOUNCE_DELAY_MS = 100
 local update_scheduled = {}
 local resize_scheduled = false
+
+-- Diff 패널 크기 설정
+local DIFF_SIZE = {
+	VSPLIT_WIDTH_RATIO = 0.5, -- vsplit 시 diff 패널 너비 비율
+	HSPLIT_HEIGHT_RATIO = 0.5, -- hsplit 시 diff 패널 높이 비율
+}
 
 -- 무한 스크롤 설정
 local INITIAL_LOAD_COUNT = 500 -- 초기 로드 개수
@@ -75,9 +82,10 @@ function M.update_git_log(tab_id)
 		local tab_info = git_graph_tabs[tab_id]
 		if tab_info and vim.api.nvim_buf_is_valid(tab_info.graph_buf) then
 			-- 초기 로드 개수로 렌더링
-			buffer.render_git_log(tab_info.graph_buf, INITIAL_LOAD_COUNT, 0)
+			local line_to_hash = buffer.render_git_log(tab_info.graph_buf, INITIAL_LOAD_COUNT, 0)
 			-- 로드된 개수 초기화
 			tab_info.loaded_count = INITIAL_LOAD_COUNT
+			tab_info.line_to_hash = line_to_hash
 		end
 		update_scheduled[tab_id] = nil
 	end, DEBOUNCE_DELAY_MS)
@@ -98,11 +106,23 @@ local function load_more_logs(tab_id)
 
 	tab_info.loading = true
 
+	-- 이전 마지막 라인의 해시를 찾아서 전달 (연속성 유지)
+	local prev_last_hash = nil
+	local total_lines = vim.api.nvim_buf_line_count(tab_info.graph_buf)
+	if tab_info.line_to_hash and tab_info.line_to_hash[total_lines] then
+		prev_last_hash = tab_info.line_to_hash[total_lines]
+	end
+
 	-- 추가 로그 로드
-	local success = buffer.append_git_log(tab_info.graph_buf, LOAD_MORE_COUNT, tab_info.loaded_count)
+	local success, new_line_to_hash =
+		buffer.append_git_log(tab_info.graph_buf, LOAD_MORE_COUNT, tab_info.loaded_count, prev_last_hash)
 
 	if success then
 		tab_info.loaded_count = tab_info.loaded_count + LOAD_MORE_COUNT
+		-- 매핑 병합
+		for line_num, hash in pairs(new_line_to_hash) do
+			tab_info.line_to_hash[line_num] = hash
+		end
 	end
 
 	tab_info.loading = false
@@ -181,6 +201,30 @@ local function setup_graph_keymaps(buf, tab_id)
 		silent = true,
 		callback = function()
 			M.toggle_terminal(tab_id)
+		end,
+	})
+
+	-- Normal 모드에서 Enter로 커밋 diff 토글
+	vim.api.nvim_buf_set_keymap(buf, "n", "<CR>", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			M.toggle_diff_at_cursor(tab_id)
+		end,
+	})
+
+	-- Normal 모드에서 q로 diff 닫기 (diff가 열려있을 때)
+	vim.api.nvim_buf_set_keymap(buf, "n", "q", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			local tab_info = git_graph_tabs[tab_id]
+			if tab_info and tab_info.diff.visible then
+				M.hide_diff(tab_id)
+			else
+				-- diff가 없으면 탭 닫기
+				vim.cmd("tabclose")
+			end
 		end,
 	})
 end
@@ -288,6 +332,179 @@ function M.toggle_terminal(tab_id)
 	end
 end
 
+--- Diff 터미널 버퍼 생성 (delta 적용)
+---@param hash string 커밋 해시
+---@param tab_id number 탭 ID
+---@return number buf 생성된 버퍼 번호
+local function create_diff_terminal_buffer(hash, tab_id)
+	local buf = vim.api.nvim_create_buf(false, true)
+
+	-- 버퍼 옵션 설정
+	vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
+
+	return buf
+end
+
+--- Diff 패널 표시 (터미널 버퍼로 delta 적용)
+---@param tab_id number 탭 ID
+---@param hash string 커밋 해시
+function M.show_diff(tab_id, hash)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info then
+		return
+	end
+
+	local diff = tab_info.diff
+	local is_vsplit = get_is_vsplit()
+
+	-- 이미 같은 커밋의 diff가 열려있으면 숨기기 (toggle)
+	if diff.visible and diff.current_hash == hash then
+		M.hide_diff(tab_id)
+		return
+	end
+
+	-- 기존 diff 윈도우가 있으면 닫기
+	if diff.win and vim.api.nvim_win_is_valid(diff.win) then
+		vim.api.nvim_win_close(diff.win, true)
+	end
+
+	-- 기존 diff 버퍼가 있으면 삭제
+	if diff.buf and vim.api.nvim_buf_is_valid(diff.buf) then
+		vim.api.nvim_buf_delete(diff.buf, { force = true })
+	end
+
+	-- 새 diff 버퍼 생성 (터미널용)
+	diff.buf = create_diff_terminal_buffer(hash, tab_id)
+	diff.current_hash = hash
+
+	-- graph 윈도우에서 split
+	vim.api.nvim_set_current_win(tab_info.graph_win)
+	local split_cmd = is_vsplit and "rightbelow vsplit" or "rightbelow split"
+	vim.cmd(split_cmd)
+
+	diff.win = vim.api.nvim_get_current_win()
+	vim.api.nvim_win_set_buf(diff.win, diff.buf)
+
+	-- 터미널에서 git show 실행 (delta 자동 적용)
+	vim.fn.termopen(string.format("git show %s", hash), {
+		on_exit = function()
+			-- 터미널 종료 후에도 버퍼 유지
+		end,
+	})
+
+	-- Winbar 설정
+	vim.wo[diff.win].winbar = " Diff: " .. hash
+
+	-- 윈도우 크기 설정
+	if is_vsplit then
+		local width = math.floor(vim.o.columns * DIFF_SIZE.VSPLIT_WIDTH_RATIO)
+		vim.api.nvim_win_set_width(diff.win, width)
+	else
+		local height = math.floor(vim.o.lines * DIFF_SIZE.HSPLIT_HEIGHT_RATIO)
+		vim.api.nvim_win_set_height(diff.win, height)
+	end
+
+	diff.visible = true
+	diff.is_vsplit = is_vsplit
+
+	-- Diff 버퍼 키맵 설정 (터미널 모드와 노말 모드 모두)
+	vim.api.nvim_buf_set_keymap(diff.buf, "n", "q", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			M.hide_diff(tab_id)
+		end,
+	})
+	vim.api.nvim_buf_set_keymap(diff.buf, "t", "q", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			M.hide_diff(tab_id)
+		end,
+	})
+
+	-- graph 윈도우로 포커스 복원
+	vim.api.nvim_set_current_win(tab_info.graph_win)
+end
+
+--- Diff 패널 숨기기
+---@param tab_id number 탭 ID
+function M.hide_diff(tab_id)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info then
+		return
+	end
+
+	local diff = tab_info.diff
+
+	-- diff 윈도우 닫기
+	if diff.win and vim.api.nvim_win_is_valid(diff.win) then
+		vim.api.nvim_win_close(diff.win, true)
+	end
+
+	-- diff 버퍼 삭제
+	if diff.buf and vim.api.nvim_buf_is_valid(diff.buf) then
+		vim.api.nvim_buf_delete(diff.buf, { force = true })
+	end
+
+	diff.win = nil
+	diff.buf = nil
+	diff.visible = false
+	diff.current_hash = nil
+end
+
+--- 현재 커서 위치의 커밋 diff 표시/토글
+---@param tab_id number 탭 ID
+function M.toggle_diff_at_cursor(tab_id)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info then
+		return
+	end
+
+	-- 현재 커서 라인 번호 가져오기
+	local cursor = vim.api.nvim_win_get_cursor(0)
+	local row = cursor[1]
+
+	-- line_to_hash 매핑에서 해시 조회
+	local hash = tab_info.line_to_hash and tab_info.line_to_hash[row]
+
+	if hash then
+		M.show_diff(tab_id, hash)
+	end
+end
+
+--- Diff 패널 방향 변경 (resize 시)
+---@param tab_id number 탭 ID
+function M.handle_diff_resize(tab_id)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info or not tab_info.diff.visible then
+		return
+	end
+
+	local diff = tab_info.diff
+	local new_is_vsplit = get_is_vsplit()
+
+	-- 방향이 변경되었으면 다시 열기
+	if new_is_vsplit ~= diff.is_vsplit then
+		local hash = diff.current_hash
+		M.hide_diff(tab_id)
+		if hash then
+			M.show_diff(tab_id, hash)
+		end
+	else
+		-- 같은 방향이면 크기만 조정
+		if diff.win and vim.api.nvim_win_is_valid(diff.win) then
+			if new_is_vsplit then
+				local width = math.floor(vim.o.columns * DIFF_SIZE.VSPLIT_WIDTH_RATIO)
+				vim.api.nvim_win_set_width(diff.win, width)
+			else
+				local height = math.floor(vim.o.lines * DIFF_SIZE.HSPLIT_HEIGHT_RATIO)
+				vim.api.nvim_win_set_height(diff.win, height)
+			end
+		end
+	end
+end
+
 --- Git graph 탭 열기
 function M.open_git_graph()
 	load_modules()
@@ -311,7 +528,7 @@ function M.open_git_graph()
 	vim.wo[graph_win].winbar = " Git Graph"
 
 	-- 초기 렌더링 (500개 로드)
-	buffer.render_git_log(graph_buf, INITIAL_LOAD_COUNT, 0)
+	local line_to_hash = buffer.render_git_log(graph_buf, INITIAL_LOAD_COUNT, 0)
 
 	-- 탭 정보 저장
 	git_graph_tabs[tab_id] = {
@@ -320,11 +537,19 @@ function M.open_git_graph()
 		git_root = git_root,
 		loaded_count = INITIAL_LOAD_COUNT,
 		loading = false,
+		line_to_hash = line_to_hash,
 		terminal = {
 			buf = nil,
 			float_win = nil,
 			visible = false,
 			initialized = false,
+		},
+		diff = {
+			buf = nil,
+			win = nil,
+			visible = false,
+			current_hash = nil,
+			is_vsplit = nil,
 		},
 	}
 
@@ -381,6 +606,21 @@ function M.cleanup_tab(tab_id)
 		end
 	end
 
+	-- diff 정리
+	if tab_info.diff then
+		local diff = tab_info.diff
+
+		-- diff 윈도우 닫기
+		if diff.win and vim.api.nvim_win_is_valid(diff.win) then
+			vim.api.nvim_win_close(diff.win, true)
+		end
+
+		-- diff 버퍼 삭제
+		if diff.buf and vim.api.nvim_buf_is_valid(diff.buf) then
+			vim.api.nvim_buf_delete(diff.buf, { force = true })
+		end
+	end
+
 	git_graph_tabs[tab_id] = nil
 end
 
@@ -410,6 +650,11 @@ function M.debounced_resize()
 				if float.is_valid(tab_info.terminal.float_win) then
 					float.resize_float_window(tab_info.terminal.float_win)
 				end
+			end
+
+			-- diff 패널이 열려있으면 방향/크기 조정
+			if tab_info.diff and tab_info.diff.visible then
+				M.handle_diff_resize(current_tab)
 			end
 		end
 
