@@ -72,7 +72,7 @@ keymaps:
       release hold/drag: Escape
       repeat last mouse action: null
       right mouse button (w/o overlay): null
-      show overlay: opt+m tap
+      show overlay: cmd+m tap
       switch monitor left: ShiftLeft tap
       switch monitor right: ShiftRight tap
       toggle free mode: null
