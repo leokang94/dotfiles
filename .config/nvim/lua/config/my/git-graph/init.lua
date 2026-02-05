@@ -68,6 +68,20 @@ function M.setup()
 		end,
 	})
 
+	-- Vim 종료 전 git-graph 탭 정리 (세션에 빈 탭이 남지 않도록)
+	vim.api.nvim_create_autocmd("VimLeavePre", {
+		pattern = "*",
+		callback = function()
+			for tab_id, _ in pairs(git_graph_tabs) do
+				if vim.api.nvim_tabpage_is_valid(tab_id) then
+					vim.api.nvim_set_current_tabpage(tab_id)
+					vim.cmd("tabclose")
+				end
+				M.cleanup_tab(tab_id)
+			end
+		end,
+	})
+
 	-- WinEnter 이벤트로 diff 윈도우 focus 시 dim 처리
 	vim.api.nvim_create_autocmd("WinEnter", {
 		pattern = "*",
