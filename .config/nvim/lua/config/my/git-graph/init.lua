@@ -978,10 +978,8 @@ function M.show_diff(tab_id, hash, commit_list, index)
 
 	-- 항상 diff 윈도우로 포커스
 	vim.api.nvim_set_current_win(diff.win)
-	-- 현재 해시 강조 (uncommitted 관련이 아닐 때만)
-	if not hash:find("^uncommitted") then
-		M.highlight_current_hash(tab_id)
-	end
+	-- 현재 해시 강조
+	M.highlight_current_hash(tab_id)
 	-- 터미널 모드로 진입 (insert mode)
 	vim.cmd("startinsert")
 end
@@ -1086,6 +1084,22 @@ local function get_commits_in_range(tab_id, start_line, end_line)
 	return commit_list
 end
 
+--- commit_list에서 "uncommitted"을 unstaged/staged로 펼치기
+---@param commit_list table 커밋 해시 목록
+---@return table expanded 펼쳐진 목록
+local function expand_uncommitted(commit_list)
+	local expanded = {}
+	for _, hash in ipairs(commit_list) do
+		if hash == "uncommitted" then
+			table.insert(expanded, "uncommitted_unstaged")
+			table.insert(expanded, "uncommitted_staged")
+		else
+			table.insert(expanded, hash)
+		end
+	end
+	return expanded
+end
+
 --- Visual 선택 범위의 커밋 diff 표시
 ---@param tab_id number 탭 ID
 function M.show_diff_visual(tab_id)
@@ -1172,9 +1186,14 @@ function M.highlight_current_hash(tab_id)
 	vim.api.nvim_buf_clear_namespace(tab_info.graph_buf, dim_ns_id, 0, -1)
 
 	-- 현재 해시에 해당하는 모든 라인 찾기
+	-- uncommitted_staged/uncommitted_unstaged → line_to_hash의 "uncommitted"과 매칭
+	local match_hash = diff.current_hash
+	if match_hash:find("^uncommitted_") then
+		match_hash = "uncommitted"
+	end
 	local commit_lines = {}
 	for line_num, hash in pairs(tab_info.line_to_hash) do
-		if hash == diff.current_hash then
+		if hash == match_hash then
 			table.insert(commit_lines, line_num)
 		end
 	end
@@ -1182,28 +1201,49 @@ function M.highlight_current_hash(tab_id)
 
 	local target_line = nil
 
+	local is_uncommitted = match_hash == "uncommitted"
+
 	for _, line_num in ipairs(commit_lines) do
 		local line_text = vim.api.nvim_buf_get_lines(tab_info.graph_buf, line_num - 1, line_num, false)[1]
 		if line_text then
-			-- 라인에서 해시 위치 찾기
-			local hash_start, hash_end = line_text:find(diff.current_hash, 1, true)
-			if hash_start then
-				-- 해시가 있는 라인: 해시는 빨간색으로
-				-- overlay로 기존 노란색 해시 위에 빨간색 해시 덮어쓰기
-				vim.api.nvim_buf_set_extmark(tab_info.graph_buf, dim_ns_id, line_num - 1, hash_start - 1, {
-					virt_text = { { diff.current_hash, "GitGraphCurrentHash" } },
-					virt_text_pos = "overlay",
-				})
-				target_line = line_num
-			else
-				-- 해시가 없는 라인 (커밋 메시지, 데코레이션): bold 처리
-				-- 들여쓰기 후의 텍스트 시작 위치 찾기
-				local content_start = line_text:find("%S")
-				if content_start then
-					-- bold는 기존 색상 위에 추가됨
-					vim.api.nvim_buf_set_extmark(tab_info.graph_buf, dim_ns_id, line_num - 1, 0, {
-						line_hl_group = "GitGraphCurrentCommit",
+			if is_uncommitted then
+				-- uncommitted 라인: "Uncommitted Changes" 텍스트를 빨간색으로
+				local uc_start, uc_end = line_text:find("Uncommitted Changes", 1, true)
+				if uc_start then
+					vim.api.nvim_buf_set_extmark(tab_info.graph_buf, dim_ns_id, line_num - 1, uc_start - 1, {
+						virt_text = { { "Uncommitted Changes", "GitGraphCurrentHash" } },
+						virt_text_pos = "overlay",
 					})
+					target_line = line_num
+				else
+					local content_start = line_text:find("%S")
+					if content_start then
+						vim.api.nvim_buf_set_extmark(tab_info.graph_buf, dim_ns_id, line_num - 1, 0, {
+							line_hl_group = "GitGraphCurrentCommit",
+						})
+					end
+				end
+			else
+				-- 라인에서 해시 위치 찾기
+				local hash_start, hash_end = line_text:find(diff.current_hash, 1, true)
+				if hash_start then
+					-- 해시가 있는 라인: 해시는 빨간색으로
+					-- overlay로 기존 노란색 해시 위에 빨간색 해시 덮어쓰기
+					vim.api.nvim_buf_set_extmark(tab_info.graph_buf, dim_ns_id, line_num - 1, hash_start - 1, {
+						virt_text = { { diff.current_hash, "GitGraphCurrentHash" } },
+						virt_text_pos = "overlay",
+					})
+					target_line = line_num
+				else
+					-- 해시가 없는 라인 (커밋 메시지, 데코레이션): bold 처리
+					-- 들여쓰기 후의 텍스트 시작 위치 찾기
+					local content_start = line_text:find("%S")
+					if content_start then
+						-- bold는 기존 색상 위에 추가됨
+						vim.api.nvim_buf_set_extmark(tab_info.graph_buf, dim_ns_id, line_num - 1, 0, {
+							line_hl_group = "GitGraphCurrentCommit",
+						})
+					end
 				end
 			end
 		end
@@ -1298,22 +1338,6 @@ function M.clear_checked_commits(tab_id)
 
 	-- winbar 복원
 	vim.wo[tab_info.graph_win].winbar = " Git Graph"
-end
-
---- commit_list에서 "uncommitted"을 unstaged/staged로 펼치기
----@param commit_list table 커밋 해시 목록
----@return table expanded 펼쳐진 목록
-local function expand_uncommitted(commit_list)
-	local expanded = {}
-	for _, hash in ipairs(commit_list) do
-		if hash == "uncommitted" then
-			table.insert(expanded, "uncommitted_unstaged")
-			table.insert(expanded, "uncommitted_staged")
-		else
-			table.insert(expanded, hash)
-		end
-	end
-	return expanded
 end
 
 --- 현재 커서 위치의 커밋 diff 표시/토글
@@ -1453,6 +1477,7 @@ function M.open_git_graph()
 			visible = false,
 			current_hash = nil,
 			is_vsplit = nil,
+			side_by_side = false, -- side-by-side diff 모드
 			commit_list = {}, -- 선택된 커밋 목록
 			current_index = 0, -- 현재 보고 있는 커밋 인덱스
 		},
