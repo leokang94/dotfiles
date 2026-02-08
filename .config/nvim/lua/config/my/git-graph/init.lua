@@ -642,6 +642,9 @@ local function refresh_diff_after_action(tab_id)
 	local commit_list = diff.commit_list
 	local current_index = diff.current_index
 
+	-- graph도 갱신 (discard 등 .git/ 변경 없는 액션 대응)
+	M.update_git_log(tab_id)
+
 	if #commit_list > 1 then
 		M.show_diff(tab_id, hash, commit_list, current_index)
 	else

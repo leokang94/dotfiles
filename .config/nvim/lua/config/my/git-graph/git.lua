@@ -217,7 +217,15 @@ end
 ---@param file string 파일 경로
 ---@return boolean success
 function M.discard_file(file)
-	vim.fn.system(string.format("git restore %s", vim.fn.shellescape(file)))
+	-- untracked 파일인지 확인
+	vim.fn.system(string.format("git ls-files --error-unmatch %s 2>/dev/null", vim.fn.shellescape(file)))
+	if vim.v.shell_error ~= 0 then
+		-- untracked: 파일 삭제
+		vim.fn.system(string.format("rm -f %s", vim.fn.shellescape(file)))
+	else
+		-- tracked: git restore
+		vim.fn.system(string.format("git restore %s", vim.fn.shellescape(file)))
+	end
 	return vim.v.shell_error == 0
 end
 
@@ -238,7 +246,9 @@ end
 --- 전체 파일 discard (워킹 디렉토리 변경 취소)
 ---@return boolean success
 function M.discard_all()
+	-- tracked 파일 복원 + untracked 파일 삭제
 	vim.fn.system("git restore .")
+	vim.fn.system("git clean -fd")
 	return vim.v.shell_error == 0
 end
 
