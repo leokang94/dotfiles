@@ -154,4 +154,72 @@ function M.get_uncommitted_diff_cmd(type)
 	end
 end
 
+--- Uncommitted 파일 목록 조회
+---@param type string "staged" 또는 "unstaged"
+---@return table files 파일 경로 목록
+function M.get_uncommitted_files(type)
+	local cmd
+	if type == "staged" then
+		cmd = "git diff --cached --name-only"
+	else
+		cmd = "git diff --name-only"
+	end
+	local result = vim.fn.systemlist(cmd)
+	if vim.v.shell_error ~= 0 then
+		return {}
+	end
+	local files = {}
+	for _, line in ipairs(result) do
+		if line ~= "" then
+			table.insert(files, line)
+		end
+	end
+	return files
+end
+
+--- 단일 파일 stage
+---@param file string 파일 경로
+---@return boolean success
+function M.stage_file(file)
+	vim.fn.system(string.format("git add %s", vim.fn.shellescape(file)))
+	return vim.v.shell_error == 0
+end
+
+--- 단일 파일 unstage
+---@param file string 파일 경로
+---@return boolean success
+function M.unstage_file(file)
+	vim.fn.system(string.format("git restore --staged %s", vim.fn.shellescape(file)))
+	return vim.v.shell_error == 0
+end
+
+--- 단일 파일 discard (워킹 디렉토리 변경 취소)
+---@param file string 파일 경로
+---@return boolean success
+function M.discard_file(file)
+	vim.fn.system(string.format("git restore %s", vim.fn.shellescape(file)))
+	return vim.v.shell_error == 0
+end
+
+--- 전체 파일 stage
+---@return boolean success
+function M.stage_all()
+	vim.fn.system("git add -A")
+	return vim.v.shell_error == 0
+end
+
+--- 전체 파일 unstage
+---@return boolean success
+function M.unstage_all()
+	vim.fn.system("git restore --staged .")
+	return vim.v.shell_error == 0
+end
+
+--- 전체 파일 discard (워킹 디렉토리 변경 취소)
+---@return boolean success
+function M.discard_all()
+	vim.fn.system("git restore .")
+	return vim.v.shell_error == 0
+end
+
 return M

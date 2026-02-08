@@ -586,6 +586,208 @@ local function show_commit_files(tab_id)
 	end
 end
 
+--- diff 버퍼의 커서 위치에서 파일 경로를 추출하고 uncommitted 파일 목록과 매칭
+---@param tab_id number 탭 ID
+---@param file_type string "staged" 또는 "unstaged"
+---@return string|nil file_path 매칭된 파일 경로 또는 nil
+local function get_file_at_cursor_in_diff(tab_id, file_type)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info or not tab_info.diff.visible then
+		return nil
+	end
+
+	local uncommitted_files = git.get_uncommitted_files(file_type)
+	if #uncommitted_files == 0 then
+		return nil
+	end
+
+	local cursor = vim.api.nvim_win_get_cursor(0)
+	local current_line = cursor[1]
+
+	-- 현재 라인부터 위로 올라가면서 파일 경로 찾기
+	for line_num = current_line, 1, -1 do
+		local line = vim.api.nvim_buf_get_lines(tab_info.diff.buf, line_num - 1, line_num, false)[1]
+		if line then
+			local file_path = extract_file_path_from_line(line)
+			if file_path then
+				for _, f in ipairs(uncommitted_files) do
+					if f == file_path or f:match(file_path .. "$") then
+						return f
+					end
+				end
+			end
+
+			for _, f in ipairs(uncommitted_files) do
+				local clean_line = line:gsub("\027%[[\048-\063]*[\032-\047]*[\064-\126]", "")
+				if clean_line:find(f, 1, true) then
+					return f
+				end
+			end
+		end
+	end
+
+	return nil
+end
+
+--- Uncommitted diff에서 액션 후 diff 갱신
+---@param tab_id number 탭 ID
+local function refresh_diff_after_action(tab_id)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info or not tab_info.diff.visible then
+		return
+	end
+
+	local diff = tab_info.diff
+	local hash = diff.current_hash
+	local commit_list = diff.commit_list
+	local current_index = diff.current_index
+
+	if #commit_list > 1 then
+		M.show_diff(tab_id, hash, commit_list, current_index)
+	else
+		-- hide 후 다시 show (toggle 방지를 위해 먼저 hash를 nil로)
+		M.hide_diff(tab_id)
+		M.show_diff(tab_id, hash)
+	end
+end
+
+--- Uncommitted diff 키맵 설정 (staged/unstaged 전용)
+---@param buf number diff 버퍼
+---@param tab_id number 탭 ID
+---@param hash string "uncommitted_staged" 또는 "uncommitted_unstaged"
+local function setup_uncommitted_diff_keymaps(buf, tab_id, hash)
+	local is_staged = hash == "uncommitted_staged"
+	local file_type = is_staged and "staged" or "unstaged"
+
+	-- s: 커서 파일 stage (unstaged에서만)
+	vim.api.nvim_buf_set_keymap(buf, "n", "s", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			if is_staged then
+				vim.notify("Already staged", vim.log.levels.INFO)
+				return
+			end
+			local file = get_file_at_cursor_in_diff(tab_id, file_type)
+			if file then
+				if git.stage_file(file) then
+					vim.notify("Staged: " .. file, vim.log.levels.INFO)
+					refresh_diff_after_action(tab_id)
+				end
+			else
+				vim.notify("No file found at cursor", vim.log.levels.WARN)
+			end
+		end,
+	})
+
+	-- u: 커서 파일 unstage (staged에서만)
+	vim.api.nvim_buf_set_keymap(buf, "n", "u", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			if not is_staged then
+				vim.notify("Already unstaged", vim.log.levels.INFO)
+				return
+			end
+			local file = get_file_at_cursor_in_diff(tab_id, file_type)
+			if file then
+				if git.unstage_file(file) then
+					vim.notify("Unstaged: " .. file, vim.log.levels.INFO)
+					refresh_diff_after_action(tab_id)
+				end
+			else
+				vim.notify("No file found at cursor", vim.log.levels.WARN)
+			end
+		end,
+	})
+
+	-- S: 전체 stage (unstaged에서만)
+	vim.api.nvim_buf_set_keymap(buf, "n", "S", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			if is_staged then
+				vim.notify("Already staged", vim.log.levels.INFO)
+				return
+			end
+			if git.stage_all() then
+				vim.notify("Staged all files", vim.log.levels.INFO)
+				refresh_diff_after_action(tab_id)
+			end
+		end,
+	})
+
+	-- U: 전체 unstage (staged에서만)
+	vim.api.nvim_buf_set_keymap(buf, "n", "U", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			if not is_staged then
+				vim.notify("Already unstaged", vim.log.levels.INFO)
+				return
+			end
+			if git.unstage_all() then
+				vim.notify("Unstaged all files", vim.log.levels.INFO)
+				refresh_diff_after_action(tab_id)
+			end
+		end,
+	})
+
+	-- x: 커서 파일 discard
+	vim.api.nvim_buf_set_keymap(buf, "n", "x", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			local file = get_file_at_cursor_in_diff(tab_id, file_type)
+			if not file then
+				vim.notify("No file found at cursor", vim.log.levels.WARN)
+				return
+			end
+			vim.ui.select({ "Yes", "No" }, {
+				prompt = string.format("Discard changes in %s?", file),
+			}, function(choice)
+				if choice == "Yes" then
+					local success
+					if is_staged then
+						success = git.unstage_file(file)
+					else
+						success = git.discard_file(file)
+					end
+					if success then
+						vim.notify("Discarded: " .. file, vim.log.levels.INFO)
+						refresh_diff_after_action(tab_id)
+					end
+				end
+			end)
+		end,
+	})
+
+	-- X: 전체 discard
+	vim.api.nvim_buf_set_keymap(buf, "n", "X", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			local label = is_staged and "staged" or "unstaged"
+			vim.ui.select({ "Yes", "No" }, {
+				prompt = string.format("Discard ALL %s changes?", label),
+			}, function(choice)
+				if choice == "Yes" then
+					local success
+					if is_staged then
+						success = git.unstage_all()
+					else
+						success = git.discard_all()
+					end
+					if success then
+						vim.notify("Discarded all " .. label .. " changes", vim.log.levels.INFO)
+						refresh_diff_after_action(tab_id)
+					end
+				end
+			end)
+		end,
+	})
+end
+
 --- Diff 버퍼 키맵 설정
 ---@param buf number diff 버퍼
 ---@param tab_id number 탭 ID
@@ -637,6 +839,15 @@ local function setup_diff_keymaps(buf, tab_id)
 				show_commit_files(tab_id)
 			end,
 		})
+	end
+
+	-- Uncommitted diff일 때만 stage/unstage/discard 키맵 추가
+	local tab_info = git_graph_tabs[tab_id]
+	if tab_info then
+		local current_hash = tab_info.diff.current_hash
+		if current_hash and current_hash:find("^uncommitted_") then
+			setup_uncommitted_diff_keymaps(buf, tab_id, current_hash)
+		end
 	end
 end
 
