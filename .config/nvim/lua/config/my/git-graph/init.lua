@@ -804,8 +804,8 @@ local function setup_diff_keymaps(buf, tab_id)
 			end,
 		})
 
-		-- C-] 로 다음 커밋
-		vim.api.nvim_buf_set_keymap(buf, mode, "<C-]>", "", {
+		-- C-l 로 다음 커밋
+		vim.api.nvim_buf_set_keymap(buf, mode, "<C-l>", "", {
 			noremap = true,
 			silent = true,
 			callback = function()
@@ -813,12 +813,21 @@ local function setup_diff_keymaps(buf, tab_id)
 			end,
 		})
 
-		-- C-[ 로 이전 커밋
-		vim.api.nvim_buf_set_keymap(buf, mode, "<C-[>", "", {
+		-- C-h 로 이전 커밋
+		vim.api.nvim_buf_set_keymap(buf, mode, "<C-h>", "", {
 			noremap = true,
 			silent = true,
 			callback = function()
 				M.prev_diff(tab_id)
+			end,
+		})
+
+		-- Esc로 diff 닫기
+		vim.api.nvim_buf_set_keymap(buf, mode, "<Esc>", "", {
+			noremap = true,
+			silent = true,
+			callback = function()
+				M.hide_diff(tab_id)
 			end,
 		})
 
