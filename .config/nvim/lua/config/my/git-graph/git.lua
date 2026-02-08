@@ -158,8 +158,9 @@ function M.get_uncommitted_diff_cmd(type, side_by_side)
 			delta_flags
 		)
 	else
+		-- tracked 변경 + untracked 파일 모두 표시
 		return string.format(
-			"git diff --quiet && echo 'No unstaged changes' || git diff --color=always | delta %s",
+			[[git diff --quiet && [ -z "$(git ls-files --others --exclude-standard)" ] && echo 'No unstaged changes' || (git diff --color=always; git ls-files --others --exclude-standard | while IFS= read -r f; do git diff --no-index --color=always -- /dev/null "$f" 2>/dev/null || true; done) | delta %s]],
 			delta_flags
 		)
 	end
@@ -169,15 +170,23 @@ end
 ---@param type string "staged" 또는 "unstaged"
 ---@return table files 파일 경로 목록
 function M.get_uncommitted_files(type)
-	local cmd
+	local result
 	if type == "staged" then
-		cmd = "git diff --cached --name-only"
+		result = vim.fn.systemlist("git diff --cached --name-only")
+		if vim.v.shell_error ~= 0 then
+			return {}
+		end
 	else
-		cmd = "git diff --name-only"
-	end
-	local result = vim.fn.systemlist(cmd)
-	if vim.v.shell_error ~= 0 then
-		return {}
+		-- tracked 변경 + untracked 파일 모두 포함
+		local tracked = vim.fn.systemlist("git diff --name-only")
+		local untracked = vim.fn.systemlist("git ls-files --others --exclude-standard")
+		result = {}
+		for _, f in ipairs(tracked) do
+			table.insert(result, f)
+		end
+		for _, f in ipairs(untracked) do
+			table.insert(result, f)
+		end
 	end
 	local files = {}
 	for _, line in ipairs(result) do
