@@ -145,12 +145,23 @@ end
 
 --- Uncommitted changes diff 명령어 가져오기
 ---@param type string "staged" 또는 "unstaged"
+---@param side_by_side? boolean side-by-side 모드 여부
 ---@return string cmd diff 명령어
-function M.get_uncommitted_diff_cmd(type)
+function M.get_uncommitted_diff_cmd(type, side_by_side)
+	local delta_flags = "--paging=never"
+	if side_by_side then
+		delta_flags = delta_flags .. " --side-by-side"
+	end
 	if type == "staged" then
-		return "git diff --cached --quiet && echo 'No staged changes' || git diff --cached --color=always | delta --paging=never"
+		return string.format(
+			"git diff --cached --quiet && echo 'No staged changes' || git diff --cached --color=always | delta %s",
+			delta_flags
+		)
 	else
-		return "git diff --quiet && echo 'No unstaged changes' || git diff --color=always | delta --paging=never"
+		return string.format(
+			"git diff --quiet && echo 'No unstaged changes' || git diff --color=always | delta %s",
+			delta_flags
+		)
 	end
 end
 

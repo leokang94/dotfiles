@@ -12,8 +12,8 @@ local resize_scheduled = false
 
 -- Diff 패널 크기 설정
 local DIFF_SIZE = {
-	VSPLIT_WIDTH_RATIO = 0.5, -- vsplit 시 diff 패널 너비 비율
-	HSPLIT_HEIGHT_RATIO = 0.5, -- hsplit 시 diff 패널 높이 비율
+	VSPLIT_WIDTH_RATIO = 0.7, -- vsplit 시 diff 패널 너비 비율
+	HSPLIT_HEIGHT_RATIO = 0.7, -- hsplit 시 diff 패널 높이 비율
 }
 
 -- 무한 스크롤 설정
@@ -839,6 +839,20 @@ local function setup_diff_keymaps(buf, tab_id)
 				show_commit_files(tab_id)
 			end,
 		})
+
+		-- C-w로 side-by-side 토글
+		vim.api.nvim_buf_set_keymap(buf, mode, "<C-w>", "", {
+			noremap = true,
+			silent = true,
+			callback = function()
+				local tab_info = git_graph_tabs[tab_id]
+				if not tab_info then
+					return
+				end
+				tab_info.diff.side_by_side = not tab_info.diff.side_by_side
+				refresh_diff_after_action(tab_id)
+			end,
+		})
 	end
 
 	-- Uncommitted diff일 때만 stage/unstage/discard 키맵 추가
@@ -931,14 +945,16 @@ function M.show_diff(tab_id, hash, commit_list, index)
 
 	-- diff 명령어 결정
 	local diff_cmd
+	local sbs = diff.side_by_side
 	if hash == "uncommitted_staged" then
-		diff_cmd = git.get_uncommitted_diff_cmd("staged")
+		diff_cmd = git.get_uncommitted_diff_cmd("staged", sbs)
 	elseif hash == "uncommitted_unstaged" then
-		diff_cmd = git.get_uncommitted_diff_cmd("unstaged")
+		diff_cmd = git.get_uncommitted_diff_cmd("unstaged", sbs)
 	elseif hash == "uncommitted" then
-		diff_cmd = git.get_uncommitted_diff_cmd("unstaged")
+		diff_cmd = git.get_uncommitted_diff_cmd("unstaged", sbs)
 	else
-		diff_cmd = string.format("git show %s | delta --paging=never", hash)
+		local delta_flags = sbs and "--paging=never --side-by-side" or "--paging=never"
+		diff_cmd = string.format("git show %s | delta %s", hash, delta_flags)
 	end
 
 	-- 터미널에서 diff 실행
