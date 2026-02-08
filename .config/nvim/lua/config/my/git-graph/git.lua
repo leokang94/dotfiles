@@ -111,4 +111,42 @@ function M.get_commit_files(hash)
 	return files
 end
 
+--- Uncommitted changes 상태 가져오기
+---@return table status { staged: number, unstaged: number, untracked: number }
+function M.get_uncommitted_status()
+	local status = { staged = 0, unstaged = 0, untracked = 0 }
+	local git_root = M.get_git_root()
+	if not git_root then
+		return status
+	end
+	-- --no-optional-locks: index.lock 파일 생성 방지 (watcher 무한 루프 방지)
+	-- -C: git root 디렉토리 지정
+	local cmd = string.format("git -C %s --no-optional-locks status --porcelain", vim.fn.shellescape(git_root))
+	local result = vim.fn.systemlist(cmd)
+	if vim.v.shell_error ~= 0 then
+		return status
+	end
+	for _, line in ipairs(result) do
+		local index = line:sub(1, 1)
+		local worktree = line:sub(2, 2)
+		if index == "?" then
+			status.untracked = status.untracked + 1
+		else
+			if index ~= " " then
+				status.staged = status.staged + 1
+			end
+			if worktree ~= " " then
+				status.unstaged = status.unstaged + 1
+			end
+		end
+	end
+	return status
+end
+
+--- Uncommitted changes diff 명령어 가져오기
+---@return string cmd diff 명령어
+function M.get_uncommitted_diff_cmd()
+	return "git diff HEAD --color=always | delta --paging=never"
+end
+
 return M

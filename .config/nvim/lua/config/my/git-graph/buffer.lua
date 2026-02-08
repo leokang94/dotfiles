@@ -15,6 +15,46 @@ local function extract_hash_from_line(line)
 	return nil
 end
 
+--- Uncommitted Changes 라인 생성
+---@param status table { staged: number, unstaged: number, untracked: number }
+---@return table lines 생성된 라인들
+---@return table highlights 하이라이트 정보 { [line_num] = { {group, col_start, col_end}, ... } }
+---@return number line_count uncommitted 관련 라인 수
+local function create_uncommitted_lines(status)
+	local total = status.staged + status.unstaged + status.untracked
+	if total == 0 then
+		return {}, {}, 0
+	end
+
+	-- 메인 라인: ○ Uncommitted Changes (N)
+	local main_line = string.format("○ Uncommitted Changes (%d)", total)
+
+	-- 상세 라인: staged, unstaged, untracked 개수
+	local detail_parts = {}
+	if status.staged > 0 then
+		table.insert(detail_parts, string.format("%d staged", status.staged))
+	end
+	if status.unstaged > 0 then
+		table.insert(detail_parts, string.format("%d unstaged", status.unstaged))
+	end
+	if status.untracked > 0 then
+		table.insert(detail_parts, string.format("%d untracked", status.untracked))
+	end
+	local detail_line = "│         " .. table.concat(detail_parts, ", ")
+
+	-- 빈 줄 (그래프 연결선)
+	local connector_line = "│"
+
+	local lines = { main_line, detail_line, connector_line }
+	local highlights = {
+		[1] = { { group = "GitGraphUncommitted", col_start = 0, col_end = #main_line } },
+		[2] = { { group = "GitGraphUncommittedDetail", col_start = 0, col_end = #detail_line } },
+		[3] = { { group = "GitGraphLine", col_start = 0, col_end = #connector_line } },
+	}
+
+	return lines, highlights, 3
+end
+
 --- 새로운 scratch 버퍼 생성
 ---@return number buf 생성된 버퍼 번호
 function M.create_buffer()
@@ -33,9 +73,11 @@ end
 ---@param buf number 렌더링할 버퍼 번호
 ---@param limit? number 가져올 커밋 개수
 ---@param skip? number 건너뛸 커밋 개수
+---@return table line_to_hash 라인 번호 -> 해시 매핑
+---@return number uncommitted_line_count uncommitted changes 라인 수
 function M.render_git_log(buf, limit, skip)
 	if not vim.api.nvim_buf_is_valid(buf) then
-		return {}
+		return {}, 0
 	end
 
 	-- git log 가져오기
@@ -45,16 +87,36 @@ function M.render_git_log(buf, limit, skip)
 	vim.api.nvim_set_option_value("readonly", false, { buf = buf })
 	vim.api.nvim_set_option_value("modifiable", true, { buf = buf })
 
+	-- Uncommitted changes 확인 (skip=0일 때만)
+	local uncommitted_lines = {}
+	local uncommitted_highlights = {}
+	local uncommitted_line_count = 0
+
+	if (skip or 0) == 0 then
+		local status = git.get_uncommitted_status()
+		uncommitted_lines, uncommitted_highlights, uncommitted_line_count = create_uncommitted_lines(status)
+	end
+
 	-- ANSI 색상 코드 파싱 및 하이라이트 정보 수집
 	local clean_lines = {}
 	local all_highlights = {}
 	local line_to_hash = {}
 	local current_hash = nil
 
+	-- uncommitted lines를 먼저 추가
+	for i, line in ipairs(uncommitted_lines) do
+		table.insert(clean_lines, line)
+		all_highlights[i] = uncommitted_highlights[i]
+		-- uncommitted 라인은 "uncommitted" 값으로 매핑
+		line_to_hash[i] = "uncommitted"
+	end
+
+	-- git log 라인 추가
 	for i, line in ipairs(lines) do
 		local clean_line, highlights = highlight.parse_ansi_line(line)
+		local actual_line_num = uncommitted_line_count + i
 		table.insert(clean_lines, clean_line)
-		all_highlights[i] = highlights
+		all_highlights[actual_line_num] = highlights
 
 		-- 해시 추출 및 매핑
 		local hash = extract_hash_from_line(clean_line)
@@ -62,7 +124,7 @@ function M.render_git_log(buf, limit, skip)
 			current_hash = hash
 		end
 		if current_hash then
-			line_to_hash[i] = current_hash
+			line_to_hash[actual_line_num] = current_hash
 		end
 	end
 
@@ -83,7 +145,7 @@ function M.render_git_log(buf, limit, skip)
 	vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
 	vim.api.nvim_set_option_value("readonly", true, { buf = buf })
 
-	return line_to_hash
+	return line_to_hash, uncommitted_line_count
 end
 
 --- Git log를 버퍼 끝에 추가

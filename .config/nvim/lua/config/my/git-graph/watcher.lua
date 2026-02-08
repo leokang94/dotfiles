@@ -1,6 +1,7 @@
 local M = {}
 local watchers = {}
 
+
 --- 단일 경로를 감시하는 watcher 생성
 ---@param path string 감시할 경로
 ---@param callback function 변경 감지 시 실행할 콜백 함수
@@ -71,9 +72,7 @@ function M.watch_git_dir(git_root, callback)
 		git_common_dir .. "/refs/heads", -- 로컬 브랜치 (공유)
 		git_common_dir .. "/refs/remotes", -- 리모트 브랜치 (공유)
 		git_common_dir .. "/refs/tags", -- 태그 (공유)
-		git_dir .. "/HEAD", -- 현재 브랜치 (worktree별)
-		git_dir .. "/index", -- 스테이징 영역 (worktree별)
-		git_dir .. "/FETCH_HEAD", -- fetch 결과 (worktree별)
+		git_dir, -- index, HEAD, FETCH_HEAD 등 (디렉토리 감시로 rename도 감지)
 		git_common_dir .. "/logs", -- reflog (공유)
 	}
 

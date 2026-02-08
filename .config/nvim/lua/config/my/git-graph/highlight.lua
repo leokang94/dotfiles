@@ -40,6 +40,11 @@ function M.setup()
 	-- 체크 표시용 하이라이트
 	vim.api.nvim_set_hl(0, "GitGraphCheck", { fg = "#50fa7b", ctermfg = 46 })
 
+	-- Uncommitted Changes 관련 하이라이트
+	vim.api.nvim_set_hl(0, "GitGraphUncommitted", { fg = "#ff9e64", bold = true, ctermfg = 215 })
+	vim.api.nvim_set_hl(0, "GitGraphUncommittedDetail", { fg = "#7aa2f7", ctermfg = 111 })
+	vim.api.nvim_set_hl(0, "GitGraphLine", { fg = "#ff5555", ctermfg = 203 })
+
 	-- 현재 보고있는 커밋 해시 강조 (빨간색 + bold + 배경)
 	-- 배경색을 지정해서 기존 ANSI 노란색을 완전히 덮어쓰기
 	vim.api.nvim_set_hl(0, "GitGraphCurrentHash", { fg = "#ff5555", bg = "#282a36", bold = true, ctermfg = 203 })

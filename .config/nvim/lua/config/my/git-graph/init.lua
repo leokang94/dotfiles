@@ -82,6 +82,16 @@ function M.setup()
 		end,
 	})
 
+	-- 파일 저장 또는 포커스 복귀 시 uncommitted changes 업데이트
+	vim.api.nvim_create_autocmd({ "BufWritePost", "FocusGained" }, {
+		pattern = "*",
+		callback = function()
+			for tab_id, _ in pairs(git_graph_tabs) do
+				M.update_git_log(tab_id)
+			end
+		end,
+	})
+
 	-- WinEnter 이벤트로 diff 윈도우 focus 시 dim 처리
 	vim.api.nvim_create_autocmd("WinEnter", {
 		pattern = "*",
@@ -118,10 +128,11 @@ function M.update_git_log(tab_id)
 		local tab_info = git_graph_tabs[tab_id]
 		if tab_info and vim.api.nvim_buf_is_valid(tab_info.graph_buf) then
 			-- 초기 로드 개수로 렌더링
-			local line_to_hash = buffer.render_git_log(tab_info.graph_buf, INITIAL_LOAD_COUNT, 0)
+			local line_to_hash, uncommitted_line_count = buffer.render_git_log(tab_info.graph_buf, INITIAL_LOAD_COUNT, 0)
 			-- 로드된 개수 초기화
 			tab_info.loaded_count = INITIAL_LOAD_COUNT
 			tab_info.line_to_hash = line_to_hash
+			tab_info.uncommitted_line_count = uncommitted_line_count
 		end
 		update_scheduled[tab_id] = nil
 	end, DEBOUNCE_DELAY_MS)
@@ -634,16 +645,17 @@ end
 ---@return string winbar 텍스트
 local function get_diff_winbar(diff)
 	local hash = diff.current_hash or ""
+	local display_hash = hash == "uncommitted" and "Uncommitted Changes" or hash
 	if #diff.commit_list > 1 then
-		return string.format(" Diff: %s [%d/%d]", hash, diff.current_index, #diff.commit_list)
+		return string.format(" Diff: %s [%d/%d]", display_hash, diff.current_index, #diff.commit_list)
 	else
-		return " Diff: " .. hash
+		return " Diff: " .. display_hash
 	end
 end
 
 --- Diff 패널 표시 (터미널 버퍼로 delta 적용)
 ---@param tab_id number 탭 ID
----@param hash string 커밋 해시
+---@param hash string 커밋 해시 또는 "uncommitted"
 ---@param commit_list? table 커밋 목록 (multi-select 시)
 ---@param index? number 현재 인덱스 (multi-select 시)
 function M.show_diff(tab_id, hash, commit_list, index)
@@ -692,8 +704,16 @@ function M.show_diff(tab_id, hash, commit_list, index)
 	diff.win = vim.api.nvim_get_current_win()
 	vim.api.nvim_win_set_buf(diff.win, diff.buf)
 
-	-- 터미널에서 git show 실행 (delta, pager 비활성화)
-	vim.fn.termopen(string.format("git show %s | delta --paging=never", hash), {
+	-- diff 명령어 결정 (uncommitted vs 일반 커밋)
+	local diff_cmd
+	if hash == "uncommitted" then
+		diff_cmd = git.get_uncommitted_diff_cmd()
+	else
+		diff_cmd = string.format("git show %s | delta --paging=never", hash)
+	end
+
+	-- 터미널에서 diff 실행
+	vim.fn.termopen(diff_cmd, {
 		on_exit = function(_, _, _)
 			-- 터미널 종료 후 Normal 모드로 전환 + 최상단 이동
 			vim.schedule(function()
@@ -729,8 +749,10 @@ function M.show_diff(tab_id, hash, commit_list, index)
 
 	-- 항상 diff 윈도우로 포커스
 	vim.api.nvim_set_current_win(diff.win)
-	-- 현재 해시 강조
-	M.highlight_current_hash(tab_id)
+	-- 현재 해시 강조 (uncommitted가 아닐 때만)
+	if hash ~= "uncommitted" then
+		M.highlight_current_hash(tab_id)
+	end
 	-- 터미널 모드로 진입 (insert mode)
 	vim.cmd("startinsert")
 end
@@ -1153,7 +1175,7 @@ function M.open_git_graph()
 	vim.wo[graph_win].signcolumn = "yes:1"
 
 	-- 초기 렌더링 (500개 로드)
-	local line_to_hash = buffer.render_git_log(graph_buf, INITIAL_LOAD_COUNT, 0)
+	local line_to_hash, uncommitted_line_count = buffer.render_git_log(graph_buf, INITIAL_LOAD_COUNT, 0)
 
 	-- 탭 정보 저장
 	git_graph_tabs[tab_id] = {
@@ -1163,6 +1185,7 @@ function M.open_git_graph()
 		loaded_count = INITIAL_LOAD_COUNT,
 		loading = false,
 		line_to_hash = line_to_hash,
+		uncommitted_line_count = uncommitted_line_count,
 		checked_commits = {}, -- 체크된 커밋 목록 (순서 유지)
 		checked_set = {}, -- 체크 여부 빠른 조회용
 		terminal = {
