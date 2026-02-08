@@ -29,13 +29,13 @@ local function create_uncommitted_lines(status)
 	-- 메인 라인: ○ Uncommitted Changes (N)
 	local main_line = string.format("○ Uncommitted Changes (%d)", total)
 
-	-- 상세 라인: staged, unstaged, untracked 개수
+	-- 상세 라인: unstaged, staged, untracked 개수
 	local detail_parts = {}
-	if status.staged > 0 then
-		table.insert(detail_parts, string.format("%d staged", status.staged))
-	end
 	if status.unstaged > 0 then
 		table.insert(detail_parts, string.format("%d unstaged", status.unstaged))
+	end
+	if status.staged > 0 then
+		table.insert(detail_parts, string.format("%d staged", status.staged))
 	end
 	if status.untracked > 0 then
 		table.insert(detail_parts, string.format("%d untracked", status.untracked))

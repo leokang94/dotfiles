@@ -144,9 +144,14 @@ function M.get_uncommitted_status()
 end
 
 --- Uncommitted changes diff 명령어 가져오기
+---@param type string "staged" 또는 "unstaged"
 ---@return string cmd diff 명령어
-function M.get_uncommitted_diff_cmd()
-	return "git diff HEAD --color=always | delta --paging=never"
+function M.get_uncommitted_diff_cmd(type)
+	if type == "staged" then
+		return "git diff --cached --quiet && echo 'No staged changes' || git diff --cached --color=always | delta --paging=never"
+	else
+		return "git diff --quiet && echo 'No unstaged changes' || git diff --color=always | delta --paging=never"
+	end
 end
 
 return M

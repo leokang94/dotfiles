@@ -640,12 +640,26 @@ local function setup_diff_keymaps(buf, tab_id)
 	end
 end
 
+--- 해시를 winbar 표시용 텍스트로 변환
+---@param hash string
+---@return string
+local function hash_to_display(hash)
+	if hash == "uncommitted_staged" then
+		return "Staged Changes"
+	elseif hash == "uncommitted_unstaged" then
+		return "Unstaged Changes"
+	elseif hash == "uncommitted" then
+		return "Uncommitted Changes"
+	end
+	return hash
+end
+
 --- Winbar 텍스트 생성
 ---@param diff table diff 상태
 ---@return string winbar 텍스트
 local function get_diff_winbar(diff)
 	local hash = diff.current_hash or ""
-	local display_hash = hash == "uncommitted" and "Uncommitted Changes" or hash
+	local display_hash = hash_to_display(hash)
 	if #diff.commit_list > 1 then
 		return string.format(" Diff: %s [%d/%d]", display_hash, diff.current_index, #diff.commit_list)
 	else
@@ -704,10 +718,14 @@ function M.show_diff(tab_id, hash, commit_list, index)
 	diff.win = vim.api.nvim_get_current_win()
 	vim.api.nvim_win_set_buf(diff.win, diff.buf)
 
-	-- diff 명령어 결정 (uncommitted vs 일반 커밋)
+	-- diff 명령어 결정
 	local diff_cmd
-	if hash == "uncommitted" then
-		diff_cmd = git.get_uncommitted_diff_cmd()
+	if hash == "uncommitted_staged" then
+		diff_cmd = git.get_uncommitted_diff_cmd("staged")
+	elseif hash == "uncommitted_unstaged" then
+		diff_cmd = git.get_uncommitted_diff_cmd("unstaged")
+	elseif hash == "uncommitted" then
+		diff_cmd = git.get_uncommitted_diff_cmd("unstaged")
 	else
 		diff_cmd = string.format("git show %s | delta --paging=never", hash)
 	end
@@ -749,8 +767,8 @@ function M.show_diff(tab_id, hash, commit_list, index)
 
 	-- 항상 diff 윈도우로 포커스
 	vim.api.nvim_set_current_win(diff.win)
-	-- 현재 해시 강조 (uncommitted가 아닐 때만)
-	if hash ~= "uncommitted" then
+	-- 현재 해시 강조 (uncommitted 관련이 아닐 때만)
+	if not hash:find("^uncommitted") then
 		M.highlight_current_hash(tab_id)
 	end
 	-- 터미널 모드로 진입 (insert mode)
@@ -879,6 +897,8 @@ function M.show_diff_visual(tab_id)
 
 	-- 선택 범위에서 커밋 목록 추출
 	local commit_list = get_commits_in_range(tab_id, start_line, end_line)
+	-- "uncommitted"을 staged/unstaged로 펼치기
+	commit_list = expand_uncommitted(commit_list)
 
 	if #commit_list == 0 then
 		return
@@ -1069,6 +1089,22 @@ function M.clear_checked_commits(tab_id)
 	vim.wo[tab_info.graph_win].winbar = " Git Graph"
 end
 
+--- commit_list에서 "uncommitted"을 unstaged/staged로 펼치기
+---@param commit_list table 커밋 해시 목록
+---@return table expanded 펼쳐진 목록
+local function expand_uncommitted(commit_list)
+	local expanded = {}
+	for _, hash in ipairs(commit_list) do
+		if hash == "uncommitted" then
+			table.insert(expanded, "uncommitted_unstaged")
+			table.insert(expanded, "uncommitted_staged")
+		else
+			table.insert(expanded, hash)
+		end
+	end
+	return expanded
+end
+
 --- 현재 커서 위치의 커밋 diff 표시/토글
 ---@param tab_id number 탭 ID
 function M.toggle_diff_at_cursor(tab_id)
@@ -1091,6 +1127,8 @@ function M.toggle_diff_at_cursor(tab_id)
 		table.sort(commit_list, function(a, b)
 			return (hash_to_line[a] or 0) < (hash_to_line[b] or 0)
 		end)
+		-- "uncommitted"을 staged/unstaged로 펼치기
+		commit_list = expand_uncommitted(commit_list)
 		M.show_diff(tab_id, commit_list[1], commit_list, 1)
 		-- 체크 해제
 		M.clear_checked_commits(tab_id)
@@ -1104,7 +1142,11 @@ function M.toggle_diff_at_cursor(tab_id)
 	-- line_to_hash 매핑에서 해시 조회
 	local hash = tab_info.line_to_hash and tab_info.line_to_hash[row]
 
-	if hash then
+	if hash == "uncommitted" then
+		-- uncommitted은 unstaged/staged로 분리
+		local commit_list = { "uncommitted_unstaged", "uncommitted_staged" }
+		M.show_diff(tab_id, commit_list[1], commit_list, 1)
+	elseif hash then
 		M.show_diff(tab_id, hash)
 	end
 end
