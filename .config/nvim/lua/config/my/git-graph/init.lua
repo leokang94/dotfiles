@@ -487,6 +487,19 @@ local function open_files_in_new_tab(file_paths, git_root)
 	return opened
 end
 
+--- 현재 diff의 파일 목록 가져오기 (커밋/uncommitted 공통)
+---@param hash string 커밋 해시 또는 uncommitted 해시
+---@return table files 파일 경로 목록
+local function get_diff_files(hash)
+	if hash == "uncommitted_staged" then
+		return git.get_uncommitted_files("staged")
+	elseif hash == "uncommitted_unstaged" or hash == "uncommitted" then
+		return git.get_uncommitted_files("unstaged")
+	else
+		return git.get_commit_files(hash)
+	end
+end
+
 --- 커서 위치의 파일을 새 탭에서 열기
 ---@param tab_id number 탭 ID
 local function open_file_at_cursor(tab_id)
@@ -496,7 +509,7 @@ local function open_file_at_cursor(tab_id)
 	end
 
 	-- 커밋의 모든 파일 목록 가져오기
-	local commit_files = git.get_commit_files(tab_info.diff.current_hash)
+	local commit_files = get_diff_files(tab_info.diff.current_hash)
 	if #commit_files == 0 then
 		vim.notify("No files in this commit", vim.log.levels.INFO)
 		return
@@ -543,7 +556,7 @@ local function show_commit_files(tab_id)
 		return
 	end
 
-	local files = git.get_commit_files(tab_info.diff.current_hash)
+	local files = get_diff_files(tab_info.diff.current_hash)
 	if #files == 0 then
 		vim.notify("No files in this commit", vim.log.levels.INFO)
 		return
