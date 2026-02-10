@@ -904,16 +904,129 @@ local function hash_to_display(hash)
 	return hash
 end
 
---- Winbar 텍스트 생성
+--- Winbar 기본 텍스트 생성
 ---@param diff table diff 상태
 ---@return string winbar 텍스트
 local function get_diff_winbar(diff)
 	local hash = diff.current_hash or ""
 	local display_hash = hash_to_display(hash)
 	if #diff.commit_list > 1 then
-		return string.format(" Diff: %s [%d/%d]", display_hash, diff.current_index, #diff.commit_list)
+		return string.format(
+			"%%#Comment# Diff: %%#Title#%s %%#Comment#[%d/%d]",
+			display_hash,
+			diff.current_index,
+			#diff.commit_list
+		)
 	else
-		return " Diff: " .. display_hash
+		return "%#Comment# Diff: %#Title#" .. display_hash
+	end
+end
+
+--- Diff 윈도우의 sticky header 업데이트 (스크롤 시 현재 파일명 표시)
+---@param tab_id number 탭 ID
+local function update_diff_sticky_header(tab_id)
+	local tab_info = git_graph_tabs[tab_id]
+	if not tab_info or not tab_info.diff.visible then
+		return
+	end
+
+	local diff = tab_info.diff
+	if not diff.win or not vim.api.nvim_win_is_valid(diff.win) then
+		return
+	end
+	if not diff.buf or not vim.api.nvim_buf_is_valid(diff.buf) then
+		return
+	end
+
+	-- viewport 상단 라인
+	local top_line = vim.fn.line("w0")
+
+	-- 캐시 확인: 같은 위치면 업데이트 스킵
+	if diff._last_top_line == top_line then
+		return
+	end
+	diff._last_top_line = top_line
+
+	-- 캐싱된 파일 목록 사용
+	local files = diff._files
+	if not files or #files == 0 then
+		local base = get_diff_winbar(diff)
+		vim.wo[diff.win].winbar = base
+		return
+	end
+
+	-- viewport 상단부터 위로 스캔하여 현재 파일 + hunk 정보 찾기
+	local current_file = nil
+	local current_hunk = nil
+	for line_num = top_line, 1, -1 do
+		local line = vim.api.nvim_buf_get_lines(diff.buf, line_num - 1, line_num, false)[1]
+		if line then
+			local clean = line:gsub("\027%[[\048-\063]*[\032-\047]*[\064-\126]", "")
+
+			-- hunk 헤더 탐색 (파일 헤더보다 먼저 나옴)
+			if not current_hunk then
+				-- delta hunk 헤더: • NNN: context
+				local hunk_info = clean:match("^%s*•%s*(%d+:.*)$")
+				if hunk_info then
+					current_hunk = hunk_info
+				end
+				-- raw hunk 헤더: @@ -N,N +N,N @@ context
+				if not current_hunk then
+					local hunk_line = clean:match("^@@.-@@%s*(.*)$")
+					if hunk_line then
+						current_hunk = hunk_line
+					end
+				end
+			end
+
+			-- 파일 헤더 탐색
+			local file_path = extract_file_path_from_line(clean)
+			if file_path then
+				for _, f in ipairs(files) do
+					if f == file_path or f:match(file_path .. "$") then
+						current_file = f
+						break
+					end
+				end
+				if current_file then
+					break
+				end
+			end
+
+			-- ANSI 제거 후 파일명이 라인에 포함되어 있는지 확인
+			if not current_file then
+				for _, f in ipairs(files) do
+					if clean:find(f, 1, true) then
+						current_file = f
+						break
+					end
+				end
+				if current_file then
+					break
+				end
+			end
+		end
+	end
+
+	local base = get_diff_winbar(diff)
+	if current_file then
+		-- winbar에서 %는 %%로 escape 필요
+		local safe_file = current_file:gsub("%%", "%%%%")
+		local header = base .. " %#NonText# %#Directory#" .. safe_file
+		if current_hunk then
+			-- line_number와 context 분리 (예: "487: local function ...")
+			local line_num, context = current_hunk:match("^(%d+:)%s*(.*)$")
+			if line_num then
+				local safe_context = context:gsub("%%", "%%%%")
+				header = header .. " %#NonText#• %#Number#" .. line_num .. " %#Comment#" .. safe_context
+			else
+				local safe_hunk = current_hunk:gsub("%%", "%%%%")
+				header = header .. " %#NonText#• %#Comment#" .. safe_hunk
+			end
+		end
+		vim.wo[diff.win].winbar = header
+	else
+		vim.wo[diff.win].winbar = base
 	end
 end
 
@@ -982,6 +1095,10 @@ function M.show_diff(tab_id, hash, commit_list, index)
 		diff_cmd = string.format("git show %s | delta %s", hash, delta_flags)
 	end
 
+	-- 파일 목록 캐싱 (sticky header용)
+	diff._files = get_diff_files(hash)
+	diff._last_top_line = nil
+
 	-- 터미널에서 diff 실행
 	vim.fn.termopen(diff_cmd, {
 		on_exit = function(_, _, _)
@@ -994,6 +1111,14 @@ function M.show_diff(tab_id, hash, commit_list, index)
 						"n",
 						false
 					)
+
+					-- Sticky header: 스크롤 시 현재 파일명 winbar에 표시
+					vim.api.nvim_create_autocmd("CursorMoved", {
+						buffer = diff.buf,
+						callback = function()
+							update_diff_sticky_header(tab_id)
+						end,
+					})
 				end
 			end)
 		end,
