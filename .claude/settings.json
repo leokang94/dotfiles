@@ -1,19 +1,27 @@
 {
-  "includeCoAuthoredBy": false,
-  "permissions": {
-    "allow": [
-      "Bash(git s:*)",
-      "Bash(g s)",
-      "Bash(g diff)",
-      "Bash(g fp)",
-      "Bash(g log --oneline -5)",
-      "Bash(g log --oneline origin/main..HEAD)",
-      "Bash(find:*)",
-      "Bash(ls:*)",
-      "WebFetch(domain:docs.anthropic.com)"
-    ],
-    "deny": []
-  },
-  "alwaysThinkingEnabled": true,
-  "model": "opus"
+	"includeCoAuthoredBy": false,
+	"permissions": {
+		"allow": [
+			"Bash(*)",
+			"Edit(*)",
+			"Write(*)",
+			"Read(*)",
+			"Glob(*)",
+			"Grep(*)",
+			"Search(*)",
+			"WebFetch(*)",
+			"WebSearch(*)",
+			"Task(*)",
+			"Skill(*)",
+			"mcp__*"
+		],
+		"deny": [
+			"Read(./.env)",
+			"Read(./.env.*)",
+			"Read(./secrets.*)",
+			"Read(~/Library/Keychains/**)"
+		]
+	},
+	"alwaysThinkingEnabled": true,
+	"model": "opus"
 }
