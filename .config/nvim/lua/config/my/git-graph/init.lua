@@ -838,15 +838,6 @@ local function setup_diff_keymaps(buf, tab_id)
 			end,
 		})
 
-		-- Esc로 diff 닫기
-		vim.api.nvim_buf_set_keymap(buf, mode, "<Esc>", "", {
-			noremap = true,
-			silent = true,
-			callback = function()
-				M.hide_diff(tab_id)
-			end,
-		})
-
 		-- gf로 커서 위치 파일 열기
 		vim.api.nvim_buf_set_keymap(buf, mode, "gf", "", {
 			noremap = true,
