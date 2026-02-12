@@ -17,3 +17,23 @@ require("modules.inputsource_aurora")
 
 -- F17 키로 한영 전환
 require("modules.inputsource_switch")
+
+-- 앱 단축키 (App Shortcuts)
+-- Minimize: Ctrl+Option+Cmd+M
+hs.hotkey.bind({ "ctrl", "alt", "cmd" }, "M", function()
+	local win = hs.window.focusedWindow()
+	if win then
+		win:minimize()
+	end
+end)
+
+-- Minimize All: Ctrl+Option+Cmd+N
+hs.hotkey.bind({ "ctrl", "alt", "cmd" }, "N", function()
+	local app = hs.application.frontmostApplication()
+	if app then
+		local wins = app:allWindows()
+		for _, win in ipairs(wins) do
+			win:minimize()
+		end
+	end
+end)
