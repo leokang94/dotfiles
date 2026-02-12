@@ -30,5 +30,18 @@
     "claude-hud@claude-hud": true,
     "session-wrap@team-attention-plugins": true
   },
-  "alwaysThinkingEnabled": true
+  "alwaysThinkingEnabled": true,
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ \"$PWD\" == *\"worktree\"* ]] || [[ \"$PWD\" == *\"worktrees\"* ]]; then WORKTREE_NAME=$(basename \"$PWD\"); terminal-notifier -title \"Claude Code - Worktree\" -message \"답변 완료: $WORKTREE_NAME\" -sound default -group \"claude-code-worktree\" -sender com.apple.Terminal; fi",
+            "async": true
+          }
+        ]
+      }
+    ]
+  }
 }
