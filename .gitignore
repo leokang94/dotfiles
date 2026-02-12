@@ -1,5 +1,8 @@
 .claude/settings.local.json
-.serena/logs/
+
+# Serena - serena_config.yml만 추적
+.serena/*
+!.serena/serena_config.yml
 
 # Flashspace profiles (개인 워크스페이스 설정)
 .config/flashspace/profiles.json
