@@ -1,2 +1,5 @@
 .claude/settings.local.json
 .serena/logs/
+
+# Flashspace profiles (개인 워크스페이스 설정)
+.config/flashspace/profiles.json
