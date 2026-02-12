@@ -13,7 +13,7 @@
   "worktree": {
     "autoDirectory": true,
     "autoDirectoryPattern": "../worktrees/{project}-{branch}",
-    "copySessionData": true,
+    "copySessionData": false,
     "sortByLastSession": false,
     "autoUseDefaultBranch": false
   },
