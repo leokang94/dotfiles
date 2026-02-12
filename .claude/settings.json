@@ -22,6 +22,5 @@
 			"Read(~/Library/Keychains/**)"
 		]
 	},
-	"alwaysThinkingEnabled": true,
-	"model": "opus"
+	"alwaysThinkingEnabled": true
 }
