@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # color variables
-GREEN='\033[0;32m'
-MAGENTA='\033[0;35m'
-CIAN='\033[0;36m'
-CLEAR='\033[0m'
+GREEN=$(printf '\033[0;32m')
+MAGENTA=$(printf '\033[0;35m')
+CIAN=$(printf '\033[0;36m')
+CLEAR=$(printf '\033[0m')
 
 # echo prefix, postfix
 LEO_PREFIX="${MAGENTA}[LEO]${CLEAR}"
@@ -19,9 +19,9 @@ GIT_CUSTOM_COMMANDS_DIR_NAME=".git-custom-commands"
 # Install packages using brew bundle
 ##########################################################
 
-echo "${LEO_PREFIX} Installing packages from ${CIAN}Brewfile${CLEAR}..."
+printf '%s\n' "${LEO_PREFIX} Installing packages from ${CIAN}Brewfile${CLEAR}..."
 brew bundle install --no-upgrade --file="$HOME/${DOT_FILES_DIR_NAME}/Brewfile"
-echo "${LEO_PREFIX} Installing packages from ${CIAN}Brewfile${CLEAR}... ${DONE_POSTFIX}"
+printf '%s\n' "${LEO_PREFIX} Installing packages from ${CIAN}Brewfile${CLEAR}... ${DONE_POSTFIX}"
 
 # services start
 brew services restart borders
@@ -52,7 +52,7 @@ _handle_existing_target() {
   if [ -L "$target_path" ]; then
     local current_link=$(readlink "$target_path")
     if [ "$current_link" = "$expected_source" ]; then
-      echo "${LEO_PREFIX} ${CIAN}Skipped${CLEAR} :: Already correct symlink at ${target_path}"
+      printf '%s\n' "${LEO_PREFIX} ${CIAN}Skipped${CLEAR} :: Already correct symlink at ${target_path}"
       return 1 # 스킵
     else
       rm "$target_path"
@@ -69,7 +69,7 @@ _handle_existing_target() {
   done
 
   mv "$target_path" "$backup_path"
-  echo "${LEO_PREFIX} ${CIAN}Backup${CLEAR} :: Moved ${target_path} to ${backup_path}"
+  printf '%s\n' "${LEO_PREFIX} ${CIAN}Backup${CLEAR} :: Moved ${target_path} to ${backup_path}"
   return 0
 }
 
@@ -96,7 +96,7 @@ create_symlink() {
     esac
   done
 
-  echo "${LEO_PREFIX} Create ${CIAN}symlink${CLEAR} :: ${CIAN}from${CLEAR}:${from}, ${CIAN}to${CLEAR}:${to}..."
+  printf '%s\n' "${LEO_PREFIX} Create ${CIAN}symlink${CLEAR} :: ${CIAN}from${CLEAR}:${from}, ${CIAN}to${CLEAR}:${to}..."
 
   case "$type" in
   multiple)
@@ -106,7 +106,7 @@ create_symlink() {
       local target_path="${to}/${basename}"
       if _handle_existing_target "$target_path" "$source_file"; then
         ln -s "$source_file" "$target_path"
-        echo "${LEO_PREFIX} ${CIAN}Created${CLEAR} :: ${target_path} -> ${source_file}"
+        printf '%s\n' "${LEO_PREFIX} ${CIAN}Created${CLEAR} :: ${target_path} -> ${source_file}"
       fi
     done
     ;;
@@ -128,16 +128,16 @@ create_symlink() {
     if _handle_existing_target "$target_path" "$from"; then
       mkdir -p "$(dirname "$target_path")"
       ln -s "$from" "$target_path"
-      echo "${LEO_PREFIX} ${CIAN}Created${CLEAR} :: ${target_path} -> ${from}"
+      printf '%s\n' "${LEO_PREFIX} ${CIAN}Created${CLEAR} :: ${target_path} -> ${from}"
     fi
     ;;
   *)
-    echo "${LEO_PREFIX} Invalid type specified. Use --type=files or --type=dir.${CLEAR}"
+    printf '%s\n' "${LEO_PREFIX} Invalid type specified. Use --type=files or --type=dir.${CLEAR}"
     return 1
     ;;
   esac
 
-  echo "${LEO_PREFIX} Create ${CIAN}symlink${CLEAR} :: ${CIAN}from${CLEAR}:${from}, ${CIAN}to${CLEAR}:${to}... ${DONE_POSTFIX}"
+  printf '%s\n' "${LEO_PREFIX} Create ${CIAN}symlink${CLEAR} :: ${CIAN}from${CLEAR}:${from}, ${CIAN}to${CLEAR}:${to}... ${DONE_POSTFIX}"
 }
 
 # 함수를 호출하면서 인자로 dotfiles 디렉토리와 타겟 디렉토리를 전달하세요.
@@ -152,7 +152,7 @@ create_symlink --type=single "$HOME/${DOT_FILES_DIR_NAME}/.serena" "$HOME"
 # Extends my .gitconfig to ~/.gitconfig
 ##########################################################
 
-echo "${LEO_PREFIX} Extends source code to .gitconfig..."
+printf '%s\n' "${LEO_PREFIX} Extends source code to .gitconfig..."
 
 GIT_CONFIG_EXTENDS_STRING="[include]
   path = ~/.dotfiles/.gitconfig
@@ -162,13 +162,13 @@ if ! grep -Fxq "${GIT_CONFIG_EXTENDS_STRING}" ~/.gitconfig; then
   echo "${GIT_CONFIG_EXTENDS_STRING}" | cat - ~/.gitconfig >temp && mv temp ~/.gitconfig
 fi
 
-echo "${LEO_PREFIX} Extends source code to .gitconfig... ${DONE_POSTFIX}"
+printf '%s\n' "${LEO_PREFIX} Extends source code to .gitconfig... ${DONE_POSTFIX}"
 
 ##########################################################
 # Extends my .zprofile, .zshrc to ~/.zprofile, ~/.zshrc
 ##########################################################
 
-echo "${LEO_PREFIX} Extends source code to .zprofile, .zshrc..."
+printf '%s\n' "${LEO_PREFIX} Extends source code to .zprofile, .zshrc..."
 
 ZPROFILE_EXTENDS_STRING="# use my own .zprofile
   [ -f ~/${DOT_FILES_DIR_NAME}/.zprofile ] && source ~/${DOT_FILES_DIR_NAME}/.zprofile
@@ -190,13 +190,13 @@ if ! grep -Fxq "${ZSHRC_EXTENDS_STRING}" ~/.zshrc; then
   echo "${ZSHRC_EXTENDS_STRING}" | cat - ~/.zshrc >temp && mv temp ~/.zshrc
 fi
 
-echo "${LEO_PREFIX} Extends source code to .zprofile, .zshrc... ${DONE_POSTFIX}"
+printf '%s\n' "${LEO_PREFIX} Extends source code to .zprofile, .zshrc... ${DONE_POSTFIX}"
 
 ##########################################################
 # Set GX_JIRA_HOST environment variable
 ##########################################################
 
-echo "${LEO_PREFIX} Setting ${CIAN}GX_JIRA_HOST${CLEAR} environment variable..."
+printf '%s\n' "${LEO_PREFIX} Setting ${CIAN}GX_JIRA_HOST${CLEAR} environment variable..."
 
 GX_JIRA_HOST_PATTERN="export GX_JIRA_HOST="
 
@@ -204,12 +204,12 @@ if ! grep -q "${GX_JIRA_HOST_PATTERN}" ~/.zshrc; then
   read -p "Enter your Jira host (e.g., jira.company.com): " JIRA_HOST
   if [ -n "$JIRA_HOST" ]; then
     echo "\n# GX_JIRA_HOST for gx.nvim\nexport GX_JIRA_HOST=\"${JIRA_HOST}\"" >>~/.zshrc
-    echo "${LEO_PREFIX} Added GX_JIRA_HOST=${JIRA_HOST} to ~/.zshrc... ${DONE_POSTFIX}"
+    printf '%s\n' "${LEO_PREFIX} Added GX_JIRA_HOST=${JIRA_HOST} to ~/.zshrc... ${DONE_POSTFIX}"
   else
-    echo "${LEO_PREFIX} Skipped (no value provided)... ${DONE_POSTFIX}"
+    printf '%s\n' "${LEO_PREFIX} Skipped (no value provided)... ${DONE_POSTFIX}"
   fi
 else
-  echo "${LEO_PREFIX} GX_JIRA_HOST already exists in ~/.zshrc... ${DONE_POSTFIX}"
+  printf '%s\n' "${LEO_PREFIX} GX_JIRA_HOST already exists in ~/.zshrc... ${DONE_POSTFIX}"
 fi
 
 ##########################################################
@@ -217,7 +217,9 @@ fi
 ##########################################################
 
 if command -v claude &>/dev/null; then
-  "$HOME/${DOT_FILES_DIR_NAME}/setup-claude.sh"
+  # 현재 스크립트의 디렉토리를 기준으로 setup-claude.sh 실행
+  SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+  "$SCRIPT_DIR/setup-claude.sh"
 else
-  echo "${LEO_PREFIX} ${CIAN}Skipped${CLEAR} :: Claude Code not installed"
+  printf '%s\n' "${LEO_PREFIX} ${CIAN}Skipped${CLEAR} :: Claude Code not installed"
 fi
