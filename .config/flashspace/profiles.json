@@ -1,0 +1,70 @@
+{
+  "profiles" : [
+    {
+      "id" : "F125DE25-B04C-4314-895C-7F8CD097F420",
+      "name" : "Default",
+      "workspaces" : [
+        {
+          "apps" : [
+            {
+              "bundleIdentifier" : "com.google.Chrome",
+              "iconPath" : "/Applications/Google Chrome.app/Contents/Resources/app.icns",
+              "name" : "Google Chrome"
+            },
+            {
+              "bundleIdentifier" : "com.apple.Safari",
+              "iconPath" : "/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app/Contents/Resources/AppIcon.icns",
+              "name" : "Safari"
+            }
+          ],
+          "display" : "Built-in Retina Display",
+          "id" : "DC2030A9-85DF-4CC9-A397-D330D3E2E0FE",
+          "name" : "Browsers",
+          "openAppsOnActivation" : false,
+          "shortcut" : "ctrl+shift+b",
+          "symbolIconName" : "safari"
+        },
+        {
+          "apps" : [
+            {
+              "bundleIdentifier" : "com.mitchellh.ghostty",
+              "iconPath" : "/Applications/Ghostty.app/Contents/Resources/Ghostty.icns",
+              "name" : "Ghostty"
+            }
+          ],
+          "display" : "Built-in Retina Display",
+          "id" : "E22B0B33-7CFD-4623-9138-C182BF291C7B",
+          "name" : "Coding",
+          "openAppsOnActivation" : false,
+          "shortcut" : "ctrl+shift+c",
+          "symbolIconName" : "apple.terminal"
+        },
+        {
+          "apps" : [
+            {
+              "bundleIdentifier" : "com.google.Chrome.app.fmgjjmmmlfnkbppncabfkddbjimcfncm",
+              "iconPath" : "/Users/leo.kang/Applications/Chrome Apps.localized/Gmail.app/Contents/Resources/app.icns",
+              "name" : "Gmail"
+            },
+            {
+              "bundleIdentifier" : "com.kakao.KakaoTalkMac",
+              "iconPath" : "/Applications/KakaoTalk.app/Contents/Resources/AppIcon.icns",
+              "name" : "KakaoTalk"
+            },
+            {
+              "bundleIdentifier" : "com.google.Chrome.app.kjbdgfilnfhdoflbpgamdcdgpehopbep",
+              "iconPath" : "/Users/leo.kang/Applications/Chrome Apps.localized/Google Calendar.app/Contents/Resources/app.icns",
+              "name" : "Google Calendar"
+            }
+          ],
+          "display" : "Built-in Retina Display",
+          "id" : "FFF23869-BD16-4FDE-88FF-2711905A8646",
+          "name" : "Messages & Calendar",
+          "openAppsOnActivation" : false,
+          "shortcut" : "ctrl+shift+m",
+          "symbolIconName" : "message"
+        }
+      ]
+    }
+  ]
+}
