@@ -223,3 +223,10 @@ if command -v claude &>/dev/null; then
 else
   printf '%s\n' "${LEO_PREFIX} ${CIAN}Skipped${CLEAR} :: Claude Code not installed"
 fi
+
+##########################################################
+# Setup Touch ID for sudo
+##########################################################
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+"$SCRIPT_DIR/setup-touchid-sudo.sh"
