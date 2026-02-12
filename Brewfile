@@ -101,7 +101,6 @@ cask "jordanbaird-ice"        # Menu bar manager
 # =============================================================================
 cask "ghostty"                # Terminal emulator
 cask "hammerspoon"            # macOS automation
-cask "karabiner-elements"     # Keyboard customizer
 cask "shortcutdetective"      # Keyboard shortcut conflicts
 
 # =============================================================================
