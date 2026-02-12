@@ -77,7 +77,13 @@ brew "felixkratz/formulae/sketchybar"
 # =============================================================================
 # Mac App Store Apps
 # =============================================================================
-mas "Amphetamine", id: 937984704  # Keep your Mac awake
+mas "Amphetamine", id: 937984704      # Keep your Mac awake
+mas "RunCat", id: 1429033973          # Menu bar system monitor
+mas "Xcode", id: 497799835            # Apple's IDE
+mas "iShot", id: 1485844094           # Screenshot tool
+mas "Cursor Pro", id: 1447043133      # Cursor highlighter
+mas "Kakaotalk", id: 869223134        # Korean messenger
+mas "In Your Face", id: 1476964367    # Timer in menu bar
 
 # =============================================================================
 # GUI Apps - Productivity
