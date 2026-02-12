@@ -230,9 +230,3 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 "$SCRIPT_DIR/setup-touchid-sudo.sh"
-
-##########################################################
-# Setup Input Source Hotkey (F17)
-##########################################################
-
-"$SCRIPT_DIR/setup-input-source-hotkey.sh"
