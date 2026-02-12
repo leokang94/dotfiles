@@ -211,3 +211,13 @@ if ! grep -q "${GX_JIRA_HOST_PATTERN}" ~/.zshrc; then
 else
   echo "${LEO_PREFIX} GX_JIRA_HOST already exists in ~/.zshrc... ${DONE_POSTFIX}"
 fi
+
+##########################################################
+# Setup Claude Code plugins
+##########################################################
+
+if command -v claude &>/dev/null; then
+  "$HOME/${DOT_FILES_DIR_NAME}/setup-claude.sh"
+else
+  echo "${LEO_PREFIX} ${CIAN}Skipped${CLEAR} :: Claude Code not installed"
+fi
