@@ -458,6 +458,60 @@ local function extract_file_path_from_line(line)
 	return nil
 end
 
+--- 터미널 출력 완료 후 파일별 시작 라인 인덱스 구축
+---@param diff table diff 상태
+local function build_file_index(diff)
+	if not diff.buf or not vim.api.nvim_buf_is_valid(diff.buf) then
+		diff._file_index = {}
+		return
+	end
+
+	local files = diff._files
+	if not files or #files == 0 then
+		diff._file_index = {}
+		return
+	end
+
+	local total_lines = vim.api.nvim_buf_line_count(diff.buf)
+	local all_lines = vim.api.nvim_buf_get_lines(diff.buf, 0, total_lines, false)
+
+	local file_index = {} -- {{line=N, file="path"}, ...}
+	local last_file = nil -- 연속 중복 방지
+
+	for i, line in ipairs(all_lines) do
+		-- ANSI 이스케이프 코드 제거
+		local clean = line:gsub("\027%[[\048-\063]*[\032-\047]*[\064-\126]", "")
+
+		-- 1. diff --git a/path b/path 패턴
+		local git_path = clean:match("diff %-%-git a/(.-) b/")
+		if git_path then
+			for _, f in ipairs(files) do
+				if f == git_path then
+					if f ~= last_file then
+						table.insert(file_index, { line = i, file = f })
+						last_file = f
+					end
+					break
+				end
+			end
+		else
+			-- 2. delta 파일 헤더에서 파일 경로 매칭
+			-- delta decorations feature는 파일 경로를 장식 문자와 함께 표시
+			for _, f in ipairs(files) do
+				if clean:find(f, 1, true) then
+					if f ~= last_file then
+						table.insert(file_index, { line = i, file = f })
+						last_file = f
+					end
+					break
+				end
+			end
+		end
+	end
+
+	diff._file_index = file_index
+end
+
 --- 파일을 새 탭에서 열기 (여러 파일 지원)
 ---@param file_paths table|string 파일 경로 또는 파일 경로 목록
 ---@param git_root string git root 경로
@@ -938,64 +992,50 @@ local function update_diff_sticky_header(tab_id)
 	end
 	diff._last_top_line = top_line
 
-	-- 캐싱된 파일 목록 사용
-	local files = diff._files
-	if not files or #files == 0 then
-		local base = get_diff_winbar(diff)
-		vim.wo[diff.win].winbar = base
+	-- 파일 인덱스 기반 탐색
+	local file_index = diff._file_index
+	if not file_index or #file_index == 0 then
+		vim.wo[diff.win].winbar = get_diff_winbar(diff)
 		return
 	end
 
-	-- viewport 상단부터 위로 스캔하여 현재 파일 + hunk 정보 찾기
+	-- 이진 검색: top_line 이하인 가장 큰 line의 파일 찾기
 	local current_file = nil
+	local lo, hi = 1, #file_index
+	while lo <= hi do
+		local mid = math.floor((lo + hi) / 2)
+		if file_index[mid].line <= top_line then
+			current_file = file_index[mid].file
+			lo = mid + 1
+		else
+			hi = mid - 1
+		end
+	end
+
+	-- hunk 정보 찾기 (viewport 상단부터 위로 제한적 스캔)
 	local current_hunk = nil
-	for line_num = top_line, 1, -1 do
-		local line = vim.api.nvim_buf_get_lines(diff.buf, line_num - 1, line_num, false)[1]
-		if line then
-			local clean = line:gsub("\027%[[\048-\063]*[\032-\047]*[\064-\126]", "")
+	local scan_limit = math.max(1, top_line - 200)
+	local scan_lines = vim.api.nvim_buf_get_lines(diff.buf, scan_limit - 1, top_line, false)
+	for i = #scan_lines, 1, -1 do
+		local clean = scan_lines[i]:gsub("\027%[[\048-\063]*[\032-\047]*[\064-\126]", "")
 
-			-- hunk 헤더 탐색 (파일 헤더보다 먼저 나옴)
-			if not current_hunk then
-				-- delta hunk 헤더: • NNN: context
-				local hunk_info = clean:match("^%s*•%s*(%d+:.*)$")
-				if hunk_info then
-					current_hunk = hunk_info
-				end
-				-- raw hunk 헤더: @@ -N,N +N,N @@ context
-				if not current_hunk then
-					local hunk_line = clean:match("^@@.-@@%s*(.*)$")
-					if hunk_line then
-						current_hunk = hunk_line
-					end
-				end
-			end
+		-- delta hunk 헤더: • NNN: context
+		local hunk_info = clean:match("^%s*•%s*(%d+:.*)$")
+		if hunk_info then
+			current_hunk = hunk_info
+			break
+		end
 
-			-- 파일 헤더 탐색
-			local file_path = extract_file_path_from_line(clean)
-			if file_path then
-				for _, f in ipairs(files) do
-					if f == file_path or f:match(file_path .. "$") then
-						current_file = f
-						break
-					end
-				end
-				if current_file then
-					break
-				end
-			end
+		-- raw hunk 헤더: @@ -N,N +N,N @@ context
+		local hunk_line = clean:match("^@@.-@@%s*(.*)$")
+		if hunk_line then
+			current_hunk = hunk_line
+			break
+		end
 
-			-- ANSI 제거 후 파일명이 라인에 포함되어 있는지 확인
-			if not current_file then
-				for _, f in ipairs(files) do
-					if clean:find(f, 1, true) then
-						current_file = f
-						break
-					end
-				end
-				if current_file then
-					break
-				end
-			end
+		-- 파일 경계를 만나면 hunk 스캔 중단
+		if current_file and clean:find(current_file, 1, true) then
+			break
 		end
 	end
 
@@ -1090,12 +1130,24 @@ function M.show_diff(tab_id, hash, commit_list, index)
 	diff._files = get_diff_files(hash)
 	diff._last_top_line = nil
 
+	-- TermOpen에서 scrollback 설정 (termopen 전에 설정하면 무시됨)
+	vim.api.nvim_create_autocmd("TermOpen", {
+		buffer = diff.buf,
+		once = true,
+		callback = function()
+			vim.bo[diff.buf].scrollback = 100000
+		end,
+	})
+
 	-- 터미널에서 diff 실행
 	vim.fn.termopen(diff_cmd, {
 		on_exit = function(_, _, _)
 			-- 터미널 종료 후 Normal 모드로 전환 + 최상단 이동
 			vim.schedule(function()
 				if diff.buf and vim.api.nvim_buf_is_valid(diff.buf) then
+					-- 파일 인덱스 구축 (sticky header용)
+					build_file_index(diff)
+
 					-- 터미널 모드 종료 + 최상단 이동 (gg)
 					vim.api.nvim_feedkeys(
 						vim.api.nvim_replace_termcodes("<C-\\><C-n>gg", true, false, true),
