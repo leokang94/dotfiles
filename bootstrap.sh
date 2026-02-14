@@ -10,32 +10,31 @@ CLEAR=$(printf '\033[0m')
 LEO_PREFIX="${MAGENTA}[LEO]${CLEAR}"
 DONE_POSTFIX="${GREEN}Done${CLEAR}"
 
+# section separator
+print_section() {
+  printf '\n%s\n' "${CIAN}══════════════════════════════════════════════════════${CLEAR}"
+  printf '%s\n' "${LEO_PREFIX} $1"
+  printf '%s\n' "${CIAN}══════════════════════════════════════════════════════${CLEAR}"
+}
+
 # directory variables
 DOT_FILES_DIR_NAME=".dotfiles"
 CONFIG_DIR_NAME=".config"
 GIT_CUSTOM_COMMANDS_DIR_NAME=".git-custom-commands"
 
-##########################################################
-# Install packages using brew bundle
-##########################################################
-
-printf '%s\n' "${LEO_PREFIX} Installing packages from ${CIAN}Brewfile${CLEAR}..."
+print_section "Installing packages from ${CIAN}Brewfile${CLEAR}"
 brew bundle install --no-upgrade --file="$HOME/${DOT_FILES_DIR_NAME}/Brewfile"
-printf '%s\n' "${LEO_PREFIX} Installing packages from ${CIAN}Brewfile${CLEAR}... ${DONE_POSTFIX}"
+printf '%s\n' "${LEO_PREFIX} Brewfile... ${DONE_POSTFIX}"
 
 # services start
 brew services restart borders
 
-##########################################################
-# Install lsp server that not included in Mason
-##########################################################
+print_section "Installing ${CIAN}LSP servers${CLEAR}"
 
-# cssls
 npm i -g vscode-langservers-extracted
+printf '%s\n' "${LEO_PREFIX} LSP servers... ${DONE_POSTFIX}"
 
-##########################################################
-# Create a symbolic links
-##########################################################
+print_section "Creating ${CIAN}symbolic links${CLEAR}"
 
 # 기존 타겟 처리 헬퍼 함수
 # 반환값: 0 = 진행, 1 = 스킵
@@ -148,9 +147,7 @@ create_symlink --type=single "$HOME/${DOT_FILES_DIR_NAME}/.hammerspoon" "$HOME"
 create_symlink --type=single "$HOME/${DOT_FILES_DIR_NAME}/.config/mouseless/config.yaml" "$HOME/Library/Containers/net.sonuscape.mouseless/Data/.mouseless/configs/config.yaml"
 create_symlink --type=single "$HOME/${DOT_FILES_DIR_NAME}/.serena" "$HOME"
 
-##########################################################
-# Extends my .gitconfig to ~/.gitconfig
-##########################################################
+print_section "Extending ${CIAN}shell configs${CLEAR} (.gitconfig, .zprofile, .zshrc)"
 
 printf '%s\n' "${LEO_PREFIX} Extends source code to .gitconfig..."
 
@@ -163,10 +160,6 @@ if ! grep -Fxq "${GIT_CONFIG_EXTENDS_STRING}" ~/.gitconfig; then
 fi
 
 printf '%s\n' "${LEO_PREFIX} Extends source code to .gitconfig... ${DONE_POSTFIX}"
-
-##########################################################
-# Extends my .zprofile, .zshrc to ~/.zprofile, ~/.zshrc
-##########################################################
 
 printf '%s\n' "${LEO_PREFIX} Extends source code to .zprofile, .zshrc..."
 
@@ -192,9 +185,7 @@ fi
 
 printf '%s\n' "${LEO_PREFIX} Extends source code to .zprofile, .zshrc... ${DONE_POSTFIX}"
 
-##########################################################
-# Set GX_JIRA_HOST environment variable
-##########################################################
+print_section "Setting ${CIAN}GX_JIRA_HOST${CLEAR} environment variable"
 
 printf '%s\n' "${LEO_PREFIX} Setting ${CIAN}GX_JIRA_HOST${CLEAR} environment variable..."
 
@@ -212,10 +203,6 @@ else
   printf '%s\n' "${LEO_PREFIX} GX_JIRA_HOST already exists in ~/.zshrc... ${DONE_POSTFIX}"
 fi
 
-##########################################################
-# Setup Claude Code plugins
-##########################################################
-
 if command -v claude &>/dev/null; then
   # 현재 스크립트의 디렉토리를 기준으로 setup-claude.sh 실행
   SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -224,9 +211,7 @@ else
   printf '%s\n' "${LEO_PREFIX} ${CIAN}Skipped${CLEAR} :: Claude Code not installed"
 fi
 
-##########################################################
-# Setup Touch ID for sudo
-##########################################################
+print_section "Setting up ${CIAN}Touch ID${CLEAR} for sudo"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 "$SCRIPT_DIR/setup-touchid-sudo.sh"
