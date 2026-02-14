@@ -197,6 +197,94 @@ function M.get_uncommitted_files(type)
 	return files
 end
 
+--- 커밋에서 변경된 파일 목록을 상태와 함께 가져옴
+---@param hash string 커밋 해시
+---@return table files {{status="M", file="path"}, ...}
+function M.get_commit_files_with_status(hash)
+	local cmd = string.format("git show --name-status --pretty=format: %s", hash)
+	local result = vim.fn.systemlist(cmd)
+	if vim.v.shell_error ~= 0 then
+		return {}
+	end
+	local files = {}
+	for _, line in ipairs(result) do
+		if line ~= "" then
+			-- 탭으로 분리: "M\tpath" 또는 "R100\told\tnew"
+			local status, file = line:match("^(%S+)\t(.+)$")
+			if status and file then
+				-- Rename: "old -> new" 형태로 표시, 상태는 R
+				if status:sub(1, 1) == "R" then
+					local old_path, new_path = file:match("^(.-)\t(.+)$")
+					if old_path and new_path then
+						file = old_path .. " → " .. new_path
+					end
+					status = "R"
+				end
+				table.insert(files, { status = status:sub(1, 1), file = file })
+			end
+		end
+	end
+	return files
+end
+
+--- Uncommitted 파일 목록을 상태와 함께 조회
+---@param type string "staged" 또는 "unstaged"
+---@return table files {{status="M", file="path"}, ...}
+function M.get_uncommitted_files_with_status(type)
+	local files = {}
+	if type == "staged" then
+		local result = vim.fn.systemlist("git diff --cached --name-status")
+		if vim.v.shell_error ~= 0 then
+			return {}
+		end
+		for _, line in ipairs(result) do
+			if line ~= "" then
+				local status, file = line:match("^(%S+)\t(.+)$")
+				if status and file then
+					if status:sub(1, 1) == "R" then
+						local old_path, new_path = file:match("^(.-)\t(.+)$")
+						if old_path and new_path then
+							file = old_path .. " → " .. new_path
+						end
+						status = "R"
+					end
+					table.insert(files, { status = status:sub(1, 1), file = file })
+				end
+			end
+		end
+	else
+		-- tracked 변경
+		local tracked = vim.fn.systemlist("git diff --name-status")
+		if vim.v.shell_error == 0 then
+			for _, line in ipairs(tracked) do
+				if line ~= "" then
+					local status, file = line:match("^(%S+)\t(.+)$")
+					if status and file then
+						if status:sub(1, 1) == "R" then
+							local old_path, new_path = file:match("^(.-)\t(.+)$")
+							if old_path and new_path then
+								file = old_path .. " → " .. new_path
+							end
+							status = "R"
+						end
+						table.insert(files, { status = status:sub(1, 1), file = file })
+					end
+				end
+			end
+		end
+		-- untracked 파일
+		local untracked = vim.fn.systemlist("git ls-files --others --exclude-standard")
+		if vim.v.shell_error == 0 then
+			for _, f in ipairs(untracked) do
+				if f ~= "" then
+					table.insert(files, { status = "?", file = f })
+				end
+			end
+		end
+	end
+	return files
+end
+
 --- 단일 파일 stage
 ---@param file string 파일 경로
 ---@return boolean success

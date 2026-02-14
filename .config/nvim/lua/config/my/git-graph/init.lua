@@ -103,8 +103,8 @@ function M.setup()
 				local current_win = vim.api.nvim_get_current_win()
 				local current_buf = vim.api.nvim_win_get_buf(current_win)
 
-				if current_buf == tab_info.diff.buf then
-					-- diff 윈도우로 이동: dim 적용
+				if current_buf == tab_info.diff.buf or current_buf == tab_info.diff.file_list_buf then
+					-- diff 또는 파일 리스트 윈도우로 이동: dim 적용
 					M.highlight_current_hash(current_tab)
 				elseif current_buf == tab_info.graph_buf then
 					-- graph 윈도우로 이동: dim 해제
@@ -552,6 +552,173 @@ local function get_diff_files(hash)
 	else
 		return git.get_commit_files(hash)
 	end
+end
+
+--- 현재 diff의 파일 목록을 상태와 함께 가져오기
+---@param hash string 커밋 해시 또는 uncommitted 해시
+---@return table files {{status="M", file="path"}, ...}
+local function get_diff_files_with_status(hash)
+	if hash == "uncommitted_staged" then
+		return git.get_uncommitted_files_with_status("staged")
+	elseif hash == "uncommitted_unstaged" or hash == "uncommitted" then
+		return git.get_uncommitted_files_with_status("unstaged")
+	else
+		return git.get_commit_files_with_status(hash)
+	end
+end
+
+--- 파일 상태에 대한 하이라이트 그룹 반환
+---@param status string 파일 상태 문자 (M/A/D/R/?)
+---@return string hl_group 하이라이트 그룹
+local function get_status_hl_group(status)
+	if status == "M" then
+		return "DiffChange"
+	elseif status == "A" then
+		return "DiffAdd"
+	elseif status == "D" then
+		return "DiffDelete"
+	elseif status == "R" then
+		return "DiffText"
+	elseif status == "?" then
+		return "DiffAdd"
+	end
+	return "Normal"
+end
+
+--- 파일 리스트 버퍼 생성
+---@param files_with_status table {{status="M", file="path"}, ...}
+---@return number buf 생성된 버퍼 번호
+local function create_file_list_buffer(files_with_status)
+	local buf = vim.api.nvim_create_buf(false, true)
+	vim.api.nvim_set_option_value("buftype", "nofile", { buf = buf })
+	vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
+	vim.api.nvim_set_option_value("swapfile", false, { buf = buf })
+
+	-- 라인 생성
+	local lines = {}
+	for _, entry in ipairs(files_with_status) do
+		table.insert(lines, string.format(" %s  %s", entry.status, entry.file))
+	end
+
+	vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+	vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
+
+	-- extmark로 상태 문자 색상 적용
+	local ns = vim.api.nvim_create_namespace("git-graph-file-list")
+	for i, entry in ipairs(files_with_status) do
+		local hl = get_status_hl_group(entry.status)
+		-- 상태 문자 위치: " M" → col 1
+		vim.api.nvim_buf_set_extmark(buf, ns, i - 1, 1, {
+			end_col = 2,
+			hl_group = hl,
+		})
+		-- 파일 경로 색상
+		vim.api.nvim_buf_set_extmark(buf, ns, i - 1, 4, {
+			end_col = #lines[i],
+			hl_group = "Directory",
+		})
+	end
+
+	return buf
+end
+
+--- diff를 특정 파일 위치로 스크롤
+---@param diff table diff 상태
+---@param file_path string 파일 경로
+local function scroll_diff_to_file(diff, file_path)
+	if not diff.win or not vim.api.nvim_win_is_valid(diff.win) then
+		return
+	end
+
+	local file_index = diff._file_index
+	if not file_index or #file_index == 0 then
+		return
+	end
+
+	-- file_path에서 rename arrow 제거 ("old → new" → "new")
+	local actual_path = file_path:match("→ (.+)$") or file_path
+
+	for _, entry in ipairs(file_index) do
+		if entry.file == actual_path or entry.file == file_path then
+			vim.api.nvim_win_set_cursor(diff.win, { entry.line, 0 })
+			vim.api.nvim_win_call(diff.win, function()
+				vim.cmd("normal! zt")
+			end)
+			return
+		end
+	end
+end
+
+--- 파일 리스트 버퍼 키맵 설정
+---@param buf number 파일 리스트 버퍼
+---@param tab_id number 탭 ID
+local function setup_file_list_keymaps(buf, tab_id)
+	-- Enter: 선택된 파일로 diff 스크롤
+	vim.api.nvim_buf_set_keymap(buf, "n", "<CR>", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			local tab_info = git_graph_tabs[tab_id]
+			if not tab_info or not tab_info.diff.visible then
+				return
+			end
+			local diff = tab_info.diff
+			local cursor = vim.api.nvim_win_get_cursor(0)
+			local row = cursor[1]
+			local files = diff._files_with_status
+			if files and files[row] then
+				scroll_diff_to_file(diff, files[row].file)
+			end
+		end,
+	})
+
+	-- q: diff 전체 닫기
+	vim.api.nvim_buf_set_keymap(buf, "n", "q", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			M.hide_diff(tab_id)
+		end,
+	})
+
+	-- gf: 선택된 파일을 새 탭에서 열기
+	vim.api.nvim_buf_set_keymap(buf, "n", "gf", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			local tab_info = git_graph_tabs[tab_id]
+			if not tab_info then
+				return
+			end
+			local diff = tab_info.diff
+			local cursor = vim.api.nvim_win_get_cursor(0)
+			local row = cursor[1]
+			local files = diff._files_with_status
+			if files and files[row] then
+				-- rename의 경우 new path 사용
+				local file_path = files[row].file:match("→ (.+)$") or files[row].file
+				open_files_in_new_tab(file_path, tab_info.git_root)
+			end
+		end,
+	})
+
+	-- C-l: 다음 커밋
+	vim.api.nvim_buf_set_keymap(buf, "n", "<C-l>", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			M.next_diff(tab_id)
+		end,
+	})
+
+	-- C-h: 이전 커밋
+	vim.api.nvim_buf_set_keymap(buf, "n", "<C-h>", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			M.prev_diff(tab_id)
+		end,
+	})
 end
 
 --- 커서 위치의 파일을 새 탭에서 열기
@@ -1056,6 +1223,26 @@ local function update_diff_sticky_header(tab_id)
 			end
 		end
 		vim.wo[diff.win].winbar = header
+
+		-- 파일 리스트 커서 동기화
+		if
+			diff.file_list_win
+			and vim.api.nvim_win_is_valid(diff.file_list_win)
+			and diff._files_with_status
+		then
+			for i, entry in ipairs(diff._files_with_status) do
+				-- rename의 new path 또는 원본 파일명과 매칭
+				local entry_file = entry.file:match("→ (.+)$") or entry.file
+				if entry_file == current_file or entry.file == current_file then
+					-- 현재 커서 위치와 다를 때만 업데이트
+					local ok, cur = pcall(vim.api.nvim_win_get_cursor, diff.file_list_win)
+					if ok and cur[1] ~= i then
+						pcall(vim.api.nvim_win_set_cursor, diff.file_list_win, { i, 0 })
+					end
+					break
+				end
+			end
+		end
 	else
 		vim.wo[diff.win].winbar = base
 	end
@@ -1081,6 +1268,16 @@ function M.show_diff(tab_id, hash, commit_list, index)
 		return
 	end
 
+	-- 기존 file_list 윈도우/버퍼 정리
+	if diff.file_list_win and vim.api.nvim_win_is_valid(diff.file_list_win) then
+		vim.api.nvim_win_close(diff.file_list_win, true)
+	end
+	if diff.file_list_buf and vim.api.nvim_buf_is_valid(diff.file_list_buf) then
+		vim.api.nvim_buf_delete(diff.file_list_buf, { force = true })
+	end
+	diff.file_list_win = nil
+	diff.file_list_buf = nil
+
 	-- 기존 diff 윈도우가 있으면 닫기
 	if diff.win and vim.api.nvim_win_is_valid(diff.win) then
 		vim.api.nvim_win_close(diff.win, true)
@@ -1104,10 +1301,49 @@ function M.show_diff(tab_id, hash, commit_list, index)
 		diff.current_index = 1
 	end
 
+	-- 파일 리스트 데이터 준비
+	diff._files_with_status = get_diff_files_with_status(hash)
+
 	-- graph 윈도우에서 split
 	vim.api.nvim_set_current_win(tab_info.graph_win)
 	local split_cmd = is_vsplit and "rightbelow vsplit" or "rightbelow split"
 	vim.cmd(split_cmd)
+
+	-- 현재 위치가 diff가 될 윈도우
+	local diff_area_win = vim.api.nvim_get_current_win()
+
+	-- 파일 리스트 윈도우 생성 (diff 영역 상단)
+	if #diff._files_with_status > 0 then
+		diff.file_list_buf = create_file_list_buffer(diff._files_with_status)
+		-- diff 영역 윈도우에서 위쪽으로 split
+		vim.cmd("leftabove split")
+		diff.file_list_win = vim.api.nvim_get_current_win()
+		vim.api.nvim_win_set_buf(diff.file_list_win, diff.file_list_buf)
+
+		-- 파일 리스트 높이 설정
+		local file_list_height = math.min(#diff._files_with_status, 8)
+		vim.api.nvim_win_set_height(diff.file_list_win, file_list_height)
+
+		-- 파일 리스트 윈도우 옵션
+		local file_count = #diff._files_with_status
+		local display_hash = hash_to_display(hash)
+		vim.wo[diff.file_list_win].winbar = string.format(
+			"%%#Comment# Files %%#Title#(%d) %%#Comment#— %s",
+			file_count,
+			display_hash
+		)
+		vim.wo[diff.file_list_win].number = false
+		vim.wo[diff.file_list_win].relativenumber = false
+		vim.wo[diff.file_list_win].signcolumn = "no"
+		vim.wo[diff.file_list_win].cursorline = true
+		vim.wo[diff.file_list_win].winfixheight = true
+
+		-- 파일 리스트 키맵 설정
+		setup_file_list_keymaps(diff.file_list_buf, tab_id)
+
+		-- diff 영역 윈도우로 이동
+		vim.api.nvim_set_current_win(diff_area_win)
+	end
 
 	diff.win = vim.api.nvim_get_current_win()
 	vim.api.nvim_win_set_buf(diff.win, diff.buf)
@@ -1249,6 +1485,17 @@ function M.hide_diff(tab_id)
 
 	-- dim 하이라이트 제거
 	M.clear_current_hash_highlight(tab_id)
+
+	-- 파일 리스트 윈도우/버퍼 정리
+	if diff.file_list_win and vim.api.nvim_win_is_valid(diff.file_list_win) then
+		vim.api.nvim_win_close(diff.file_list_win, true)
+	end
+	if diff.file_list_buf and vim.api.nvim_buf_is_valid(diff.file_list_buf) then
+		vim.api.nvim_buf_delete(diff.file_list_buf, { force = true })
+	end
+	diff.file_list_win = nil
+	diff.file_list_buf = nil
+	diff._files_with_status = {}
 
 	-- diff 윈도우 닫기
 	if diff.win and vim.api.nvim_win_is_valid(diff.win) then
@@ -1689,6 +1936,9 @@ function M.open_git_graph()
 			side_by_side = false, -- side-by-side diff 모드
 			commit_list = {}, -- 선택된 커밋 목록
 			current_index = 0, -- 현재 보고 있는 커밋 인덱스
+			file_list_buf = nil,
+			file_list_win = nil,
+			_files_with_status = {}, -- {{status, file}, ...}
 		},
 	}
 
@@ -1748,6 +1998,14 @@ function M.cleanup_tab(tab_id)
 	-- diff 정리
 	if tab_info.diff then
 		local diff = tab_info.diff
+
+		-- 파일 리스트 윈도우/버퍼 정리
+		if diff.file_list_win and vim.api.nvim_win_is_valid(diff.file_list_win) then
+			vim.api.nvim_win_close(diff.file_list_win, true)
+		end
+		if diff.file_list_buf and vim.api.nvim_buf_is_valid(diff.file_list_buf) then
+			vim.api.nvim_buf_delete(diff.file_list_buf, { force = true })
+		end
 
 		-- diff 윈도우 닫기
 		if diff.win and vim.api.nvim_win_is_valid(diff.win) then
