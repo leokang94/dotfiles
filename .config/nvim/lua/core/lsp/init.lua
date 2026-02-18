@@ -4,6 +4,7 @@ vim.lsp.config("*", {
 	capabilities = {
 		workspace = {
 			fileOperations = { didRename = true, willRename = true },
+			didChangeWatchedFiles = { dynamicRegistration = true },
 		},
 		textDocument = {
 			semanticTokens = { multilineTokenSupport = true },
@@ -74,11 +75,16 @@ for name, config in pairs(local_server_configs) do
 				local root_dir = vim.fs.dirname(found)
 				local cmd = vim.list_extend(LspUtils.resolve_local_cmd(name, root_dir), config._cmd_args)
 
-				vim.lsp.start({
+				local start_config = vim.tbl_deep_extend("force", config, {
 					name = name,
 					cmd = cmd,
 					root_dir = root_dir,
 				})
+				start_config._cmd_args = nil
+
+				-- Register resolved config so :LspRestart uses the local binary
+				vim.lsp.config(name, start_config)
+				vim.lsp.start(start_config)
 			end,
 		})
 	end
