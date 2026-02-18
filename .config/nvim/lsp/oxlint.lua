@@ -5,11 +5,10 @@ return {
 		"javascriptreact",
 		"typescript",
 		"typescriptreact",
-		"json",
-		"jsonc",
 	},
 	root_markers = {
-		"biome.json",
-		"biome.jsonc",
+		".oxlintrc.json",
+		"oxlint.json",
+		"package.json",
 	},
 }

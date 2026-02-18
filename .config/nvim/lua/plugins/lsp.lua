@@ -20,6 +20,7 @@ return {
 				"css-lsp",
 
 				-- linter
+				"oxlint",
 				"stylelint",
 				"luacheck",
 				"yamllint",

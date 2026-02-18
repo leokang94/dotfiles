@@ -65,4 +65,27 @@ M.get_vscode_settings = function(root_dir, extract_target)
 	return extracted_settings
 end
 
+--- Resolve project-local binary, with Yarn PnP support.
+--- Priority: node_modules/.bin → Yarn PnP (yarn exec) → PATH (Mason fallback)
+---@param bin_name string The binary name (e.g. "biome", "oxlint")
+---@param root_dir string? The project root directory
+---@return string[] cmd_prefix Command prefix; caller appends tool-specific args
+M.resolve_local_cmd = function(bin_name, root_dir)
+	if root_dir then
+		-- 1. node_modules/.bin (npm, pnpm, yarn classic, yarn berry node_modules linker)
+		local local_bin = root_dir .. "/node_modules/.bin/" .. bin_name
+		if vim.uv.fs_stat(local_bin) then
+			return { local_bin }
+		end
+
+		-- 2. Yarn PnP (.pnp.cjs or .pnp.js)
+		if vim.uv.fs_stat(root_dir .. "/.pnp.cjs") or vim.uv.fs_stat(root_dir .. "/.pnp.js") then
+			return { "yarn", "exec", bin_name }
+		end
+	end
+
+	-- 3. Fallback to PATH (Mason-installed)
+	return { bin_name }
+end
+
 return M
