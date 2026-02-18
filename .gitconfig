@@ -43,6 +43,8 @@
 	commit = no
   tool = diffview
 
+[extensions]
+  worktreeConfig = true
 
 [color]
   ui = always
