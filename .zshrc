@@ -52,7 +52,10 @@ export EDITOR=nvim
 export PATH="$PATH:$HOME/.git-custom-commands"
 alias g='git'
 alias c='claude'
-alias cm='ccmanager'
+alias cm='npx ccmanager'
+
+# tab title: always show current directory
+precmd() { print -Pn "\e]2;%~\a" }
 
 # tmuxifier setting
 # export PATH="$HOME/.tmuxifier/bin:$PATH"
