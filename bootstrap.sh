@@ -29,6 +29,15 @@ printf '%s\n' "${LEO_PREFIX} Brewfile... ${DONE_POSTFIX}"
 # services start
 brew services restart borders
 
+print_section "Installing ${CIAN}Bun${CLEAR}"
+
+if command -v bun &>/dev/null; then
+  printf '%s\n' "${LEO_PREFIX} Bun already installed ($(bun --version))... ${DONE_POSTFIX}"
+else
+  curl -fsSL https://bun.sh/install | bash
+  printf '%s\n' "${LEO_PREFIX} Bun... ${DONE_POSTFIX}"
+fi
+
 print_section "Installing ${CIAN}LSP servers${CLEAR}"
 
 npm i -g vscode-langservers-extracted

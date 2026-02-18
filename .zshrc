@@ -52,7 +52,7 @@ export EDITOR=nvim
 export PATH="$PATH:$HOME/.git-custom-commands"
 alias g='git'
 alias c='claude'
-alias cm='npx ccmanager'
+alias cm='bunx ccmanager'
 
 # tab title: always show current directory
 precmd() { print -Pn "\e]2;%~\a" }
