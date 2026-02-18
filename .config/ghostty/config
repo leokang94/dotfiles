@@ -31,6 +31,8 @@ window-colorspace = display-p3
 macos-option-as-alt = true
 macos-titlebar-style = tabs
 
+shell-integration-features = cursor,no-sudo,no-title,no-ssh-env,no-ssh-terminfo,path
+
 # custom-shader = shaders/better-crt.glsl
 # custom-shader = shaders/mnoise.glsl
 # custom-shader = shaders/test.glsl
@@ -63,7 +65,8 @@ keybind = ctrl+cmd+shift+k=resize_split:up,40
 keybind = ctrl+cmd+shift+j=resize_split:down,40
 keybind = ctrl+cmd+e=equalize_splits
 
-keybind = ctrl+g>q=toggle_quick_terminal
+#keybind = ctrl+g>q=toggle_quick_terminal
+keybind = global:cmd+backquote=toggle_quick_terminal
 
 # inspector
 keybind = f12=inspector:toggle
