@@ -31,6 +31,9 @@ window-colorspace = display-p3
 macos-option-as-alt = true
 macos-titlebar-style = tabs
 
+unfocused-split-opacity = 0.4
+split-divider-color = #f081cd
+
 shell-integration-features = cursor,no-sudo,no-title,no-ssh-env,no-ssh-terminfo,path
 
 # custom-shader = shaders/better-crt.glsl
