@@ -8,6 +8,7 @@ local get_is_vsplit = require("utils.screen").is_vsplit
 local git_graph_tabs = {}
 local DEBOUNCE_DELAY_MS = 100
 local update_scheduled = {}
+local diff_update_scheduled = {}
 local resize_scheduled = false
 
 -- Diff 패널 크기 설정
@@ -649,6 +650,29 @@ local function scroll_diff_to_file(diff, file_path)
 	end
 end
 
+--- 파일 리스트 체크 표시 업데이트
+---@param buf number 파일 리스트 버퍼
+---@param diff table diff 상태
+local function update_file_list_checks(buf, diff)
+	if not vim.api.nvim_buf_is_valid(buf) then
+		return
+	end
+	local ns = vim.api.nvim_create_namespace("git-graph-file-check")
+	vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
+	if not diff.checked_files or not diff._files_with_status then
+		return
+	end
+	for i, entry in ipairs(diff._files_with_status) do
+		if diff.checked_files[entry.file] then
+			vim.api.nvim_buf_set_extmark(buf, ns, i - 1, 0, {
+				virt_text = { { "●", "DiagnosticOk" } },
+				virt_text_pos = "overlay",
+				line_hl_group = "DiffAdd",
+			})
+		end
+	end
+end
+
 --- 파일 리스트 버퍼 키맵 설정
 ---@param buf number 파일 리스트 버퍼
 ---@param tab_id number 탭 ID
@@ -719,6 +743,243 @@ local function setup_file_list_keymaps(buf, tab_id)
 			M.prev_diff(tab_id)
 		end,
 	})
+
+	-- Uncommitted diff일 때만 stage/unstage 키맵 추가
+	local tab_info_setup = git_graph_tabs[tab_id]
+	if tab_info_setup then
+		local current_hash = tab_info_setup.diff.current_hash
+		if current_hash and current_hash:find("^uncommitted_") then
+			local is_staged = current_hash == "uncommitted_staged"
+
+			-- <Tab>: 커서 파일 체크 토글
+			vim.api.nvim_buf_set_keymap(buf, "n", "<Tab>", "", {
+				noremap = true,
+				silent = true,
+				callback = function()
+					local ti = git_graph_tabs[tab_id]
+					if not ti then
+						return
+					end
+					local d = ti.diff
+					local row = vim.api.nvim_win_get_cursor(0)[1]
+					local files = d._files_with_status
+					if not files or not files[row] then
+						return
+					end
+					local file = files[row].file
+					if not d.checked_files then
+						d.checked_files = {}
+					end
+					if d.checked_files[file] then
+						d.checked_files[file] = nil
+					else
+						d.checked_files[file] = true
+					end
+					update_file_list_checks(buf, d)
+				end,
+			})
+
+			-- <S-Tab>: 전체 체크 해제
+			vim.api.nvim_buf_set_keymap(buf, "n", "<S-Tab>", "", {
+				noremap = true,
+				silent = true,
+				callback = function()
+					local ti = git_graph_tabs[tab_id]
+					if not ti then
+						return
+					end
+					ti.diff.checked_files = {}
+					update_file_list_checks(buf, ti.diff)
+				end,
+			})
+
+			-- s (normal): 체크된 파일 stage, 없으면 커서 파일 (unstaged에서만)
+			vim.api.nvim_buf_set_keymap(buf, "n", "s", "", {
+				noremap = true,
+				silent = true,
+				callback = function()
+					if is_staged then
+						vim.notify("Already staged", vim.log.levels.INFO)
+						return
+					end
+					local ti = git_graph_tabs[tab_id]
+					if not ti then
+						return
+					end
+					local d = ti.diff
+					local checked = vim.tbl_keys(d.checked_files or {})
+					if #checked > 0 then
+						for _, file in ipairs(checked) do
+							git.stage_file(file)
+						end
+						vim.notify(string.format("Staged %d files", #checked), vim.log.levels.INFO)
+						d.checked_files = {}
+						refresh_diff_from_file_list(tab_id)
+					else
+						local row = vim.api.nvim_win_get_cursor(0)[1]
+						local files = d._files_with_status
+						if files and files[row] then
+							local file = files[row].file
+							if git.stage_file(file) then
+								vim.notify("Staged: " .. file, vim.log.levels.INFO)
+								refresh_diff_from_file_list(tab_id)
+							end
+						else
+							vim.notify("No file at cursor", vim.log.levels.WARN)
+						end
+					end
+				end,
+			})
+
+			-- s (visual): 선택 범위 파일 stage (unstaged에서만)
+			vim.api.nvim_buf_set_keymap(buf, "v", "s", "", {
+				noremap = true,
+				silent = true,
+				callback = function()
+					local start_line = vim.fn.line("'<")
+					local end_line = vim.fn.line("'>")
+					vim.api.nvim_feedkeys(
+						vim.api.nvim_replace_termcodes("<Esc>", true, false, true),
+						"x",
+						false
+					)
+					if is_staged then
+						vim.notify("Already staged", vim.log.levels.INFO)
+						return
+					end
+					local ti = git_graph_tabs[tab_id]
+					if not ti then
+						return
+					end
+					local files_status = ti.diff._files_with_status
+					local count = 0
+					for i = start_line, end_line do
+						if files_status and files_status[i] then
+							if git.stage_file(files_status[i].file) then
+								count = count + 1
+							end
+						end
+					end
+					if count > 0 then
+						vim.notify(string.format("Staged %d files", count), vim.log.levels.INFO)
+						refresh_diff_from_file_list(tab_id)
+					end
+				end,
+			})
+
+			-- u (normal): 체크된 파일 unstage, 없으면 커서 파일 (staged에서만)
+			vim.api.nvim_buf_set_keymap(buf, "n", "u", "", {
+				noremap = true,
+				silent = true,
+				callback = function()
+					if not is_staged then
+						vim.notify("Already unstaged", vim.log.levels.INFO)
+						return
+					end
+					local ti = git_graph_tabs[tab_id]
+					if not ti then
+						return
+					end
+					local d = ti.diff
+					local checked = vim.tbl_keys(d.checked_files or {})
+					if #checked > 0 then
+						for _, file in ipairs(checked) do
+							git.unstage_file(file)
+						end
+						vim.notify(string.format("Unstaged %d files", #checked), vim.log.levels.INFO)
+						d.checked_files = {}
+						refresh_diff_from_file_list(tab_id)
+					else
+						local row = vim.api.nvim_win_get_cursor(0)[1]
+						local files = d._files_with_status
+						if files and files[row] then
+							local file = files[row].file
+							if git.unstage_file(file) then
+								vim.notify("Unstaged: " .. file, vim.log.levels.INFO)
+								refresh_diff_from_file_list(tab_id)
+							end
+						else
+							vim.notify("No file at cursor", vim.log.levels.WARN)
+						end
+					end
+				end,
+			})
+
+			-- u (visual): 선택 범위 파일 unstage (staged에서만)
+			vim.api.nvim_buf_set_keymap(buf, "v", "u", "", {
+				noremap = true,
+				silent = true,
+				callback = function()
+					local start_line = vim.fn.line("'<")
+					local end_line = vim.fn.line("'>")
+					vim.api.nvim_feedkeys(
+						vim.api.nvim_replace_termcodes("<Esc>", true, false, true),
+						"x",
+						false
+					)
+					if not is_staged then
+						vim.notify("Already unstaged", vim.log.levels.INFO)
+						return
+					end
+					local ti = git_graph_tabs[tab_id]
+					if not ti then
+						return
+					end
+					local files_status = ti.diff._files_with_status
+					local count = 0
+					for i = start_line, end_line do
+						if files_status and files_status[i] then
+							if git.unstage_file(files_status[i].file) then
+								count = count + 1
+							end
+						end
+					end
+					if count > 0 then
+						vim.notify(string.format("Unstaged %d files", count), vim.log.levels.INFO)
+						refresh_diff_from_file_list(tab_id)
+					end
+				end,
+			})
+
+			-- S: 전체 stage (unstaged에서만)
+			vim.api.nvim_buf_set_keymap(buf, "n", "S", "", {
+				noremap = true,
+				silent = true,
+				callback = function()
+					if is_staged then
+						vim.notify("Already staged", vim.log.levels.INFO)
+						return
+					end
+					if git.stage_all() then
+						vim.notify("Staged all files", vim.log.levels.INFO)
+						refresh_diff_from_file_list(tab_id)
+					end
+				end,
+			})
+
+			-- U: 전체 unstage (staged에서만)
+			vim.api.nvim_buf_set_keymap(buf, "n", "U", "", {
+				noremap = true,
+				silent = true,
+				callback = function()
+					if not is_staged then
+						vim.notify("Already unstaged", vim.log.levels.INFO)
+						return
+					end
+					if git.unstage_all() then
+						vim.notify("Unstaged all files", vim.log.levels.INFO)
+						refresh_diff_from_file_list(tab_id)
+					end
+				end,
+			})
+		end
+	end
+
+	-- 체크 상태 복원 (refresh 후 기존 체크 유지)
+	local ti = git_graph_tabs[tab_id]
+	if ti then
+		update_file_list_checks(buf, ti.diff)
+	end
 end
 
 --- 커서 위치의 파일을 새 탭에서 열기
@@ -876,6 +1137,12 @@ local function refresh_diff_after_action(tab_id)
 	local commit_list = diff.commit_list
 	local current_index = diff.current_index
 
+	-- 명시적 refresh 중에는 watcher-triggered refresh 억제
+	diff_update_scheduled[tab_id] = true
+	vim.defer_fn(function()
+		diff_update_scheduled[tab_id] = nil
+	end, DEBOUNCE_DELAY_MS * 5)
+
 	-- graph도 갱신 (discard 등 .git/ 변경 없는 액션 대응)
 	M.update_git_log(tab_id)
 
@@ -886,6 +1153,19 @@ local function refresh_diff_after_action(tab_id)
 		M.hide_diff(tab_id)
 		M.show_diff(tab_id, hash)
 	end
+end
+
+--- 파일 리스트에서 액션 후 diff 갱신 (포커스를 파일 리스트에 유지)
+---@param tab_id number 탭 ID
+local function refresh_diff_from_file_list(tab_id)
+	refresh_diff_after_action(tab_id)
+	-- show_diff 내부의 startinsert 이후 파일 리스트로 포커스 복귀
+	vim.schedule(function()
+		local ti = git_graph_tabs[tab_id]
+		if ti and ti.diff.file_list_win and vim.api.nvim_win_is_valid(ti.diff.file_list_win) then
+			vim.api.nvim_set_current_win(ti.diff.file_list_win)
+		end
+	end)
 end
 
 --- Uncommitted diff 키맵 설정 (staged/unstaged 전용)
@@ -1939,6 +2219,7 @@ function M.open_git_graph()
 			file_list_buf = nil,
 			file_list_win = nil,
 			_files_with_status = {}, -- {{status, file}, ...}
+			checked_files = {}, -- 체크된 파일 집합 { [filepath] = true }
 		},
 	}
 
@@ -1956,6 +2237,21 @@ function M.open_git_graph()
 	-- .git 디렉토리 감시 시작
 	git_graph_tabs[tab_id].watcher = watcher.watch_git_dir(git_root, function()
 		M.update_git_log(tab_id)
+		-- Uncommitted diff 자동 갱신 (debounced)
+		if diff_update_scheduled[tab_id] then
+			return
+		end
+		diff_update_scheduled[tab_id] = true
+		vim.defer_fn(function()
+			diff_update_scheduled[tab_id] = nil
+			local ti = git_graph_tabs[tab_id]
+			if ti and ti.diff.visible then
+				local hash = ti.diff.current_hash
+				if hash and hash:find("^uncommitted") then
+					refresh_diff_after_action(tab_id)
+				end
+			end
+		end, DEBOUNCE_DELAY_MS * 3)
 	end)
 end
 
